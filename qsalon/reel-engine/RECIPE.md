@@ -5,7 +5,7 @@ Reference build: mon/v4/reel.json -> qsalon_mon_reelB_final.mp4 (31.5s)
 - Voice: ElevenLabs "Will - Relaxed Optimist" (bIHbv24MWmeRgasZH58o), model eleven_multilingual_v2.
   One continuous take. Plain punctuation only: short sentences, a blank line between beats. No audio tags, no ellipses.
 - Music: Epidemic "Champagne Toast (Instrumental Version)" (267dc7f4-0f5b-419b-81ab-d252b9ddb7fe), upbeat hip hop,
-  trimmed with EditRecording to the reel length. Bed volume 0.34, sidechain ratio 5, threshold 0.04.
+  trimmed with EditRecording to the reel length. Bed volume 0.34, sidechain ratio 5, threshold 0.04. Voice loudnorm I=-18 TP=-2 (I=-15 sounded like yelling).
   Never smooth jazz / lounge (Kris: sounded like a massage parlor).
 - Visuals: engine/build_html.py. Navy/brass Q Salon kit, Marcellus + Hanken Grotesk + DM Mono.
   At least one photo per reel as a framed .shot (16:9) or .shot.tall (4:5) with slow zoom.
