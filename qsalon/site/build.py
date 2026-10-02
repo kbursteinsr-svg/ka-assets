@@ -66,8 +66,8 @@ PRODUCTS = [
     ("Gift Cards", "From $50", "Good for any service or product. The gift he'll actually use.", SVG_GIFT, "book"),
 ]
 
-NAV = [("index.html", "Home"), ("index.html#services", "Services"), ("shop.html", "Shop"),
-       ("mens-haircut-sarasota.html", "Haircuts"), ("skin-fade-sarasota.html", "Fades"), ("mens-hair-color-sarasota.html", "Gray Blending")]
+NAV = [("index.html", "Home"), ("index.html#services", "Services & prices"), ("shop.html", "Shop"),
+       ("about.html", "About"), ("grooming-guide.html", "Grooming Guide")]   # footer links
 
 # Affiliate products ("Susy's Picks"). Add one dict per product:
 # {"name": "...", "brand": "...", "price": "$24", "img": "https://... or assets/...", "url": "https://affiliate-link", "note": "Why Susy likes it"}
@@ -193,6 +193,7 @@ p{margin:0}.muted{color:var(--muted)}
 .btn-line{background:transparent;color:var(--navy);box-shadow:inset 0 0 0 1px var(--navy)}.btn-line:hover{background:var(--navy);color:#fff}
 .on-dark .btn-line{color:#fff;box-shadow:inset 0 0 0 1px rgba(255,255,255,.5)}.on-dark .btn-line:hover{background:#fff;color:var(--navy)}
 .btn-sm{padding:10px 18px;font-size:.88rem}
+.btn,.brand-t{white-space:nowrap}.book-top{flex:0 0 auto}.brand{min-width:0}
 a:focus-visible,.btn:focus-visible{outline:2px solid var(--brass);outline-offset:3px}
 .link{color:var(--brass);text-underline-offset:4px;font-weight:500}
 /* header */
@@ -201,8 +202,36 @@ a:focus-visible,.btn:focus-visible{outline:2px solid var(--brass);outline-offset
 .brand{display:flex;align-items:center;gap:12px;text-decoration:none;margin-right:auto}
 .mono{display:grid;place-items:center;width:40px;height:40px;border-radius:50%;background:var(--navy);color:var(--brass-l);font:400 1.35rem/1 var(--display)}
 .brand-t{font:400 1.05rem/1.05 var(--display);letter-spacing:.06em;text-transform:uppercase}.brand-t small{display:block;font:500 .62rem var(--mono);letter-spacing:.24em;color:var(--brass);margin-top:3px}
-.nav{display:flex;gap:20px;font-size:.92rem}.nav a{text-decoration:none;color:var(--muted);transition:color .2s}.nav a:hover,.nav a[aria-current]{color:var(--ink)}
-@media(max-width:900px){.nav{display:none}}
+.nav{display:flex;align-items:center;gap:4px;font-size:.92rem}
+.nav-a{display:inline-flex;align-items:center;gap:6px;padding:9px 12px;border-radius:999px;border:0;background:none;font:inherit;color:var(--muted);text-decoration:none;cursor:pointer;transition:color .2s,background .2s}
+.nav-a:hover,.nav-a[aria-current],.dd.is-on>.nav-a,.dd.open>.nav-a{color:var(--ink)}.dd.open>.nav-a{background:rgba(20,32,46,.06)}
+.nav-a:focus-visible,.burger:focus-visible,.mnav summary:focus-visible{outline:2px solid var(--brass);outline-offset:2px}
+.chev{width:12px;height:12px;transition:transform .2s}.dd.open .chev,.mnav details[open] .chev{transform:rotate(180deg)}
+.dd{position:relative}
+.dd-panel{position:absolute;top:calc(100% + 12px);left:50%;transform:translate(-50%,6px);min-width:280px;background:#fff;border:1px solid var(--line);border-radius:12px;box-shadow:0 30px 60px -30px rgba(20,32,46,.45);padding:18px;opacity:0;visibility:hidden;transition:opacity .18s,transform .18s,visibility 0s .18s;z-index:30}
+.dd-panel::before{content:"";position:absolute;inset:-14px 0 auto;height:14px}
+.dd.open .dd-panel{opacity:1;visibility:visible;transform:translate(-50%,0);transition:opacity .18s,transform .18s}
+@media(hover:hover) and (min-width:901px){.dd:hover .dd-panel{opacity:1;visibility:visible;transform:translate(-50%,0);transition:opacity .18s,transform .18s}.dd:hover>.nav-a{color:var(--ink)}}
+.dd-wide{min-width:540px}.dd-cols{display:grid;grid-template-columns:1fr 1fr;gap:6px 18px}
+.dd-h{font:500 .66rem var(--mono);letter-spacing:.18em;text-transform:uppercase;color:var(--brass);padding:4px 10px 8px}
+.dd-link{display:block;padding:9px 10px;border-radius:8px;text-decoration:none;transition:background .15s}.dd-link:hover,.dd-link[aria-current]{background:var(--stone-2)}
+.dd-link b{display:block;font:400 1rem/1.25 var(--display);color:var(--navy)}.dd-link small{display:block;font-size:.8rem;color:var(--muted);margin-top:2px}
+.dd-foot{display:flex;justify-content:space-between;align-items:center;gap:12px;margin-top:12px;padding:14px 10px 2px;border-top:1px solid var(--line)}
+.burger{display:none;flex:0 0 auto;width:44px;height:44px;border:1px solid var(--line);border-radius:50%;background:#fff;cursor:pointer;flex-direction:column;justify-content:center;align-items:center;gap:4px;padding:0}
+.burger span{display:block;width:18px;height:1.5px;background:var(--navy);transition:transform .2s,opacity .2s}
+.burger[aria-expanded="true"] span:nth-child(1){transform:translateY(5.5px) rotate(45deg)}.burger[aria-expanded="true"] span:nth-child(2){opacity:0}.burger[aria-expanded="true"] span:nth-child(3){transform:translateY(-5.5px) rotate(-45deg)}
+.mnav{border-top:1px solid var(--line);background:var(--stone-2);max-height:calc(100dvh - 68px);overflow-y:auto;overscroll-behavior:contain;padding-bottom:calc(20px + env(safe-area-inset-bottom,0px))}
+.mnav .m-top,.mnav summary{display:flex;justify-content:space-between;align-items:center;padding:16px 2px;border-bottom:1px solid var(--line);font:400 1.25rem var(--display);color:var(--navy);text-decoration:none;cursor:pointer;list-style:none}
+.mnav summary::-webkit-details-marker{display:none}
+.m-list{padding:4px 0 12px;border-bottom:1px solid var(--line)}.m-list a{display:block;padding:10px 12px;text-decoration:none;color:var(--ink);border-radius:8px}.m-list a[aria-current],.m-top[aria-current]{color:var(--brass)}
+.m-h{font:500 .66rem var(--mono);letter-spacing:.18em;text-transform:uppercase;color:var(--brass);padding:12px 12px 4px}
+.m-list .m-all{color:var(--brass);font-weight:600}
+.m-cta{display:grid;gap:10px;margin-top:20px}.m-cta .btn{justify-content:center}
+body.menu-open{overflow:hidden}
+@media(max-width:900px){.nav{display:none}.burger{display:inline-flex}.top-in{gap:10px}}
+@media(max-width:420px){.book-top{padding:9px 14px;font-size:.82rem}.brand-t{font-size:.92rem}.brand-t small{font-size:.56rem;letter-spacing:.18em}.mono{width:36px;height:36px;font-size:1.2rem}.brand{gap:9px}}
+@media(max-width:350px){.top-in{gap:8px}.brand-t small{display:none}.brand-t{font-size:.84rem;letter-spacing:.03em}.book-top{padding:8px 12px}.burger{width:40px;height:40px}}
+@media(min-width:901px){.mnav{display:none!important}}
 /* hero */
 .hero{padding-block:clamp(40px,7vw,84px) clamp(48px,7vw,88px);overflow:hidden}
 .hero-in{display:grid;grid-template-columns:1.1fr .9fr;gap:clamp(32px,6vw,80px);align-items:center}
@@ -247,7 +276,7 @@ a:focus-visible,.btn:focus-visible{outline:2px solid var(--brass);outline-offset
 .hero2 .stats b{font-size:1.45rem;margin-bottom:6px}.hero2 .stats span{font-size:.62rem;letter-spacing:.1em;white-space:nowrap}
 .hero2 h1{font-size:clamp(2.6rem,4.9vw,4.4rem)}
 .hero2 .lede{margin-top:20px}.hero2 .acts{margin-top:26px}
-@media(max-width:520px){.hero2 .stats{flex-wrap:wrap}}
+@media(max-width:1180px){.hero2 .stats{flex-wrap:wrap}}
 @keyframes h2zoom{from{transform:scale(1.08)}to{transform:none}}
 @keyframes tagin{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:none}}
 @media(max-width:860px){.hero2{grid-template-columns:1fr;min-height:0}.h2-frame{max-width:440px}.h2-tag{font-size:.6rem;padding:8px 10px}.h2-tag.t1{top:9%;right:5%}.h2-tag.t2{bottom:10%;left:5%}.h2-issue{display:none}.h2-media::before{display:none}}
@@ -352,14 +381,70 @@ def head(title, desc, path, crumb):
 
 ARR = '<span class="arr" aria-hidden="true">→</span>'
 
+# Header menu groups: (heading, [(page, label, note)])
+MENU_SERVICES = [
+    ("Haircuts", [("mens-haircut-sarasota.html", "Men's Haircut", "Classic cut · $60"),
+                  ("executive-haircut-sarasota.html", "Executive Haircut", "The full hour · $80"),
+                  ("skin-fade-sarasota.html", "Skin Fade", "Low, mid or high · $80"),
+                  ("kids-haircut-sarasota.html", "Kids' Haircut", "Under 12 · $30")]),
+    ("Color & care", [("mens-hair-color-sarasota.html", "Gray Blending", "Natural Look Color · $130"),
+                      ("mens-facial-sarasota.html", "Gentleman's Facial", "45 minutes · $75"),
+                      ("mens-grooming-sarasota.html", "Men's Grooming", "Your full routine"),
+                      ("grooming-guide.html", "Grooming Guide", "Tips from Susy's chair")]),
+]
+MENU_AREAS = [("barber-sarasota.html", "Downtown Sarasota", "Barber in Sarasota"),
+              ("mens-hair-salon-sarasota.html", "Men's Hair Salon", "Sarasota, FL"),
+              ("mens-haircut-lido-key.html", "Lido Key & St. Armands", "About 10 min"),
+              ("mens-haircut-siesta-key.html", "Siesta Key", "About 15 min"),
+              ("mens-haircut-longboat-key.html", "Longboat Key", "About 20 min"),
+              ("mens-haircut-lakewood-ranch.html", "Lakewood Ranch", "About 25 min")]
+SERVICE_PAGES = {p for _, g in MENU_SERVICES for p, *_ in g}
+AREA_PAGES = {p for p, *_ in MENU_AREAS}
+CHEV = '<svg class="chev" viewBox="0 0 12 12" aria-hidden="true"><path d="M2.5 4.5 6 8l3.5-3.5" fill="none" stroke="currentColor" stroke-width="1.5"/></svg>'
+
+NAV_JS = """<script>(()=>{const q=s=>[...document.querySelectorAll(s)],
+close=()=>q('.dd').forEach(d=>{d.classList.remove('open');d.querySelector('.dd-btn').setAttribute('aria-expanded','false')});
+q('.dd-btn').forEach(b=>b.addEventListener('click',e=>{const d=b.parentElement,o=!d.classList.contains('open');close();if(o){d.classList.add('open');b.setAttribute('aria-expanded','true')}e.stopPropagation()}));
+document.addEventListener('click',e=>{if(!e.target.closest('.dd'))close()});
+const bg=document.querySelector('.burger'),m=document.getElementById('mnav'),
+tog=o=>{m.hidden=!o;bg.setAttribute('aria-expanded',String(o));bg.setAttribute('aria-label',o?'Close menu':'Open menu');document.body.classList.toggle('menu-open',o)};
+bg.addEventListener('click',()=>tog(m.hidden));m.querySelectorAll('a').forEach(a=>a.addEventListener('click',()=>tog(false)));
+document.addEventListener('keydown',e=>{if(e.key==='Escape'){close();tog(false)}});
+matchMedia('(min-width:901px)').addEventListener('change',e=>{if(e.matches)tog(false)});})();</script>"""
+
 def header(active):
     cur = ' aria-current="page"'
-    links = "".join(f'<a href="{h}"{cur if h == active else ""}>{t}</a>' for h, t in NAV)
+    def ac(p): return cur if p == active else ""
+    def li(p, label, note):
+        return f'<a class="dd-link" href="{p}"{ac(p)}><b>{label}</b><small>{note}</small></a>'
+    svc_cols = "".join(f'<div><p class="dd-h">{h}</p>{"".join(li(*x) for x in g)}</div>' for h, g in MENU_SERVICES)
+    areas = "".join(li(*x) for x in MENU_AREAS)
+    def on(pages): return " is-on" if active in pages else ""
+    m_svc = "".join(f'<p class="m-h">{h}</p>' + "".join(f'<a href="{p}"{ac(p)}>{l}</a>' for p, l, _ in g) for h, g in MENU_SERVICES)
+    m_area = "".join(f'<a href="{p}"{ac(p)}>{l}</a>' for p, l, _ in MENU_AREAS)
     return f"""<header class="top"><div class="wrap top-in">
 <a class="brand" href="index.html" aria-label="The Q Salon for Men home"><span class="mono" aria-hidden="true">Q</span><span class="brand-t">The Q Salon<small>For Men · Sarasota</small></span></a>
-<nav class="nav" aria-label="Main">{links}</nav>
-<a class="btn btn-sm" href="{B['book']}" target="_blank" rel="noopener">Book now</a>
-</div></header>"""
+<nav class="nav" aria-label="Main">
+<a class="nav-a" href="index.html"{ac("index.html")}>Home</a>
+<div class="dd{on(SERVICE_PAGES)}"><button class="nav-a dd-btn" type="button" aria-expanded="false" aria-controls="dd-svc">Services {CHEV}</button>
+<div class="dd-panel dd-wide" id="dd-svc"><div class="dd-cols">{svc_cols}</div>
+<div class="dd-foot"><a class="link" href="index.html#services">Full menu &amp; prices</a><a class="btn btn-sm" href="{B['book']}" target="_blank" rel="noopener">Book with Susy</a></div></div></div>
+<div class="dd{on(AREA_PAGES)}"><button class="nav-a dd-btn" type="button" aria-expanded="false" aria-controls="dd-area">Areas {CHEV}</button>
+<div class="dd-panel" id="dd-area"><p class="dd-h">Areas we serve</p>{areas}</div></div>
+<a class="nav-a" href="shop.html"{ac("shop.html")}>Shop</a>
+<a class="nav-a" href="about.html"{ac("about.html")}>About</a>
+</nav>
+<a class="btn btn-sm book-top" href="{B['book']}" target="_blank" rel="noopener">Book now</a>
+<button class="burger" type="button" aria-expanded="false" aria-controls="mnav" aria-label="Open menu"><span></span><span></span><span></span></button>
+</div>
+<div class="mnav" id="mnav" hidden><div class="wrap">
+<a class="m-top" href="index.html"{ac("index.html")}>Home</a>
+<details{" open" if active in SERVICE_PAGES else ""}><summary>Services {CHEV}</summary><div class="m-list">{m_svc}<a class="m-all" href="index.html#services">Full menu &amp; prices</a></div></details>
+<details{" open" if active in AREA_PAGES else ""}><summary>Areas we serve {CHEV}</summary><div class="m-list">{m_area}</div></details>
+<a class="m-top" href="shop.html"{ac("shop.html")}>Shop</a><a class="m-top" href="about.html"{ac("about.html")}>About Susy</a>
+<div class="m-cta"><a class="btn" href="{B['book']}" target="_blank" rel="noopener">Book with Susy {ARR}</a><a class="btn btn-line" href="tel:{B['phone_e164']}">Call {B['phone']}</a></div>
+</div></div></header>
+{NAV_JS}"""
 
 def crumbs(label):
     return (f'<nav class="crumbs" aria-label="Breadcrumb"><ol><li><a href="index.html">Home</a></li>'
