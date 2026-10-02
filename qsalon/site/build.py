@@ -2,21 +2,39 @@
 """Builds The Q Salon for Men static site.
 Edit BUSINESS / SERVICES / PRODUCTS below, then run: python3 build.py
 Outputs full HTML pages in ./dist (for Netlify) and ./preview (artifact preview)."""
-import json, os, re
+import datetime, json, os, re
 
 BUSINESS = {
     "name": "The Q Salon for Men",
     "street": "1415 1st St", "city": "Sarasota", "state": "FL", "zip": "34236",
     "phone": "(941) 340-2389", "phone_e164": "+19413402389",
+    "email": "info@theqsalonsrq.com",
     "site": "https://www.theqsalonsrq.com",
     "book": "https://getsqr.co/susy-r-6",
     # Swap for the Squire retail/shop link once it's set up:
     "shop": "https://getsqr.co/susy-r-6",
     "hours": "Mon–Fri · 9 AM – 2 PM",
-    "maps": "https://www.google.com/maps/search/?api=1&query=1415+1st+St+Sarasota+FL+34236",
+    "maps": "https://maps.google.com/maps?cid=5285718134082124023",
+    "reviews": "https://search.google.com/local/writereview?placeid=ChIJB1LNsmpBw4gR9zjOVKOkWkk",
+    "instagram": "https://www.instagram.com/theqsalon_srq/",
+    "lat": 27.337317, "lng": -82.542342,   # US Census geocoder, 1415 1st St
+    "founded": "2021-11",
+    "rating": "4.9", "review_count": 66,   # shown as text only; update when Google changes
 }
 B = BUSINESS
 ADDR = f"{B['street']}, {B['city']}, {B['state']} {B['zip']}"
+AREAS = ["Sarasota", "Downtown Sarasota", "Lido Key", "St. Armands", "Siesta Key", "Longboat Key", "Lakewood Ranch", "Sarasota County"]
+IMG_HERO = "mens-haircut-sarasota-silver-swept-back"
+IMG_SUSY = "susy-master-barber-sarasota"
+IMG_SHARE = "/assets/the-q-salon-for-men-sarasota-share.jpg"
+TODAY = datetime.date.today().isoformat()
+
+def pic(base, alt, w, h, cls="", lazy=True, extra=""):
+    """<picture> with WebP + JPEG fallback (files built by make_assets.py)."""
+    load = 'loading="lazy" decoding="async"' if lazy else 'fetchpriority="high" decoding="async"'
+    c = f' class="{cls}"' if cls else ""
+    return (f'<picture><source srcset="/assets/{base}.webp" type="image/webp">'
+            f'<img{c} src="/assets/{base}.jpg" alt="{alt}" width="{w}" height="{h}" {load}{extra}></picture>')
 
 SERVICES = [
     ("Classic Haircut", "45 min", 60, "Scissor and clipper cut, styled to finish."),
@@ -57,25 +75,103 @@ AFFILIATE = []
 
 # Every SEO page, linked from the footer of every page (internal linking for Google).
 SEO_LINKS = [
+    ("mens-hair-salon-sarasota.html", "Men's Hair Salon Sarasota"),
     ("barber-sarasota.html", "Barber in Sarasota"), ("mens-haircut-sarasota.html", "Men's Haircut Sarasota"),
     ("executive-haircut-sarasota.html", "Executive Haircut"), ("skin-fade-sarasota.html", "Skin Fade Sarasota"),
     ("mens-hair-color-sarasota.html", "Men's Gray Blending"), ("mens-facial-sarasota.html", "Men's Facial Sarasota"),
     ("kids-haircut-sarasota.html", "Kids' Haircuts Sarasota"), ("mens-grooming-sarasota.html", "Men's Grooming Sarasota"),
+    ("mens-haircut-lido-key.html", "Lido Key & St. Armands"),
     ("mens-haircut-lakewood-ranch.html", "Lakewood Ranch"), ("mens-haircut-siesta-key.html", "Siesta Key"),
     ("mens-haircut-longboat-key.html", "Longboat Key"), ("grooming-guide.html", "Grooming Guide"),
+    ("about.html", "About Susy & The Q"),
 ]
 
-def schema():
-    return json.dumps({
-        "@context": "https://schema.org", "@type": "HairSalon", "name": B["name"], "image": B["site"] + "/assets/susy.jpg",
-        "url": B["site"], "telephone": B["phone_e164"], "priceRange": "$$",
+# Which page is the "home" for each service (used in Service schema + internal links).
+SERVICE_PAGE = {
+    "Classic Haircut": "mens-haircut-sarasota", "Executive Haircut": "executive-haircut-sarasota",
+    "Skin Fade": "skin-fade-sarasota", "Natural Look Color & Style": "mens-hair-color-sarasota",
+    "Gentleman's Facial": "mens-facial-sarasota", "Kid's Haircut (under 12)": "kids-haircut-sarasota",
+}
+# Pages that are primarily about specific services -> Service schema on that page.
+PAGE_SERVICES = {
+    "mens-haircut-sarasota.html": ["Classic Haircut", "Executive Haircut"],
+    "executive-haircut-sarasota.html": ["Executive Haircut"],
+    "skin-fade-sarasota.html": ["Skin Fade"],
+    "mens-hair-color-sarasota.html": ["Natural Look Color & Style"],
+    "mens-facial-sarasota.html": ["Gentleman's Facial"],
+    "kids-haircut-sarasota.html": ["Kid's Haircut (under 12)"],
+}
+
+def url(path):
+    return B["site"] + ("/" if path == "index.html" else "/" + path.replace(".html", ""))
+
+BIZ_ID = B["site"] + "/#salon"
+SUSY_ID = B["site"] + "/about#susy"
+
+def minutes(t):
+    h = re.search(r"(\d+)\s*hr", t); m = re.search(r"(\d+)\s*min", t)
+    return (int(h.group(1)) * 60 if h else 0) + (int(m.group(1)) if m else 0)
+
+def business_node():
+    """The salon as one entity. Same @id on every page so Google/Bing/AI tools merge it with the GBP listing."""
+    return {
+        "@type": "HairSalon", "@id": BIZ_ID, "name": B["name"],
+        "alternateName": ["The Q Salon", "The Q", "Q Salon for Men", "The Q Salon Sarasota"],
+        "description": "Private, one-chair men's hair salon and barber in downtown Sarasota, FL. Master barber and stylist Susy "
+                       "does every cut: men's haircuts, executive cuts, skin fades, natural gray blending, gentleman's facials and kids' cuts. Appointments only.",
+        "url": B["site"] + "/", "telephone": B["phone_e164"], "email": B["email"],
+        "image": [B["site"] + IMG_SHARE, f"{B['site']}/assets/{IMG_SUSY}.jpg", f"{B['site']}/assets/{IMG_HERO}.jpg"],
+        "logo": B["site"] + "/assets/icon-512.png", "priceRange": "$30–$130", "currenciesAccepted": "USD",
+        "foundingDate": B["founded"],
         "address": {"@type": "PostalAddress", "streetAddress": B["street"], "addressLocality": B["city"],
                     "addressRegion": B["state"], "postalCode": B["zip"], "addressCountry": "US"},
+        "geo": {"@type": "GeoCoordinates", "latitude": B["lat"], "longitude": B["lng"]},
+        "hasMap": B["maps"],
+        "areaServed": [{"@type": "City", "name": a} if a in ("Sarasota",) else {"@type": "Place", "name": a + ", FL"} for a in AREAS],
         "openingHoursSpecification": [{"@type": "OpeningHoursSpecification",
             "dayOfWeek": ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday"], "opens": "09:00", "closes": "14:00"}],
-        "makesOffer": [{"@type": "Offer", "price": str(p), "priceCurrency": "USD",
-                        "itemOffered": {"@type": "Service", "name": n}} for n, _, p, _ in SERVICES],
-    }, indent=1)
+        "sameAs": [B["maps"], B["instagram"]],
+        "potentialAction": {"@type": "ReserveAction", "target": B["book"], "name": "Book an appointment"},
+        "employee": {"@id": SUSY_ID},
+        "knowsAbout": ["Men's haircuts", "Skin fades", "Executive haircuts", "Men's gray blending", "Men's hair color",
+                       "Men's facials", "Kids' haircuts", "Men's grooming"],
+        "hasOfferCatalog": {"@type": "OfferCatalog", "name": "Services", "itemListElement": [
+            {"@type": "Offer", "price": str(p), "priceCurrency": "USD",
+             "itemOffered": {"@type": "Service", "@id": f"{B['site']}/{SERVICE_PAGE[n]}#service", "name": n,
+                             "description": d, "url": f"{B['site']}/{SERVICE_PAGE[n]}"}} for n, t, p, d in SERVICES]},
+    }
+
+def susy_node():
+    return {"@type": "Person", "@id": SUSY_ID, "name": "Susy", "jobTitle": "Master Barber & Stylist",
+            "description": "Master barber and men's stylist with more than 10 years of experience; the only stylist at The Q Salon for Men in Sarasota.",
+            "worksFor": {"@id": BIZ_ID}, "image": f"{B['site']}/assets/{IMG_SUSY}.jpg",
+            "knowsAbout": ["Men's haircuts", "Skin fades", "Gray blending", "Men's grooming"]}
+
+def schema(path, title, desc, crumb):
+    """One @graph per page: business + Susy + website + this page (+ breadcrumb, + services)."""
+    page_url = url(path)
+    graph = [business_node(), susy_node(),
+             {"@type": "WebSite", "@id": B["site"] + "/#website", "url": B["site"] + "/", "name": B["name"],
+              "publisher": {"@id": BIZ_ID}, "inLanguage": "en-US"}]
+    wp = {"@type": "AboutPage" if path == "about.html" else "WebPage", "@id": page_url + "#webpage", "url": page_url,
+          "name": title, "description": desc, "isPartOf": {"@id": B["site"] + "/#website"}, "about": {"@id": BIZ_ID},
+          "inLanguage": "en-US", "dateModified": TODAY,
+          "primaryImageOfPage": {"@type": "ImageObject", "url": B["site"] + IMG_SHARE, "width": 1200, "height": 630}}
+    if path != "index.html":
+        graph.append({"@type": "BreadcrumbList", "@id": page_url + "#breadcrumb", "itemListElement": [
+            {"@type": "ListItem", "position": 1, "name": "Home", "item": B["site"] + "/"},
+            {"@type": "ListItem", "position": 2, "name": crumb, "item": page_url}]})
+        wp["breadcrumb"] = {"@id": page_url + "#breadcrumb"}
+    graph.append(wp)
+    for n, t, p, d in SERVICES:
+        if n in PAGE_SERVICES.get(path, []):
+            graph.append({"@type": "Service", "@id": f"{B['site']}/{SERVICE_PAGE[n]}#service", "name": n,
+                          "serviceType": n, "description": d, "provider": {"@id": BIZ_ID},
+                          "areaServed": [{"@type": "Place", "name": a + ", FL"} for a in AREAS[:7]],
+                          "offers": {"@type": "Offer", "price": str(p), "priceCurrency": "USD", "url": B["book"],
+                                     "availability": "https://schema.org/InStock"},
+                          "timeRequired": f"PT{minutes(t)}M"})
+    return json.dumps({"@context": "https://schema.org", "@graph": graph}, ensure_ascii=False)
 
 CSS = r"""
 /* Layout: alternating stone / navy bands, Roman-capital display type, brass hairlines. Single committed light look. */
@@ -220,19 +316,37 @@ a:focus-visible,.btn:focus-visible{outline:2px solid var(--brass);outline-offset
 .aff-meta{padding:20px;display:flex;flex-direction:column;gap:6px;flex:1}.aff-meta .k{font:500 .68rem var(--mono);letter-spacing:.16em;text-transform:uppercase;color:var(--brass)}.aff-meta p{color:var(--muted);font-size:.92rem;flex:1}
 .aff-row{display:flex;justify-content:space-between;align-items:center;gap:12px;margin-top:10px}.aff-row b{font:500 1.1rem var(--mono);color:var(--navy)}
 .related{display:flex;flex-wrap:wrap;gap:10px;margin-top:20px}.related a{border:1px solid var(--line);border-radius:999px;padding:8px 16px;text-decoration:none;font-size:.9rem;color:var(--navy);background:#fff}.related a:hover{border-color:var(--brass)}
+.crumbs{font:500 .7rem/1.4 var(--mono);letter-spacing:.14em;text-transform:uppercase;color:var(--muted);margin-bottom:22px}.crumbs ol{list-style:none;display:flex;flex-wrap:wrap;gap:8px;margin:0;padding:0}.crumbs li+li::before{content:"/";margin-right:8px;color:var(--line)}.crumbs a{text-decoration:none}.crumbs a:hover{color:var(--brass)}
+.glance{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:0;border-top:1px solid var(--line);border-left:1px solid var(--line);margin-top:8px}@media(max-width:900px){.glance{grid-template-columns:repeat(2,minmax(0,1fr))}}@media(max-width:480px){.glance{grid-template-columns:1fr}}
+.glance div{border-right:1px solid var(--line);border-bottom:1px solid var(--line);padding:22px}.glance dt{font:500 .68rem var(--mono);letter-spacing:.16em;text-transform:uppercase;color:var(--brass)}.glance dd{margin:8px 0 0;color:var(--ink)}.glance dd a{color:var(--navy)}
+.facts{background:#fff;border:1px solid var(--line);border-left:3px solid var(--brass);border-radius:6px;padding:20px 22px;margin-top:28px}.facts p{margin:0;color:var(--ink)}.facts p+p{margin-top:6px}
+.map{margin-top:36px;border:1px solid var(--line);border-radius:10px;overflow:hidden;aspect-ratio:16/7;background:var(--stone)}.map iframe{width:100%;height:100%;border:0;display:block}@media(max-width:700px){.map{aspect-ratio:4/3}}
+.foot .contact{display:flex;flex-wrap:wrap;gap:8px 22px;margin-top:10px}.foot .contact a{color:var(--brass-l)}
 @media(prefers-reduced-motion:reduce){html{scroll-behavior:auto}*,*::before,*::after{animation:none!important;transition:none!important}}
 """
 
-def head(title, desc, path):
-    canon = B["site"] + ("/" if path == "index.html" else "/" + path.replace(".html", ""))
+def head(title, desc, path, crumb):
+    canon = url(path)
+    preload = (f'<link rel="preload" as="image" href="/assets/{IMG_HERO}.webp" type="image/webp" fetchpriority="high">'
+               if path == "index.html" else "")
     return f"""<title>{title}</title>
 <meta name="description" content="{desc}">
 <link rel="canonical" href="{canon}">
+<meta name="robots" content="index,follow,max-image-preview:large,max-snippet:-1">
+<meta name="theme-color" content="#14202e">
+<link rel="icon" href="/favicon.ico" sizes="any"><link rel="apple-touch-icon" href="/assets/apple-touch-icon.png">
+<meta property="og:site_name" content="{B['name']}"><meta property="og:locale" content="en_US">
 <meta property="og:title" content="{title}"><meta property="og:description" content="{desc}">
-<meta property="og:type" content="website"><meta property="og:image" content="{B['site']}/assets/susy.jpg">
+<meta property="og:type" content="website"><meta property="og:url" content="{canon}">
+<meta property="og:image" content="{B['site']}{IMG_SHARE}"><meta property="og:image:width" content="1200"><meta property="og:image:height" content="630">
+<meta property="og:image:alt" content="The Q Salon for Men, men's haircuts in downtown Sarasota">
+<meta name="twitter:card" content="summary_large_image"><meta name="twitter:title" content="{title}"><meta name="twitter:description" content="{desc}"><meta name="twitter:image" content="{B['site']}{IMG_SHARE}">
+<meta name="geo.region" content="US-FL"><meta name="geo.placename" content="Sarasota"><meta name="geo.position" content="{B['lat']};{B['lng']}"><meta name="ICBM" content="{B['lat']}, {B['lng']}">
+<link rel="alternate" type="text/plain" href="/llms.txt" title="LLM-friendly summary">
+{preload}
 <link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Marcellus&family=Hanken+Grotesk:wght@400;500;600&family=DM+Mono:wght@400;500&display=swap">
-<script type="application/ld+json">{schema()}</script>
+<script type="application/ld+json">{schema(path, title, desc, crumb)}</script>
 <style>{CSS}</style>"""
 
 ARR = '<span class="arr" aria-hidden="true">→</span>'
@@ -241,18 +355,28 @@ def header(active):
     cur = ' aria-current="page"'
     links = "".join(f'<a href="{h}"{cur if h == active else ""}>{t}</a>' for h, t in NAV)
     return f"""<header class="top"><div class="wrap top-in">
-<a class="brand" href="index.html" aria-label="The Q Salon for Men home"><span class="mono">Q</span><span class="brand-t">The Q Salon<small>For Men · Sarasota</small></span></a>
+<a class="brand" href="index.html" aria-label="The Q Salon for Men home"><span class="mono" aria-hidden="true">Q</span><span class="brand-t">The Q Salon<small>For Men · Sarasota</small></span></a>
 <nav class="nav" aria-label="Main">{links}</nav>
 <a class="btn btn-sm" href="{B['book']}" target="_blank" rel="noopener">Book now</a>
 </div></header>"""
+
+def crumbs(label):
+    return (f'<nav class="crumbs" aria-label="Breadcrumb"><ol><li><a href="index.html">Home</a></li>'
+            f'<li aria-current="page">{label}</li></ol></nav>')
 
 def ticker():
     words = ["Classic Cuts", "Skin Fades", "Executive Cuts", "Gray Blending", "Gentleman's Facials", "Grooming Products", "Gift Cards"]
     run = "".join(f"<span>{w}</span>" for w in words)
     return f'<div class="ticker" aria-hidden="true"><div class="track">{run}{run}</div></div>'
 
-def menu(items=SERVICES):
-    return "".join(f"""<div class="item"><h3>{n}</h3><span class="price">${p}</span><p><span class="dur">{t}</span> · {d}</p></div>""" for n, t, p, d in items)
+def menu(items=SERVICES, link=False):
+    def name(n):
+        return f'<a href="{SERVICE_PAGE[n]}.html" style="text-decoration:none">{n}</a>' if link else n
+    return "".join(f"""<div class="item"><h3>{name(n)}</h3><span class="price">${p}</span><p><span class="dur">{t}</span> · {d}</p></div>""" for n, t, p, d in items)
+
+def faq_schema(faqs):
+    return '<script type="application/ld+json">' + json.dumps({"@context": "https://schema.org", "@type": "FAQPage",
+        "mainEntity": [{"@type": "Question", "name": q, "acceptedAnswer": {"@type": "Answer", "text": a}} for q, a in faqs]}, ensure_ascii=False) + "</script>"
 
 def product_cards():
     out = []
@@ -275,15 +399,18 @@ def cta(text="Pick your service and any open time in under a minute."):
     return f"""<section class="sec stone"><div class="wrap cta-in"><div><p class="eyebrow">Appointments</p><h2>Your chair is waiting.</h2><p class="muted" style="margin-top:12px">{text}</p></div>
 <a class="btn" href="{B['book']}" target="_blank" rel="noopener">Book with Susy {ARR}</a></div></section>"""
 
-def visit():
-    return f"""<section class="sec visit"><div class="wrap visit-in">
-<div><p class="eyebrow">Visit</p><h3>Downtown Sarasota</h3><p>{ADDR}</p><p><a class="link" href="{B['maps']}" target="_blank" rel="noopener">Get directions</a></p></div>
+def visit(show_map=False):
+    gmap = (f'<div class="map"><iframe title="Map to The Q Salon for Men, {ADDR}" loading="lazy" referrerpolicy="no-referrer-when-downgrade" '
+            f'src="https://maps.google.com/maps?q=The+Q+Salon+for+Men,+1415+1st+St,+Sarasota,+FL+34236&amp;z=16&amp;output=embed"></iframe></div>') if show_map else ""
+    return f"""<section class="sec visit" id="visit"><div class="wrap"><div class="visit-in">
+<div><p class="eyebrow">Visit</p><h3>Downtown Sarasota</h3><address style="font-style:normal"><p>{ADDR}</p></address><p><a class="link" href="{B['maps']}" target="_blank" rel="noopener">Get directions</a></p></div>
 <div><p class="eyebrow">Hours</p><h3>{B['hours']}</h3><p class="muted">By appointment. Closed Saturday &amp; Sunday.</p></div>
 <div><p class="eyebrow">Call or text</p><a class="tel" href="tel:{B['phone_e164']}">{B['phone']}</a><p class="muted">Our front desk will text you the booking link.</p></div>
-</div></section>
+</div>{gmap}</div></section>
 <footer class="foot"><div class="wrap">
 <div class="foot-links"><p class="eyebrow" style="color:var(--brass-l)">Services &amp; areas</p><nav aria-label="Services and areas">{"".join(f'<a href="{h}">{t}</a>' for h, t in SEO_LINKS)}</nav></div>
-<div class="foot-in"><p>© 2026 {B['name']} · {ADDR} · {B['phone']}</p>
+<div class="foot-in"><div><p>© 2026 {B['name']} · {ADDR} · <a href="tel:{B['phone_e164']}">{B['phone']}</a></p>
+<p class="contact"><a href="mailto:{B['email']}">{B['email']}</a><a href="{B['instagram']}" target="_blank" rel="noopener">Instagram @theqsalon_srq</a><a href="{B['maps']}" target="_blank" rel="noopener">Google reviews</a><a href="/llms.txt">Salon facts (plain text)</a></p></div>
 <nav aria-label="Footer">{"".join(f'<a href="{h}">{t}</a>' for h, t in NAV)}</nav></div></div></footer>"""
 
 def affiliate_grid():
@@ -294,52 +421,88 @@ def affiliate_grid():
 <div class="aff-row"><b>{p.get('price','')}</b><a class="btn btn-sm" href="{p['url']}" target="_blank" rel="sponsored nofollow noopener">Buy now {ARR}</a></div></div></article>""" for p in AFFILIATE)
     return f'<div class="affs">{cards}</div>'
 
-def page(path, title, desc, body):
-    return f"""<!doctype html>
-<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
-{head(title, desc, path)}
+def clean_links(html):
+    """Internal links -> clean root-relative URLs that match the canonicals (/skin-fade-sarasota, not skin-fade-sarasota.html)."""
+    def fix(m):
+        stem, frag = m.group(1), m.group(2) or ""
+        return f'href="{"/" if stem == "index" else "/" + stem}{frag}"'
+    html = re.sub(r'href="([a-z0-9-]+)\.html(#[^"]*)?"', fix, html)
+    return html.replace('src="assets/', 'src="/assets/')
+
+def page(path, title, desc, body, crumb=""):
+    if crumb:
+        body = body.replace('<section class="page-hero"><div class="wrap">', '<section class="page-hero"><div class="wrap">' + crumbs(crumb), 1)
+    return clean_links(f"""<!doctype html>
+<html lang="en-US"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+{head(title, desc, path, crumb)}
 </head><body>
 {header(path)}
-<main>{body}</main>
-{visit()}
-</body></html>"""
+<main id="main">{body}</main>
+{visit(show_map=path in ("index.html", "about.html"))}
+</body></html>""")
 
 # ---------- Home ----------
+HOME_FAQ = [
+    ("Is The Q Salon for Men a barbershop?", "It's a private men's hair salon with full barbering skills. Susy does skin fades, line-ups and clipper work alongside scissor cuts, executive cuts and men's gray blending. One chair, appointments only."),
+    ("How much is a men's haircut at The Q?", "A Classic Haircut is $60 (about 45 minutes). The Executive Haircut and Skin Fade are $80 (about an hour). Natural Look Color & Style is $130, the Gentleman's Facial is $75, and kids' cuts for under-12s are $30."),
+    ("How do I book?", "Online through SQUIRE at theqsalonsrq.com/book, which takes under a minute. You can also call (941) 340-2389 and the front desk will text you the booking link."),
+    ("Where is The Q Salon for Men?", f"{ADDR}, in downtown Sarasota near Main Street and Five Points. It's about 10 minutes from Lido Key and St. Armands, 15 from Siesta Key, 20 from Longboat Key and 25 from Lakewood Ranch."),
+    ("What are the hours?", "Monday through Friday, 9 AM to 2 PM, by appointment. Closed Saturday and Sunday."),
+    ("Who cuts my hair?", "Susy, a master barber and stylist with more than 10 years of experience. She is the only stylist at The Q, so you see the same expert every visit."),
+]
+
 home = f"""
 <section class="hero2">
 <figure class="h2-media"><div class="h2-frame">
-<img src="assets/hero-gent.jpg" alt="Man with swept-back silver-streaked hair and a sculpted salt-and-pepper beard" width="1179" height="1454" fetchpriority="high">
+{pic(IMG_HERO, "Man with a swept-back men's haircut, natural silver kept, and a sculpted salt-and-pepper beard", 900, 1110, lazy=False)}
 <span class="h2-tag t1"><i></i>01 · Swept-back cut, natural silver kept</span>
 <span class="h2-tag t2"><i></i>02 · Beard sculpted &amp; lined</span>
 <span class="h2-issue">The Q · Sarasota · Est. 2021</span>
 </div></figure>
 <div class="h2-copy"><div class="h2-inner">
-<p class="eyebrow">Men's grooming · Downtown Sarasota</p>
+<p class="eyebrow">Men's hair salon &amp; barber · Downtown Sarasota</p>
 <h1><span class="l"><span>The cut</span></span><span class="l"><span>that carries</span></span><span class="l"><span><em>the room.</em></span></span></h1>
-<p class="lede">Precision cuts, seamless fades and natural gray blending from master stylist Susy. One chair, by appointment, and her full attention from start to finish.</p>
+<p class="lede">Men's haircuts, skin fades and natural gray blending in downtown Sarasota, from master stylist Susy. One chair, by appointment, and her full attention from start to finish.</p>
 <div class="acts"><a class="btn" href="{B['book']}" target="_blank" rel="noopener">Book an appointment {ARR}</a><a class="btn btn-line" href="#shop">Shop products</a></div>
-<a class="h2-by" href="#meet"><img src="assets/susy.jpg" alt="" width="44" height="44"><span><b>Every cut by Susy</b><small>Master barber &amp; stylist · 10+ years</small></span></a>
-<div class="stats"><div><b>4.9★</b><span>66 Google reviews</span></div><div><b>10+</b><span>Years behind the chair</span></div><div><b>1</b><span>Chair. Your time.</span></div></div>
+<a class="h2-by" href="#meet">{pic(IMG_SUSY + "-thumb", "", 44, 44)}<span><b>Every cut by Susy</b><small>Master barber &amp; stylist · 10+ years</small></span></a>
+<div class="stats"><div><b>{B['rating']}★</b><span>{B['review_count']} Google reviews</span></div><div><b>10+</b><span>Years behind the chair</span></div><div><b>1</b><span>Chair. Your time.</span></div></div>
 </div></div>
 </section>
 {ticker()}
 <section class="sec" id="services"><div class="wrap">
 <div class="sec-head"><div><p class="eyebrow">Service menu</p><h2>Every service, done by Susy.</h2></div>
 <p>No hand-offs and no assembly line. Prices and times exactly as listed in our booking system.</p></div>
-<div class="menu">{menu()}</div>
+<div class="menu">{menu(link=True)}</div>
 <div class="menu-foot"><p class="muted">Gift cards from $50 · Book online in under a minute</p><a class="btn" href="{B['book']}" target="_blank" rel="noopener">See open times {ARR}</a></div>
 </div></section>
+<section class="sec stone" id="at-a-glance"><div class="wrap">
+<div class="sec-head"><div><p class="eyebrow">At a glance</p><h2>The Q Salon for Men, in brief.</h2></div>
+<p>A private, appointment-only men's hair salon and barber in downtown Sarasota, Florida, open since 2021.</p></div>
+<dl class="glance">
+<div><dt>Address</dt><dd>{ADDR}</dd></div>
+<div><dt>Hours</dt><dd>Mon–Fri, 9 AM – 2 PM<br>Closed Sat &amp; Sun</dd></div>
+<div><dt>Phone</dt><dd><a href="tel:{B['phone_e164']}">{B['phone']}</a></dd></div>
+<div><dt>Booking</dt><dd>Online via SQUIRE · <a href="{B['book']}" target="_blank" rel="noopener">book now</a></dd></div>
+<div><dt>Stylist</dt><dd>Susy, master barber &amp; stylist, 10+ years</dd></div>
+<div><dt>Prices</dt><dd>Haircuts $60–$80 · Fades $80 · Gray blending $130 · Kids $30</dd></div>
+<div><dt>Specialties</dt><dd>Executive cuts, skin fades, natural gray blending, men's facials</dd></div>
+<div><dt>Serving</dt><dd>Sarasota, Lido Key, St. Armands, Siesta Key, Longboat Key, Lakewood Ranch</dd></div>
+</dl></div></section>
 {shop_section()}
 <section class="sec" id="meet"><div class="wrap about">
-<div class="ph"><img src="assets/susy.jpg" alt="Portrait of Susy" loading="lazy" width="1000" height="1000"></div>
+<div class="ph">{pic(IMG_SUSY, "Susy, master barber and men's stylist at The Q Salon for Men in Sarasota", 800, 802)}</div>
 <div><p class="eyebrow">Meet Susy</p><h2>The reason clients don't go anywhere else.</h2>
 <div class="body"><p>Susy has spent more than a decade perfecting men's hair. Her clients know her for fades that blend clean every time, executive cuts that still look right three weeks later, and gray blending so natural nobody can tell.</p>
-<p>The Q is built around that standard: one chair, appointments only, and the kind of consistency you only get from the same expert hands every visit.</p></div>
+<p>The Q is built around that standard: one chair, appointments only, and the kind of consistency you only get from the same expert hands every visit.</p>
+<p><a class="link" href="about.html">More about Susy and The Q</a></p></div>
 <div class="pillars"><div><b>Precision</b><span>Clean lines, seamless blends.</span></div><div><b>Consistency</b><span>Same expert, every visit.</span></div><div><b>Discretion</b><span>Private, unhurried, on time.</span></div></div>
 </div></div></section>
-<section class="sec on-dark review"><div class="wrap"><p class="stars" aria-label="4.9 out of 5 stars">★★★★★</p><h2>4.9 stars across 66 Google reviews.</h2>
+<section class="sec on-dark review"><div class="wrap"><p class="stars" aria-label="{B['rating']} out of 5 stars">★★★★★</p><h2>{B['rating']} stars across {B['review_count']} Google reviews.</h2>
 <p>Read what Sarasota's best-groomed men say, then see for yourself.</p>
-<div class="acts" style="justify-content:center"><a class="btn btn-brass" href="{B['book']}" target="_blank" rel="noopener">Book your first visit {ARR}</a></div></div></section>
+<div class="acts" style="justify-content:center"><a class="btn btn-brass" href="{B['book']}" target="_blank" rel="noopener">Book your first visit {ARR}</a><a class="btn btn-line" href="{B['maps']}" target="_blank" rel="noopener">Read the reviews</a></div></div></section>
+<section class="sec"><div class="wrap split"><div><p class="eyebrow">Good to know</p><h2>Questions men ask before their first visit.</h2></div>
+<div class="prose faq">{"".join(f'<details><summary>{q}</summary><p>{a}</p></details>' for q, a in HOME_FAQ)}</div></div></section>
+{faq_schema(HOME_FAQ)}
 {cta()}
 """
 
@@ -360,24 +523,25 @@ shop = f"""
 
 FAQ_COMMON = [
     ("Where are you located?", f"We're at {ADDR}, in downtown Sarasota."),
-    ("What are your hours?", "Monday through Friday, 9 AM to about 2 PM, by appointment. We're closed Saturday and Sunday."),
+    ("What are your hours?", "Monday through Friday, 9 AM to 2 PM, by appointment. We're closed Saturday and Sunday."),
     ("Do you take walk-ins?", "It's one chair, so booking ahead is the way to guarantee a time. Booking online takes under a minute."),
 ]
 
-def faq_schema(faqs):
-    return '<script type="application/ld+json">' + json.dumps({"@context": "https://schema.org", "@type": "FAQPage",
-        "mainEntity": [{"@type": "Question", "name": q, "acceptedAnswer": {"@type": "Answer", "text": a}} for q, a in faqs]}) + "</script>"
 
 def seo_page(h1, eyebrow, lede, sections, faqs, svc_filter, related=None):
     items = [s for s in SERVICES if s[0] in svc_filter]
     rel = related or ["mens-haircut-sarasota.html", "skin-fade-sarasota.html", "mens-hair-color-sarasota.html", "executive-haircut-sarasota.html"]
     names = dict(SEO_LINKS)
     rel_html = "".join(f'<a href="{h}">{names.get(h, h)}</a>' for h in rel)
+    price_line = "; ".join(f"{n} ${p} ({t})" for n, t, p, _ in items[:4])
+    facts = (f'<div class="facts"><p><strong>In short:</strong> {price_line} at The Q Salon for Men, {ADDR}.</p>'
+             f'<p>Every service is done by master barber &amp; stylist Susy. Mon–Fri, 9 AM – 2 PM, by appointment. '
+             f'<a class="link" href="{B["book"]}" target="_blank" rel="noopener">Book online</a> or call <a class="link" href="tel:{B["phone_e164"]}">{B["phone"]}</a>.</p></div>')
     return f"""<section class="page-hero"><div class="wrap"><p class="eyebrow">{eyebrow}</p><h1>{h1}</h1><p class="lede">{lede}</p>
 <div class="acts"><a class="btn" href="{B['book']}" target="_blank" rel="noopener">Book now {ARR}</a><a class="btn btn-line" href="index.html#services">Full menu</a></div></div></section>
-<section class="sec"><div class="wrap split"><div class="sticky"><div class="side"><p class="eyebrow">Pricing</p>{menu(items)}
+<section class="sec"><div class="wrap split"><div class="sticky"><div class="side"><p class="eyebrow">Pricing</p>{menu(items, link=True)}
 <a class="btn btn-sm" style="margin-top:18px" href="{B['book']}" target="_blank" rel="noopener">Book this {ARR}</a></div></div>
-<div class="prose">{sections}
+<div class="prose">{facts}{sections}
 <h2>Questions</h2><div class="faq">{"".join(f'<details><summary>{q}</summary><p>{a}</p></details>' for q, a in faqs)}</div>
 <h2>Related services</h2><div class="related">{rel_html}</div></div></div></section>
 {faq_schema(faqs)}
@@ -474,20 +638,77 @@ grooming = seo_page("Men's grooming in Sarasota, all in one chair", "Men's groom
     FAQ_COMMON + [("How often should men get a haircut?", "Every two to three weeks for fades, three to five weeks for longer cuts.")],
     ALL, ["barber-sarasota.html", "mens-facial-sarasota.html", "mens-hair-color-sarasota.html", "grooming-guide.html"])
 
-def area_page(area, drive, local):
+def area_page(area, drive, route, local, popular, extra_faq):
     return seo_page(f"Men's haircuts for {area}", f"Men's haircut · {area}, FL",
-        f"{area} men book with Susy at The Q Salon for Men: precision cuts, skin fades and gray blending, {drive}.",
-        f"""<h2>Worth the short drive</h2>
-<p>{local} The Q is a private, one-chair men's salon, so your appointment starts on time and Susy's attention stays on you.</p>
+        f"{area} men book with Susy at The Q Salon for Men: precision cuts, skin fades and gray blending in downtown Sarasota, {drive}.",
+        f"""<h2>Getting here from {area}</h2>
+<p>{route} The salon is at {ADDR}, in downtown Sarasota near Main Street and Five Points, with public garages and street parking a short walk away.</p>
+<h2>Why {area} clients make the trip</h2>
+<p>{local} The Q is a private, one-chair men's salon, so your appointment starts on time and Susy's attention stays on you from consultation to finish.</p>
 <h2>Popular with {area} clients</h2>
-<ul><li><strong>Executive Haircut</strong> ($80) for professionals</li><li><strong>Skin Fade</strong> ($80) kept sharp every few weeks</li><li><strong>Natural Look Color &amp; Style</strong> ($130) for gray blending</li></ul>
+<ul>{popular}</ul>
 <h2>Easy to book</h2><p>Book online in under a minute, Monday through Friday, 9 AM to 2 PM. Or call {B['phone']} and our front desk will text you the link.</p>""",
-        FAQ_COMMON, CUTS | {"Natural Look Color & Style"},
+        FAQ_COMMON + extra_faq, CUTS | {"Natural Look Color & Style"},
         ["barber-sarasota.html", "skin-fade-sarasota.html", "executive-haircut-sarasota.html", "mens-hair-color-sarasota.html"])
 
-lwr = area_page("Lakewood Ranch", "about 25 minutes from Lakewood Ranch", "Lakewood Ranch has plenty of chain barbershops and busy salons. Clients who want something better make the drive downtown.")
-siesta = area_page("Siesta Key", "about 15 minutes from Siesta Key", "Sun, salt and humidity are rough on hair. Siesta Key clients rely on Susy for cuts that hold their shape and gray blending that doesn't fade brassy in the sun.")
-longboat = area_page("Longboat Key", "about 20 minutes from Longboat Key", "Longboat Key clients expect a refined, unhurried experience. That's exactly how The Q is built.")
+LI_EXEC = "<li><strong>Executive Haircut</strong> ($80): a full hour of detail work before meetings and events</li>"
+LI_FADE = "<li><strong>Skin Fade</strong> ($80): kept sharp every two to three weeks</li>"
+LI_COLOR = "<li><strong>Natural Look Color &amp; Style</strong> ($130): gray blending that won't turn brassy in the sun</li>"
+LI_CLASSIC = "<li><strong>Classic Haircut</strong> ($60): a precise cut, styled to finish</li>"
+LI_FACIAL = "<li><strong>Gentleman's Facial</strong> ($75): a reset for sun- and salt-dried skin</li>"
+
+lido = area_page("Lido Key & St. Armands", "about 10 minutes from Lido Key and St. Armands Circle",
+    "From Lido Key or St. Armands Circle, head east over the John Ringling Causeway into downtown. It's one of the shortest drives to the salon, usually about 10 minutes.",
+    "Island living means sun, salt and pool water, all hard on hair and color. Lido and St. Armands clients rely on Susy for cuts that hold their shape in the humidity and color that stays natural.",
+    LI_CLASSIC + LI_COLOR + LI_FACIAL,
+    [("How far is The Q from Lido Key?", "About 10 minutes: east over the John Ringling Causeway into downtown Sarasota.")])
+lwr = area_page("Lakewood Ranch", "about 25 minutes from Lakewood Ranch",
+    "From Lakewood Ranch, take University Parkway or Fruitville Road west toward downtown Sarasota. Most clients make it in about 25 minutes, often pairing the appointment with a downtown lunch or meeting.",
+    "Lakewood Ranch has plenty of chain barbershops and busy salons. Clients who want the same expert every visit, and no waiting room, make the drive downtown.",
+    LI_EXEC + LI_FADE + LI_COLOR,
+    [("How far is The Q from Lakewood Ranch?", "About 25 minutes, west on University Parkway or Fruitville Road to downtown Sarasota.")])
+siesta = area_page("Siesta Key", "about 15 minutes from Siesta Key",
+    "From Siesta Key, cross the Siesta Drive or Stickney Point bridge and head north on US-41 (Tamiami Trail) into downtown. It's about 15 minutes from the north end of the key.",
+    "Sun, salt and humidity are rough on hair. Siesta Key clients rely on Susy for cuts that hold their shape at the beach and gray blending that doesn't fade brassy in the sun.",
+    LI_FADE + LI_COLOR + LI_FACIAL,
+    [("How far is The Q from Siesta Key?", "About 15 minutes: over the Siesta Drive or Stickney Point bridge, then north on US-41 to downtown.")])
+longboat = area_page("Longboat Key", "about 20 minutes from Longboat Key",
+    "From Longboat Key, take Gulf of Mexico Drive south through St. Armands Circle and across the John Ringling Causeway. From mid-key it's roughly 20 minutes to the salon.",
+    "Longboat Key clients expect a refined, unhurried experience and a stylist who remembers exactly how they like it. That's how The Q is built.",
+    LI_EXEC + LI_CLASSIC + LI_COLOR,
+    [("How far is The Q from Longboat Key?", "About 20 minutes from mid-key: south through St. Armands Circle, then over the Ringling Causeway into downtown.")])
+
+salon = seo_page("A men's hair salon in downtown Sarasota", "Men's hair salon · Sarasota, FL",
+    "The Q Salon for Men is a private, one-chair men's hair salon in downtown Sarasota: haircuts, skin fades, gray blending and facials, all by master stylist Susy.",
+    f"""<h2>Built only for men</h2>
+<p>Most hair salons are built around women's services, with men fitted in between color appointments. The Q is the opposite: every service on the menu is for men, and every appointment is with Susy, a master barber and stylist with more than ten years behind the chair.</p>
+<h2>Salon craft, barbershop precision</h2>
+<p>You get the consultation, scissor work and color expertise of a high-end salon, with the clipper skills of a barbershop: tight skin fades, clean line-ups and sharp necklines. It's why clients who used to split their grooming between a barber and a salon now come to one place.</p>
+<h2>What's on the menu</h2>
+<ul><li><strong>Classic Haircut</strong>, $60 · 45 min</li><li><strong>Executive Haircut</strong>, $80 · 1 hr</li><li><strong>Skin Fade</strong>, $80 · 1 hr</li><li><strong>Natural Look Color &amp; Style</strong>, $130 · 1 hr 15 min</li><li><strong>Gentleman's Facial</strong>, $75 · 45 min</li><li><strong>Kid's Haircut</strong> (under 12), $30 · 30 min</li></ul>
+<h2>Private by design</h2>
+<p>One chair means no waiting room, no overheard conversations and no rush. Appointments run Monday through Friday, 9 AM to 2 PM, at {ADDR}.</p>""",
+    FAQ_COMMON + [("Is The Q a men's salon or a barbershop?", "A men's hair salon with full barbering skills: fades, line-ups and clipper work, plus scissor cuts, executive cuts and men's color."),
+                  ("Do you do men's hair color?", "Yes. Natural Look Color & Style ($130) blends gray so it looks like your own hair, not dye.")],
+    ALL, ["barber-sarasota.html", "mens-haircut-sarasota.html", "mens-hair-color-sarasota.html", "mens-grooming-sarasota.html"])
+
+about = f"""<section class="page-hero"><div class="wrap"><p class="eyebrow">About</p><h1>Susy, and the one-chair salon she built.</h1>
+<p class="lede">The Q Salon for Men opened in downtown Sarasota in November 2021 with a simple idea: one master stylist, one chair, and men's grooming done properly.</p>
+<div class="acts"><a class="btn" href="{B['book']}" target="_blank" rel="noopener">Book with Susy {ARR}</a><a class="btn btn-line" href="index.html#services">See the menu</a></div></div></section>
+<section class="sec" id="susy"><div class="wrap about">
+<div class="ph">{pic(IMG_SUSY, "Susy, master barber and stylist and owner of the chair at The Q Salon for Men, Sarasota", 800, 802)}</div>
+<div class="prose"><p class="eyebrow">Master barber &amp; stylist</p><h2 style="margin-top:0">Meet Susy</h2>
+<p>Susy has more than ten years of experience cutting men's hair. She's known for fades that blend clean every time, executive cuts that still look right weeks later, and gray blending so natural nobody can tell.</p>
+<p>She is the only stylist at The Q. Every haircut, fade, color and facial on the menu is done by her, start to finish, so you get the same hands and the same standard on every visit.</p>
+</div></div></section>
+<section class="sec stone"><div class="wrap split"><div><p class="eyebrow">How The Q works</p><h2>Fewer clients. Better cuts.</h2></div>
+<div class="prose"><p><strong>One chair, appointments only.</strong> There's no waiting room and no walk-in line. Your time is reserved, and it starts when you arrive.</p>
+<p><strong>A consultation every time.</strong> How you wear it, how often you come in, and how it should look in week three, not just day one.</p>
+<p><strong>Everything men need, in one place.</strong> Haircuts, skin fades, executive cuts, natural gray blending, the Gentleman's Facial, kids' cuts, and the products Susy finishes with, available in the Q Shop.</p>
+<p><strong>Downtown and easy to reach.</strong> {ADDR}, near Main Street and Five Points, about 10 minutes from Lido Key and St. Armands.</p>
+<div class="facts"><p><strong>Rated {B['rating']}★</strong> across {B['review_count']} Google reviews. <a class="link" href="{B['maps']}" target="_blank" rel="noopener">Read them on Google</a>.</p></div>
+</div></div></section>
+{cta()}"""
 
 GUIDE = [
     ("How to tell when your fade needs a refresh", "Run your hand up the side of your head. If you can feel a clear line where short meets long, the blend has grown out. For most men that's around day 14 to 21."),
@@ -509,36 +730,81 @@ guide = f"""<section class="page-hero"><div class="wrap"><p class="eyebrow">Groo
 {shop_section("Keep it sharp", "Products for between visits.")}
 {cta()}"""
 
-PAGES = [
-    ("index.html", "The Q Salon for Men", "Men's haircuts, skin fades and gray blending in downtown Sarasota at 1415 1st St. Book with master stylist Susy and shop grooming products.", home),
-    ("shop.html", "The Q Shop · The Q Salon for Men", "Shop men's styling, beard and hair-care products and gift cards from The Q Salon for Men in Sarasota.", shop),
-    ("mens-haircut-sarasota.html", "Men's Haircut Sarasota · The Q Salon", "Men's haircuts in downtown Sarasota from $60. Classic and executive cuts by a master stylist at 1415 1st St. Book online.", haircut),
-    ("skin-fade-sarasota.html", "Skin Fade Sarasota · The Q Salon", "Skin fades in downtown Sarasota for $80. Low, mid and high fades with a seamless blend. Book online at The Q Salon for Men.", fade),
-    ("mens-hair-color-sarasota.html", "Men's Gray Blending Sarasota · The Q Salon", "Natural men's hair color and gray blending in downtown Sarasota. Natural Look Color & Style, $130. Book at The Q Salon for Men.", color),
-    ("barber-sarasota.html", "Barber in Sarasota · The Q Salon for Men", "Looking for a barber in Sarasota? Private one-chair men's salon with master stylist Susy. Haircuts from $60, skin fades $80. Book online.", barber),
-    ("executive-haircut-sarasota.html", "Executive Haircut Sarasota · The Q Salon", "The Executive Haircut in Sarasota: an hour with a master stylist and extra detail work, $80. Book online at The Q Salon for Men.", executive),
-    ("mens-facial-sarasota.html", "Men's Facial Sarasota · The Q Salon", "Gentleman's Facial in Sarasota: 45-minute men's facial to cleanse, exfoliate and hydrate, $75. Book at The Q Salon for Men.", facial),
-    ("kids-haircut-sarasota.html", "Kids' Haircut Sarasota · The Q Salon", "Calm kids' haircuts in Sarasota for boys under 12, $30. One chair, no crowd. Book father-and-son appointments online.", kids),
-    ("mens-grooming-sarasota.html", "Men's Grooming Sarasota · The Q Salon", "Men's grooming in Sarasota: haircuts, fades, gray blending, facials and products from one master stylist. Book online.", grooming),
-    ("mens-haircut-lakewood-ranch.html", "Men's Haircut Lakewood Ranch · The Q Salon", "Men's haircuts for Lakewood Ranch: precision cuts, skin fades and gray blending with master stylist Susy. Book online.", lwr),
-    ("mens-haircut-siesta-key.html", "Men's Haircut Siesta Key · The Q Salon", "Men's haircuts for Siesta Key: cuts, skin fades and sun-proof gray blending with master stylist Susy. Book online.", siesta),
-    ("mens-haircut-longboat-key.html", "Men's Haircut Longboat Key · The Q Salon", "Men's haircuts for Longboat Key: refined cuts, fades and gray blending with master stylist Susy. Book online.", longboat),
-    ("grooming-guide.html", "Men's Grooming Guide · The Q Salon", "Practical men's grooming tips from Sarasota master stylist Susy: fades, styling products, gray blending, razor bumps and beard care.", guide),
+PAGES = [  # (path, <title>, meta description, body, breadcrumb label)
+    ("index.html", "The Q Salon for Men | Men's Haircuts & Barber, Sarasota FL", "Men's haircuts, skin fades and gray blending in downtown Sarasota at 1415 1st St. One chair, every cut by master stylist Susy. Rated 4.9★ on Google.", home, ""),
+    ("about.html", "About Susy & The Q Salon for Men · Sarasota", "Meet Susy, the master barber and stylist behind The Q Salon for Men, a private one-chair men's salon in downtown Sarasota since 2021.", about, "About"),
+    ("mens-hair-salon-sarasota.html", "Men's Hair Salon in Sarasota, FL · The Q Salon", "A private men's hair salon in downtown Sarasota: haircuts from $60, skin fades, gray blending and facials, all by master stylist Susy. Book online.", salon, "Men's hair salon"),
+    ("shop.html", "The Q Shop · Men's Grooming Products, Sarasota", "Shop men's styling, beard and hair-care products and gift cards from The Q Salon for Men in Sarasota.", shop, "Shop"),
+    ("mens-haircut-sarasota.html", "Men's Haircut Sarasota, FL · From $60 · The Q Salon", "Men's haircuts in downtown Sarasota from $60. Classic and executive cuts by a master stylist at 1415 1st St. Book online.", haircut, "Men's haircut"),
+    ("skin-fade-sarasota.html", "Skin Fade Sarasota, FL · $80 · The Q Salon", "Skin fades in downtown Sarasota for $80. Low, mid and high fades with a seamless blend. Book online at The Q Salon for Men.", fade, "Skin fade"),
+    ("mens-hair-color-sarasota.html", "Men's Gray Blending & Hair Color Sarasota · The Q", "Natural men's hair color and gray blending in downtown Sarasota. Natural Look Color & Style, $130. Book at The Q Salon for Men.", color, "Gray blending"),
+    ("barber-sarasota.html", "Barber in Sarasota, FL · Downtown · The Q Salon", "Looking for a barber in Sarasota? Private one-chair men's salon with master stylist Susy. Haircuts from $60, skin fades $80. Book online.", barber, "Barber"),
+    ("executive-haircut-sarasota.html", "Executive Haircut Sarasota · $80 · The Q Salon", "The Executive Haircut in Sarasota: an hour with a master stylist and extra detail work, $80. Book online at The Q Salon for Men.", executive, "Executive haircut"),
+    ("mens-facial-sarasota.html", "Men's Facial Sarasota · $75 · The Q Salon", "Gentleman's Facial in Sarasota: 45-minute men's facial to cleanse, exfoliate and hydrate, $75. Book at The Q Salon for Men.", facial, "Men's facial"),
+    ("kids-haircut-sarasota.html", "Kids' Haircut Sarasota · $30 · The Q Salon", "Calm kids' haircuts in Sarasota for boys under 12, $30. One chair, no crowd. Book father-and-son appointments online.", kids, "Kids' haircut"),
+    ("mens-grooming-sarasota.html", "Men's Grooming Sarasota · The Q Salon for Men", "Men's grooming in Sarasota: haircuts, fades, gray blending, facials and products from one master stylist. Book online.", grooming, "Men's grooming"),
+    ("mens-haircut-lido-key.html", "Men's Haircut Lido Key & St. Armands · The Q", "Men's haircuts for Lido Key and St. Armands, 10 minutes away in downtown Sarasota: cuts, fades and gray blending with master stylist Susy.", lido, "Lido Key & St. Armands"),
+    ("mens-haircut-lakewood-ranch.html", "Men's Haircut Lakewood Ranch · The Q Salon", "Men's haircuts for Lakewood Ranch: precision cuts, skin fades and gray blending with master stylist Susy in downtown Sarasota. Book online.", lwr, "Lakewood Ranch"),
+    ("mens-haircut-siesta-key.html", "Men's Haircut Siesta Key · The Q Salon", "Men's haircuts for Siesta Key: cuts, skin fades and sun-proof gray blending with master stylist Susy, 15 minutes away. Book online.", siesta, "Siesta Key"),
+    ("mens-haircut-longboat-key.html", "Men's Haircut Longboat Key · The Q Salon", "Men's haircuts for Longboat Key: refined cuts, fades and gray blending with master stylist Susy, about 20 minutes away. Book online.", longboat, "Longboat Key"),
+    ("grooming-guide.html", "Men's Grooming Guide · Tips from a Sarasota Barber", "Practical men's grooming tips from Sarasota master stylist Susy: fades, styling products, gray blending, razor bumps and beard care.", guide, "Grooming guide"),
 ]
 
+# IndexNow key (Bing, Yandex, Seznam...). Public by design: the key file is served at /<key>.txt.
+INDEXNOW_KEY = "7f3c9a1e5b2d4c8e9a6f0b1d2e3c4a5b"
+
+AI_BOTS = ["GPTBot", "OAI-SearchBot", "ChatGPT-User", "ClaudeBot", "Claude-SearchBot", "Claude-User", "PerplexityBot",
+           "Perplexity-User", "Google-Extended", "Applebot", "Applebot-Extended", "Bingbot", "DuckAssistBot", "meta-externalagent", "Amazonbot"]
+
+def llms_txt():
+    svc = "\n".join(f"- [{n}]({B['site']}/{SERVICE_PAGE[n]}): ${p}, about {t}. {d}" for n, t, p, d in SERVICES)
+    pages = "\n".join(f"- [{label or 'Home'}]({url(p)}): {d}" for p, _, d, _, label in PAGES)
+    faq = "\n".join(f"- **{q}** {a}" for q, a in HOME_FAQ)
+    return f"""# {B['name']}
+
+> Private, appointment-only men's hair salon and barber in downtown Sarasota, Florida. One chair: every haircut, skin fade, gray blending, facial and kids' cut is done by Susy, a master barber and stylist with 10+ years of experience. Rated {B['rating']} stars on Google ({B['review_count']} reviews).
+
+## Key facts
+- Name: {B['name']} (also "The Q Salon", "The Q")
+- Type: men's hair salon and barber (Google categories: Hair salon, Barber shop, Facial spa)
+- Address: {ADDR}, USA (downtown Sarasota, near Main Street and Five Points)
+- Phone: {B['phone']} (calls answered by the front desk, which texts the booking link)
+- Email: {B['email']}
+- Hours: Monday–Friday, 9:00 AM–2:00 PM, by appointment only. Closed Saturday and Sunday.
+- Booking: online only through SQUIRE at {B['book']} (shortcut: {B['site']}/book)
+- Stylist: Susy, master barber & stylist, 10+ years. She is the only stylist.
+- Opened: November 2021
+- Areas served: Sarasota, Downtown Sarasota, Lido Key, St. Armands, Siesta Key, Longboat Key, Lakewood Ranch, Sarasota County
+- Website: {B['site']}/
+- Google Maps: {B['maps']}
+- Instagram: {B['instagram']}
+
+## Services and prices
+{svc}
+- Gift cards: from $50, good for any service or product.
+
+## Frequently asked
+{faq}
+
+## Pages
+{pages}
+"""
+
 if __name__ == "__main__":
-    os.makedirs("dist", exist_ok=True); os.makedirs("preview", exist_ok=True)
-    for path, title, desc, body in PAGES:
-        html = page(path, title, desc, body)
-        open(f"dist/{path}", "w").write(html)
-        if path == "index.html":
-            inner = re.sub(r"(?s)^<!doctype html>\s*<html[^>]*><head>.*?<meta name=\"viewport\"[^>]*>\s*", "", html)
-            inner = inner.replace("</head><body>", "").replace("</body></html>", "")
-            open("preview/index.html", "w").write(inner)
-        else:
-            open(f"preview/{path}", "w").write(html)
-    urls = "".join(f"<url><loc>{B['site']}/{'' if p=='index.html' else p.replace('.html','')}</loc></url>" for p, *_ in PAGES)
+    os.makedirs("dist", exist_ok=True)
+    for path, title, desc, body, crumb in PAGES:
+        open(f"dist/{path}", "w").write(page(path, title, desc, body, crumb))
+    urls = "".join(f"<url><loc>{url(p)}</loc><lastmod>{TODAY}</lastmod></url>" for p, *_ in PAGES)
     open("dist/sitemap.xml", "w").write(f'<?xml version="1.0" encoding="UTF-8"?><urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">{urls}</urlset>')
-    open("dist/robots.txt", "w").write(f"User-agent: *\nAllow: /\nSitemap: {B['site']}/sitemap.xml\n")
-    open("dist/_redirects", "w").write("/downtown-sarasota-barbershop /mens-haircut-sarasota 301\n/about / 301\n/gallery / 301\n/book " + B['book'] + " 302\n")
+    bots = "".join(f"User-agent: {b}\nAllow: /\n\n" for b in AI_BOTS)
+    open("dist/robots.txt", "w").write(f"# Search engines and AI assistants are welcome to read and cite this site.\n{bots}User-agent: *\nAllow: /\n\nSitemap: {B['site']}/sitemap.xml\n")
+    open("dist/llms.txt", "w").write(llms_txt())
+    open(f"dist/{INDEXNOW_KEY}.txt", "w").write(INDEXNOW_KEY)
+    open("dist/_redirects", "w").write(
+        "/downtown-sarasota-barbershop /mens-haircut-sarasota 301\n/gallery /about 301\n"
+        "/mens-hair-salon /mens-hair-salon-sarasota 301\n/book " + B['book'] + " 302\n")
+    open("dist/_headers", "w").write(
+        "/assets/*\n  Cache-Control: public, max-age=31536000, immutable\n"
+        "/*\n  X-Content-Type-Options: nosniff\n  Referrer-Policy: strict-origin-when-cross-origin\n"
+        "/llms.txt\n  Content-Type: text/plain; charset=utf-8\n")
     print("built", len(PAGES), "pages")
