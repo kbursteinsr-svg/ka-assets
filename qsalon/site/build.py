@@ -333,6 +333,7 @@ def head(title, desc, path, crumb):
 <meta name="description" content="{desc}">
 <link rel="canonical" href="{canon}">
 <meta name="robots" content="index,follow,max-image-preview:large,max-snippet:-1">
+<meta name="google-site-verification" content="Oyvk8JB3buwlR1xI0LaTetfhMwqWsQ4lLCNxpYGI_FI">
 <meta name="theme-color" content="#14202e">
 <link rel="icon" href="/favicon.ico" sizes="any"><link rel="apple-touch-icon" href="/assets/apple-touch-icon.png">
 <meta property="og:site_name" content="{B['name']}"><meta property="og:locale" content="en_US">
