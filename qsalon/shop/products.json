@@ -42,5 +42,16 @@
     "finish": "Wash · Conditioner · Oil · Balm · Comb",
     "facts": ["Beard wash and conditioner (5 oz each, argan and jojoba)", "Beard oil (1 oz) and beard balm (2 oz)", "Wooden beard comb", "Sandalwood scent"],
     "image": null
+  },
+  {
+    "slot": 5,
+    "link": "https://link.amazon/B03Sw4xhM",
+    "brand": "DOC HOLLIDAY",
+    "name": "DOC HOLLIDAY Beard Oil, Smoked Huckleberry",
+    "variant": "30 ml / 1 fl oz",
+    "category": "Beard Care",
+    "finish": "Non-greasy · With biotin",
+    "facts": ["Lightweight, non-greasy formula with biotin", "Desert botanicals: jojoba, aloe, agave and prickly pear", "Softens, tames and conditions; helps calm beard itch", "Smoked Huckleberry scent, pump bottle"],
+    "image": null
   }
 ]
