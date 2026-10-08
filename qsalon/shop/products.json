@@ -31,5 +31,16 @@
     "finish": "Signature Sweet Tobacco scent",
     "facts": ["Sweet Tobacco scent", "Glass jar with metal lid", "Made in the USA"],
     "image": null
+  },
+  {
+    "slot": 4,
+    "link": "https://link.amazon/B0bld85QS",
+    "brand": "Viking Revolution",
+    "name": "Viking Revolution Beard Conditioning Kit, Sandalwood",
+    "variant": "5 pieces",
+    "category": "Beard Care",
+    "finish": "Wash · Conditioner · Oil · Balm · Comb",
+    "facts": ["Beard wash and conditioner (5 oz each, argan and jojoba)", "Beard oil (1 oz) and beard balm (2 oz)", "Wooden beard comb", "Sandalwood scent"],
+    "image": null
   }
 ]
