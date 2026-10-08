@@ -1,0 +1,35 @@
+[
+  {
+    "slot": 1,
+    "link": "https://link.amazon/B07uqwd3T",
+    "brand": "Brickell Men's Products",
+    "name": "Brickell Styling Clay Pomade",
+    "variant": "2 oz, scented",
+    "category": "Styling",
+    "finish": "Matte finish · Strong hold",
+    "facts": ["Argan oil, green tea, niacinamide and hydrolyzed protein", "Matte finish, strong hold", "Made in the USA"],
+    "image": null
+  },
+  {
+    "slot": 2,
+    "link": "https://link.amazon/B066qHsTK",
+    "brand": "American Crew",
+    "name": "American Crew Pomade",
+    "variant": "3 oz, pack of 2",
+    "category": "Styling",
+    "finish": "Medium hold · High shine",
+    "facts": ["Medium hold with high shine", "Classic barbershop pomade", "Two 3 oz tins"],
+    "image": null
+  },
+  {
+    "slot": 3,
+    "link": "https://link.amazon/B0gPruoUs",
+    "brand": "18.21 Man Made",
+    "name": "18.21 Man Made Pomade, Sweet Tobacco",
+    "variant": "2 oz",
+    "category": "Styling",
+    "finish": "Signature Sweet Tobacco scent",
+    "facts": ["Sweet Tobacco scent", "Glass jar with metal lid", "Made in the USA"],
+    "image": null
+  }
+]
