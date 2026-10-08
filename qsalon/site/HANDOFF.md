@@ -54,7 +54,7 @@ Check pages after deploy. The cloud workspace can't reach netlify.app directly, 
 | URL | Page |
 |---|---|
 | `/` | Home: hero, service menu, shop teaser, Meet Susy (`#meet`), reviews band, CTA, visit/hours |
-| `/shop` | The Q Shop: product categories + gift cards (links go to SQUIRE); "Susy's picks" affiliate section says "coming soon" |
+| `/shop` | The Q Shop: category cards, gift cards (SQUIRE) and "Susy's picks", 9 Amazon affiliate products loaded from `qsalon/shop/products.json` (card copy in `AFF_NOTES` in build.py; set a product's `image` to a SiteStripe image URL to replace the placeholder art) |
 | `/barber-sarasota` | Barber in Sarasota |
 | `/mens-haircut-sarasota` | Men's Haircut Sarasota |
 | `/executive-haircut-sarasota` | Executive Haircut |
@@ -98,7 +98,7 @@ Redirects (`_redirects`): `/book` → SQUIRE (302), `/about` and `/gallery` → 
 **Small fixes already noticed:**
 1. Footer/visit block says **"Call or text (941) 340-2389"**. Calls go to Monica, but incoming texts aren't handled yet. Consider changing it to "Call" until texting (A2P approval) is live.
 2. A "Powered by Netlify" badge showed on the live site. It comes from Netlify, not the code; check whether visitors see it and whether it can be turned off in Netlify.
-3. The shop page has an affiliate disclosure but no affiliate products yet (Kris plans to add Amazon affiliate picks).
+3. Susy's picks product images are placeholder art until SiteStripe image URLs are added to `products.json`.
 4. The review count (4.9★ / 66) is hard-coded in the hero and review band.
 
 **SEO next steps:**

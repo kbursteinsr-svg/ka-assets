@@ -66,7 +66,7 @@ PRODUCTS = [
     ("Styling", "Pomades & clays", "Hold from natural to sharp, from matte clay to high-shine pomade.", SVG_TIN, "styling"),
     ("Beard Care", "Oils & kits", "Soften, tame the itch and keep it groomed between visits.", SVG_DROP, "beard-care"),
     ("Hair & Scalp", "Shampoo & conditioner", "Daily scalp care for men's hair, sulfate-free options included.", SVG_PUMP, "hair-scalp"),
-    ("Gift Cards", "From $50", "Good for any service or product. The gift he'll actually use.", SVG_GIFT, "book"),
+    ("Gift Cards", "From $50", "Good for any service. The gift he'll actually use.", SVG_GIFT, "book"),
 ]
 
 NAV = [("index.html", "Home"), ("index.html#services", "Services & prices"), ("shop.html", "Shop"),
@@ -909,7 +909,8 @@ def llms_txt():
 
 ## Services and prices
 {svc}
-- Gift cards: from $50, good for any service or product.
+- Gift cards: from $50, good for any service.
+- Shop: "Susy's picks", nine grooming products linked to Amazon (affiliate links, disclosed on the page).
 
 ## Frequently asked
 {faq}
