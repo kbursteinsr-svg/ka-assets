@@ -76,5 +76,17 @@
     "finish": "Sulfate-free · Scalp health",
     "facts": ["Salicylic acid, biotin and yeast extract", "Sulfate-free", "Shampoo cleanses and repairs; conditioner nourishes and smooths", "Pump bottles, 288 ml each"],
     "image": null
+  },
+  {
+    "slot": 8,
+    "link": "https://link.amazon/B00xjAov7",
+    "brand": "Cupids",
+    "name": "Cupids Hypnosis 3.0 Eau de Parfum",
+    "variant": "50 ml / 1.7 fl oz",
+    "category": "Fragrance",
+    "finish": "Citrus · Vanilla",
+    "facts": ["Eau de parfum with citrus and vanilla notes", "Long-lasting wear", "Sculpted gunmetal bottle", "50 ml"],
+    "copy_note": "Brand voice: fragrance facts only. No pheromone/attraction claims, nothing flirty.",
+    "image": null
   }
 ]
