@@ -53,5 +53,28 @@
     "finish": "Non-greasy · With biotin",
     "facts": ["Lightweight, non-greasy formula with biotin", "Desert botanicals: jojoba, aloe, agave and prickly pear", "Softens, tames and conditions; helps calm beard itch", "Smoked Huckleberry scent, pump bottle"],
     "image": null
+  },
+  {
+    "slot": 6,
+    "link": "https://link.amazon/B0iHBAOax",
+    "brand": "Generic",
+    "name": "Minoxidil Shampoo & Conditioner Set with Biotin",
+    "variant": "2 × 300 ml (10.15 fl oz)",
+    "category": "Hair & Scalp",
+    "finish": "Shampoo + conditioner duo",
+    "facts": ["Label: 5% minoxidil with biotin", "With ginseng and ginger", "Scalp-care formula for men and women", "Shampoo and conditioner, 300 ml each"],
+    "copy_note": "Keep to label facts only. No hair-regrowth or medical promises in site, GBP or social copy.",
+    "image": null
+  },
+  {
+    "slot": 7,
+    "link": "https://link.amazon/B06Cb67Ks",
+    "brand": "Cardon",
+    "name": "Cardon Strengthening Shampoo & Conditioner Set",
+    "variant": "9.7 oz, 2 bottles",
+    "category": "Hair & Scalp",
+    "finish": "Sulfate-free · Scalp health",
+    "facts": ["Salicylic acid, biotin and yeast extract", "Sulfate-free", "Shampoo cleanses and repairs; conditioner nourishes and smooths", "Pump bottles, 288 ml each"],
+    "image": null
   }
 ]
