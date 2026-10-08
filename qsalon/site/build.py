@@ -58,11 +58,14 @@ SVG_PUMP = """<svg viewBox="0 0 200 160" aria-hidden="true"><defs><linearGradien
 SVG_GIFT = """<svg viewBox="0 0 200 160" aria-hidden="true"><defs><linearGradient id="gA" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#22324a"/><stop offset="1" stop-color="#0f1823"/></linearGradient></defs>
 <ellipse cx="100" cy="140" rx="76" ry="8" fill="#000" opacity=".18"/><g transform="rotate(-6 100 84)"><rect x="28" y="36" width="144" height="92" rx="9" fill="url(#gA)" stroke="#c9a96e"/><circle cx="56" cy="64" r="14" fill="none" stroke="#c9a96e"/><text x="56" y="70" text-anchor="middle" font-family="Marcellus,serif" font-size="16" fill="#c9a96e">Q</text><text x="44" y="112" font-family="Marcellus,serif" font-size="15" fill="#efe8dc">Gift Card</text><text x="160" y="112" text-anchor="end" font-family="DM Mono,monospace" font-size="10" fill="#c9a96e">$50+</text></g></svg>"""
 
+SVG_BOTTLE = """<svg viewBox="0 0 200 160" aria-hidden="true"><ellipse cx="100" cy="146" rx="46" ry="7" fill="#000" opacity=".18"/><rect x="58" y="58" width="84" height="86" rx="16" fill="#3a4350"/><rect x="58" y="58" width="84" height="86" rx="16" fill="none" stroke="#c9a96e" stroke-width="2"/><path d="M70 70 L130 130" stroke="#5a6472" stroke-width="3"/><path d="M82 66 L138 122" stroke="#5a6472" stroke-width="3"/><rect x="82" y="34" width="36" height="26" rx="4" fill="#14202e"/><rect x="74" y="98" width="52" height="22" rx="2" fill="#14202e"/><text x="100" y="113" text-anchor="middle" font-family="Marcellus,serif" font-size="9" fill="#c9a96e" letter-spacing="1">PARFUM</text></svg>"""
+SVG_TRIM = """<svg viewBox="0 0 200 160" aria-hidden="true"><ellipse cx="100" cy="148" rx="30" ry="6" fill="#000" opacity=".18"/><rect x="80" y="30" width="40" height="116" rx="18" fill="#1b2735"/><rect x="78" y="18" width="44" height="18" rx="3" fill="#5a6472"/><g stroke="#c9a96e" stroke-width="1.5">""" + "".join(f'<line x1="{80+i*4}" y1="12" x2="{80+i*4}" y2="20"/>' for i in range(11)) + """</g><circle cx="100" cy="74" r="6" fill="none" stroke="#c9a96e" stroke-width="2"/><circle cx="100" cy="112" r="11" fill="none" stroke="#c9a96e" stroke-width="2"/></svg>"""
+
 # Shop categories. Add real products (name, price, link, photo) as they're stocked.
 PRODUCTS = [
-    ("Styling", "Pomades, clays & creams", "Hold from natural to sharp. The same products Susy finishes with in the chair.", SVG_TIN, "shop"),
-    ("Beard Care", "Oils & balms", "Soften, tame the itch and keep it groomed between visits.", SVG_DROP, "shop"),
-    ("Hair & Scalp", "Shampoo & conditioner", "Daily care for men's hair, including color-safe formulas after gray blending.", SVG_PUMP, "shop"),
+    ("Styling", "Pomades & clays", "Hold from natural to sharp, from matte clay to high-shine pomade.", SVG_TIN, "styling"),
+    ("Beard Care", "Oils & kits", "Soften, tame the itch and keep it groomed between visits.", SVG_DROP, "beard-care"),
+    ("Hair & Scalp", "Shampoo & conditioner", "Daily scalp care for men's hair, sulfate-free options included.", SVG_PUMP, "hair-scalp"),
     ("Gift Cards", "From $50", "Good for any service or product. The gift he'll actually use.", SVG_GIFT, "book"),
 ]
 
@@ -71,7 +74,21 @@ NAV = [("index.html", "Home"), ("index.html#services", "Services & prices"), ("s
 
 # Affiliate products ("Susy's Picks"). Add one dict per product:
 # {"name": "...", "brand": "...", "price": "$24", "img": "https://... or assets/...", "url": "https://affiliate-link", "note": "Why Susy likes it"}
-AFFILIATE = []
+_PJ = os.path.join(os.path.dirname(os.path.abspath(__file__)), "..", "shop", "products.json")
+AFFILIATE = json.load(open(_PJ)) if os.path.exists(_PJ) else []
+AFF_NOTES = {   # short card copy, label facts only (no prices, ratings or health claims)
+    1: "A matte, strong-hold clay for textured cuts and crops that need to keep their shape.",
+    2: "The classic barbershop pomade: medium hold and high shine for side parts, slick-backs and executive cuts.",
+    3: "A small-batch American pomade with 18.21's signature Sweet Tobacco scent, in a glass jar.",
+    4: "Everything a full beard needs in one box: wash, conditioner, oil, balm and a wooden comb.",
+    5: "A lightweight, non-greasy oil made with desert botanicals. Softens the beard and helps calm itch.",
+    6: "A shampoo and conditioner duo with 5% minoxidil and biotin on the label, plus ginseng and ginger.",
+    7: "A sulfate-free set with salicylic acid, biotin and yeast extract, built around scalp health.",
+    8: "An eau de parfum with bright citrus over warm vanilla, in a sculpted gunmetal bottle.",
+    9: "A waterproof body trimmer with SkinSafe blades, USB-C charging and four guards for upkeep between visits.",
+}
+AFF_CATS = [("Styling", "styling"), ("Beard Care", "beard-care"), ("Hair & Scalp", "hair-scalp"), ("Fragrance", "fragrance"), ("Tools", "tools")]
+AMZ_DISCLOSE = "As an Amazon Associate, The Q Salon earns from qualifying purchases."
 
 # Every SEO page, linked from the footer of every page (internal linking for Google).
 SEO_LINKS = [
@@ -340,9 +357,12 @@ body.menu-open{overflow:hidden}
 .disclose{font-size:.82rem;margin-top:18px;max-width:70ch}
 .foot-links{padding-top:40px;border-bottom:1px solid var(--line-d);padding-bottom:28px}.foot-links nav{display:flex;flex-wrap:wrap;gap:10px 22px;font-size:.9rem}
 .affs{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:20px;margin-top:32px}@media(max-width:900px){.affs{grid-template-columns:repeat(2,minmax(0,1fr))}}@media(max-width:520px){.affs{grid-template-columns:1fr}}
-.aff{background:#fff;border:1px solid var(--line);border-radius:10px;overflow:hidden;display:flex;flex-direction:column;transition:transform .3s,box-shadow .3s}.aff:hover{transform:translateY(-4px);box-shadow:0 20px 40px -26px rgba(20,32,46,.5)}
+.aff{scroll-margin-top:110px;background:#fff;border:1px solid var(--line);border-radius:10px;overflow:hidden;display:flex;flex-direction:column;transition:transform .3s,box-shadow .3s}.aff:hover{transform:translateY(-4px);box-shadow:0 20px 40px -26px rgba(20,32,46,.5)}
 .aff-img{aspect-ratio:1;background:var(--stone);display:grid;place-items:center}.aff-img img{width:100%;height:100%;object-fit:contain;padding:18px}
 .aff-meta{padding:20px;display:flex;flex-direction:column;gap:6px;flex:1}.aff-meta .k{font:500 .68rem var(--mono);letter-spacing:.16em;text-transform:uppercase;color:var(--brass)}.aff-meta p{color:var(--muted);font-size:.92rem;flex:1}
+.aff-fb{aspect-ratio:4/3;background:radial-gradient(circle at 50% 55%,#2c3d52 0,#14202e 75%);display:flex;flex-direction:column;gap:6px;padding:22px}.aff-fb svg{width:60%;max-width:170px;height:auto}.aff-fb span{font:500 .7rem var(--mono);letter-spacing:.2em;text-transform:uppercase;color:var(--brass-l)}
+.aff-v{font-size:.82rem;color:var(--muted)}.aff-go{align-self:flex-start;margin-top:12px}
+.aff-cat{margin-top:44px}.aff-cat:first-of-type{margin-top:28px}.aff-h{font:400 1.4rem var(--display);color:var(--navy);padding-bottom:10px;border-bottom:1px solid var(--line)}.aff-cat .affs{margin-top:20px}
 .aff-row{display:flex;justify-content:space-between;align-items:center;gap:12px;margin-top:10px}.aff-row b{font:500 1.1rem var(--mono);color:var(--navy)}
 .related{display:flex;flex-wrap:wrap;gap:10px;margin-top:20px}.related a{border:1px solid var(--line);border-radius:999px;padding:8px 16px;text-decoration:none;font-size:.9rem;color:var(--navy);background:#fff}.related a:hover{border-color:var(--brass)}
 .crumbs{font:500 .7rem/1.4 var(--mono);letter-spacing:.14em;text-transform:uppercase;color:var(--muted);margin-bottom:22px}.crumbs ol{list-style:none;display:flex;flex-wrap:wrap;gap:8px;margin:0;padding:0}.crumbs li+li::before{content:"/";margin-right:8px;color:var(--line)}.crumbs a{text-decoration:none}.crumbs a:hover{color:var(--brass)}
@@ -379,6 +399,8 @@ def head(title, desc, path, crumb):
 <script type="application/ld+json">{schema(path, title, desc, crumb)}</script>
 <style>{CSS}</style>"""
 
+def esc(t):
+    return str(t).replace("&", "&amp;").replace("<", "&lt;").replace(">", "&gt;").replace('"', "&quot;")
 ARR = '<span class="arr" aria-hidden="true">→</span>'
 
 # Header menu groups: (heading, [(page, label, note)])
@@ -467,18 +489,21 @@ def faq_schema(faqs):
 def product_cards():
     out = []
     for k, sub, d, svg, dest in PRODUCTS:
-        href = B["book"] if dest == "book" else B["shop"]
-        label = "Buy a gift card" if dest == "book" else f"Shop {k.lower()}"
+        if dest == "book":
+            link = f'<a class="go" href="{B["book"]}" target="_blank" rel="noopener">Buy a gift card {ARR}</a>'
+        else:
+            link = f'<a class="go" href="shop.html#{dest}">See Susy\'s picks {ARR}</a>'
         out.append(f"""<article class="prod"><div class="art">{svg}</div><div class="meta"><span class="k">{sub}</span><h3>{k}</h3><p>{d}</p>
-<a class="go" href="{href}" target="_blank" rel="noopener">{label} {ARR}</a></div></article>""")
+{link}</div></article>""")
     return "".join(out)
 
 def shop_section(title="The Q Shop", h2="Take the finish home."):
     return f"""<section class="sec on-dark" id="shop"><div class="wrap">
 <div class="sec-head"><div><p class="eyebrow">{title}</p><h2>{h2}</h2></div>
-<p>The products Susy uses in the chair, picked for men's hair and Florida humidity. Order online or pick up at your next visit.</p></div>
+<p>Susy's picks for men's hair, beards and Florida humidity, available on Amazon. Gift cards are good for any service.</p></div>
 <div class="products">{product_cards()}</div>
-<div class="acts"><a class="btn btn-brass" href="{B['shop']}" target="_blank" rel="noopener">Shop all products {ARR}</a><a class="btn btn-line" href="shop.html">Visit the shop</a></div>
+<div class="acts"><a class="btn btn-brass" href="shop.html#picks">Shop Susy's picks {ARR}</a><a class="btn btn-line" href="{B['book']}" target="_blank" rel="noopener">Book a cut</a></div>
+<p class="disclose" style="color:var(--muted-d)">{AMZ_DISCLOSE}</p>
 </div></section>"""
 
 def cta(text="Pick your service and any open time in under a minute."):
@@ -499,13 +524,30 @@ def visit(show_map=False):
 <p class="contact"><a href="mailto:{B['email']}">{B['email']}</a><a href="{B['instagram']}" target="_blank" rel="noopener">Instagram @theqsalon_srq</a><a href="{B['maps']}" target="_blank" rel="noopener">Google reviews</a><a href="/llms.txt">Salon facts (plain text)</a></p></div>
 <nav aria-label="Footer">{"".join(f'<a href="{h}">{t}</a>' for h, t in NAV)}</nav></div></div></footer>"""
 
+def _fallback_art(p):
+    svg = {"Styling": SVG_TIN, "Beard Care": SVG_DROP, "Hair & Scalp": SVG_PUMP, "Fragrance": SVG_BOTTLE, "Tools": SVG_TRIM}.get(p["category"], SVG_TIN)
+    return f'<div class="aff-img aff-fb">{svg}<span>{esc(p["brand"])}</span></div>'
+
+def aff_card(p):
+    img = (f'<div class="aff-img"><img src="{p["image"]}" alt="{esc(p["name"])}" loading="lazy"></div>' if p.get("image") else _fallback_art(p))
+    return f"""<article class="aff">{img}
+<div class="aff-meta"><span class="k">{esc(p['category'])}</span><h3>{esc(p['name'])}</h3><p>{esc(AFF_NOTES.get(p['slot'], ''))}</p>
+<span class="aff-v">{esc(p['finish'])} · {esc(p['variant'])}</span>
+<a class="btn btn-sm aff-go" href="{p['link']}" target="_blank" rel="sponsored nofollow noopener">See it on Amazon {ARR}</a></div></article>"""
+
 def affiliate_grid():
     if not AFFILIATE:
         return ""
-    cards = "".join(f"""<article class="aff"><div class="aff-img"><img src="{p['img']}" alt="{p['name']}" loading="lazy"></div>
-<div class="aff-meta"><span class="k">{p.get('brand','')}</span><h3>{p['name']}</h3><p>{p.get('note','')}</p>
-<div class="aff-row"><b>{p.get('price','')}</b><a class="btn btn-sm" href="{p['url']}" target="_blank" rel="sponsored nofollow noopener">Buy now {ARR}</a></div></div></article>""" for p in AFFILIATE)
-    return f'<div class="affs">{cards}</div>'
+    cats = [(c, g) for c, g in AFF_CATS if any(p["category"] == c for p in AFFILIATE)]
+    chips = "".join(f'<a href="#{g}">{esc(c)}</a>' for c, g in cats)
+    cards, seen = [], set()
+    for c, g in cats:
+        for p in [x for x in AFFILIATE if x["category"] == c]:
+            card = aff_card(p)
+            if c not in seen:
+                card = card.replace('<article class="aff">', f'<article class="aff" id="{g}">', 1); seen.add(c)
+            cards.append(card)
+    return f'<nav class="related aff-chips" aria-label="Product categories">{chips}</nav><div class="affs">{"".join(cards)}</div>'
 
 def clean_links(html):
     """Internal links -> clean root-relative URLs that match the canonicals (/skin-fade-sarasota, not skin-fade-sarasota.html)."""
@@ -595,14 +637,14 @@ home = f"""
 # ---------- Shop ----------
 shop = f"""
 <section class="page-hero"><div class="wrap"><p class="eyebrow">The Q Shop</p><h1>Products for the morning after your cut.</h1>
-<p class="lede">Styling, beard and hair-care essentials hand-picked by Susy, plus gift cards for any service. Order online or pick up in the salon.</p>
-<div class="acts"><a class="btn" href="{B['shop']}" target="_blank" rel="noopener">Shop on Squire {ARR}</a><a class="btn btn-line" href="{B['book']}" target="_blank" rel="noopener">Book a cut</a></div></div></section>
+<p class="lede">Styling, beard, hair-care, fragrance and grooming tools picked by Susy, plus gift cards for any service.</p>
+<div class="acts"><a class="btn" href="#picks">See Susy's picks {ARR}</a><a class="btn btn-line" href="{B['book']}" target="_blank" rel="noopener">Book a cut</a></div></div></section>
 {shop_section("Shop by need", "Everything Susy reaches for.")}
 <section class="sec" id="picks"><div class="wrap">
-<div class="sec-head"><div><p class="eyebrow">Susy's picks</p><h2>Tools &amp; extras she recommends</h2></div>
-<p>Trimmers, combs and grooming gear Susy trusts for between-visit touch-ups.{"" if AFFILIATE else " Her full list is coming soon; ask her at your next appointment."}</p></div>
+<div class="sec-head"><div><p class="eyebrow">Susy's picks</p><h2>What to use between visits</h2></div>
+<p>Pomades, beard care, scalp care, fragrance and a trimmer for upkeep between appointments. Not sure which suits your cut? Ask Susy in the chair.</p></div>
+<p class="disclose muted">{AMZ_DISCLOSE} Links open Amazon, where current prices and availability are shown.</p>
 {affiliate_grid()}
-<p class="disclose muted">Some links on this page are affiliate links. If you buy through them, The Q Salon may earn a small commission at no extra cost to you.</p>
 </div></section>
 {cta("Fresh cut first, then the products to keep it.")}
 """
