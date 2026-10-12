@@ -66,7 +66,6 @@ PRODUCTS = [
     ("Styling", "Pomades & clays", "Hold from natural to sharp, from matte clay to high-shine pomade.", SVG_TIN, "styling"),
     ("Beard Care", "Oils & kits", "Soften, tame the itch and keep it groomed between visits.", SVG_DROP, "beard-care"),
     ("Hair & Scalp", "Shampoo & conditioner", "Daily scalp care for men's hair, sulfate-free options included.", SVG_PUMP, "hair-scalp"),
-    ("Gift Cards", "From $50", "Good for any service. The gift he'll actually use.", SVG_GIFT, "book"),
 ]
 
 NAV = [("index.html", "Home"), ("index.html#services", "Services & prices"), ("shop.html", "Shop"),
@@ -319,8 +318,8 @@ body.menu-open{overflow:hidden}
 .item p{grid-column:1/-1;color:var(--muted);font-size:.95rem}.item .dur{font:500 .72rem var(--mono);letter-spacing:.12em;text-transform:uppercase;color:var(--brass)}
 .menu-foot{display:flex;flex-wrap:wrap;gap:16px;justify-content:space-between;align-items:center;margin-top:36px;padding-top:28px;border-top:1px solid var(--line)}
 /* shop */
-.products{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:20px}
-@media(max-width:980px){.products{grid-template-columns:repeat(2,minmax(0,1fr))}}@media(max-width:520px){.products{grid-template-columns:1fr}}
+.products{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:20px}
+@media(max-width:760px){.products{grid-template-columns:1fr}}
 .prod{background:var(--navy-2);border:1px solid var(--line-d);border-radius:10px;overflow:hidden;display:flex;flex-direction:column;transition:transform .35s cubic-bezier(.2,.7,.2,1),border-color .35s,box-shadow .35s}
 .prod:hover{transform:translateY(-6px);border-color:var(--brass);box-shadow:0 24px 50px -28px rgba(0,0,0,.8)}
 .prod .art{background:radial-gradient(circle at 50% 60%,#2c3d52 0,#1c2a3b 70%);aspect-ratio:5/4;display:grid;place-items:center;padding:18px}
@@ -331,6 +330,33 @@ body.menu-open{overflow:hidden}
 .prod p{color:var(--muted-d);font-size:.93rem;flex:1}.prod .go{margin-top:10px;font-weight:600;color:#fff;text-decoration:none;display:inline-flex;gap:8px;align-items:center}
 .prod .go .arr{transition:transform .25s}.prod:hover .go .arr{transform:translateX(4px)}
 .shop-note{margin-top:28px;color:var(--muted-d);font-size:.88rem}
+/* gift card feature */
+.gift{position:relative;margin-top:56px;display:grid;grid-template-columns:.95fr 1.05fr;gap:clamp(28px,5vw,64px);align-items:center;padding:clamp(28px,4.5vw,56px);border-radius:16px;background:radial-gradient(120% 140% at 0% 0%,#2a3d57 0,#14202e 60%);border:1px solid rgba(214,185,132,.55);box-shadow:0 30px 80px -40px rgba(0,0,0,.9),inset 0 1px 0 rgba(255,255,255,.06);overflow:hidden}
+.gift::before{content:"";position:absolute;inset:-40% auto auto -10%;width:60%;height:120%;background:radial-gradient(closest-side,rgba(214,185,132,.18),transparent);pointer-events:none}
+@media(max-width:820px){.gift{grid-template-columns:1fr}}
+.gift>*{min-width:0;position:relative}
+.gift-art{display:grid;place-items:center;perspective:1000px}
+.gcard{position:relative;width:min(100%,400px);aspect-ratio:1.586;border-radius:18px;padding:22px 24px;color:#14202e;overflow:hidden;
+background:linear-gradient(125deg,#7e5f34 0%,#d9bd86 22%,#f6e7c1 38%,#c9a465 55%,#efdcae 72%,#9b7744 100%);
+box-shadow:0 28px 50px -18px rgba(0,0,0,.8),0 2px 0 rgba(255,255,255,.35) inset,0 -2px 0 rgba(0,0,0,.18) inset;transform:rotateY(-14deg) rotateX(6deg) rotate(-3deg);transition:transform .6s cubic-bezier(.2,.7,.2,1)}
+.gift:hover .gcard{transform:rotateY(-4deg) rotateX(2deg) rotate(-1deg) translateY(-4px)}
+.gc-q{position:absolute;top:20px;left:22px;width:46px;height:46px;border-radius:50%;border:1.5px solid rgba(20,32,46,.75);display:grid;place-items:center;font:400 1.5rem var(--display)}
+.gc-brand{position:absolute;top:22px;right:24px;text-align:right;font:400 1rem/1.1 var(--display);letter-spacing:.12em;text-transform:uppercase}
+.gc-brand small{display:block;margin-top:5px;font:500 .55rem var(--mono);letter-spacing:.22em;opacity:.75}
+.gc-title{position:absolute;left:24px;bottom:22px;font:400 clamp(1.5rem,3.4vw,2.1rem)/1 var(--display)}
+.gc-val{position:absolute;right:24px;bottom:22px;font:500 1.15rem var(--mono)}.gc-val sup{font-size:.7em}
+.gc-chip{position:absolute;left:24px;top:50%;width:40px;height:30px;margin-top:-15px;border-radius:6px;background:linear-gradient(135deg,rgba(20,32,46,.25),rgba(20,32,46,.05));border:1px solid rgba(20,32,46,.35)}
+.gc-shine{position:absolute;inset:0;background:linear-gradient(105deg,transparent 35%,rgba(255,255,255,.55) 48%,transparent 60%);transform:translateX(-120%);animation:gcShine 5.5s ease-in-out infinite}
+@keyframes gcShine{0%,55%{transform:translateX(-120%)}75%,100%{transform:translateX(120%)}}
+.gift-copy .eyebrow{color:var(--brass-l)}
+.gift-copy h3{font:400 clamp(1.7rem,3.4vw,2.5rem)/1.12 var(--display);color:#fff}
+.gift-copy>p{color:var(--muted-d);margin-top:14px;max-width:52ch}
+.gift-menu{list-style:none;margin:22px 0 0;padding:0;border-top:1px solid var(--line-d);max-width:440px}
+.gift-menu li{display:flex;justify-content:space-between;gap:14px;padding:11px 0;border-bottom:1px solid var(--line-d);color:#efe8dc}
+.gift-menu b{font:500 1rem var(--mono);color:var(--brass-l)}
+.gift-acts{display:flex;flex-wrap:wrap;align-items:center;gap:14px 20px;margin-top:26px}
+.gift-acts span{font-size:.86rem;color:var(--muted-d);max-width:30ch}
+.gift-btn{background:linear-gradient(120deg,#c9a465,#f0dcab 50%,#c9a465);color:#14202e;box-shadow:0 10px 30px -12px rgba(214,185,132,.7)}.gift-btn:hover{filter:brightness(1.06)}.gift-btn .arr{color:#14202e;opacity:1}
 /* about */
 .about{display:grid;grid-template-columns:.8fr 1.2fr;gap:clamp(32px,6vw,80px);align-items:center}.about>*{min-width:0}
 @media(max-width:820px){.about{grid-template-columns:1fr}}
@@ -504,13 +530,23 @@ def product_cards():
 {link}</div></article>""")
     return "".join(out)
 
+def gift_banner():
+    return f"""<aside class="gift" aria-labelledby="gift-h">
+<div class="gift-art" aria-hidden="true"><div class="gcard"><span class="gc-q">Q</span><span class="gc-brand">The Q Salon<small>For men · Sarasota</small></span><span class="gc-title">Gift Card</span><span class="gc-val">$50<sup>+</sup></span><span class="gc-chip"></span><span class="gc-shine"></span></div></div>
+<div class="gift-copy"><p class="eyebrow">Q Salon gift cards</p><h3 id="gift-h">Give him an hour in Susy's chair.</h3>
+<p>Good for any service at The Q, from a sharp classic cut to natural gray blending or the Gentleman's Facial. Redeemed in the salon, with Susy.</p>
+<ul class="gift-menu"><li><span>Classic Haircut</span><b>$60</b></li><li><span>Skin Fade</span><b>$80</b></li><li><span>Gentleman's Facial</span><b>$75</b></li></ul>
+<div class="gift-acts"><a class="btn gift-btn" href="{B['book']}" target="_blank" rel="noopener">Buy a gift card {ARR}</a><span>Birthdays, Father's Day, holidays: the gift he'll actually use.</span></div></div>
+</aside>"""
+
 def shop_section(title="The Q Shop", h2="Take the finish home."):
     return f"""<section class="sec on-dark" id="shop"><div class="wrap">
 <div class="sec-head"><div><p class="eyebrow">{title}</p><h2>{h2}</h2></div>
-<p>Susy's picks for men's hair, beards and Florida humidity, available on Amazon. Gift cards are good for any service.</p></div>
+<p>Susy's picks for men's hair, beards and Florida humidity, available on Amazon.</p></div>
 <div class="products">{product_cards()}</div>
 <div class="acts"><a class="btn btn-brass" href="shop.html#picks">Shop Susy's picks {ARR}</a><a class="btn btn-line" href="{B['book']}" target="_blank" rel="noopener">Book a cut</a></div>
 <p class="disclose" style="color:var(--muted-d)">{AMZ_DISCLOSE}</p>
+{gift_banner()}
 </div></section>"""
 
 def cta(text="Pick your service and any open time in under a minute."):
