@@ -136,7 +136,7 @@ def business_node():
         "description": "Private, one-chair men's hair salon and barber in downtown Sarasota, FL. Master barber and stylist Susy "
                        "does every cut: men's haircuts, executive cuts, skin fades, natural gray blending, gentleman's facials and kids' cuts. Appointments only.",
         "url": B["site"] + "/", "telephone": B["phone_e164"], "email": B["email"],
-        "image": [B["site"] + IMG_SHARE, f"{B['site']}/assets/{IMG_SUSY}.jpg", f"{B['site']}/assets/{IMG_HERO}.jpg"],
+        "image": [B["site"] + IMG_SHARE, f"{B['site']}/assets/{IMG_SUSY}.jpg", f"{B['site']}/assets/susy-the-q-salon-downtown-sarasota.jpg", f"{B['site']}/assets/{IMG_HERO}.jpg"],
         "logo": B["site"] + "/assets/icon-512.png", "priceRange": "$30–$130", "currenciesAccepted": "USD",
         "foundingDate": B["founded"],
         "address": {"@type": "PostalAddress", "streetAddress": B["street"], "addressLocality": B["city"],
@@ -160,7 +160,7 @@ def business_node():
 def susy_node():
     return {"@type": "Person", "@id": SUSY_ID, "name": "Susy", "jobTitle": "Master Barber & Stylist",
             "description": "Master barber and men's stylist with more than 10 years of experience; the only stylist at The Q Salon for Men in Sarasota.",
-            "worksFor": {"@id": BIZ_ID}, "image": f"{B['site']}/assets/{IMG_SUSY}.jpg",
+            "worksFor": {"@id": BIZ_ID}, "image": [f"{B['site']}/assets/susy-the-q-salon-downtown-sarasota.jpg", f"{B['site']}/assets/{IMG_SUSY}.jpg"],
             "knowsAbout": ["Men's haircuts", "Skin fades", "Gray blending", "Men's grooming"]}
 
 def schema(path, title, desc, crumb):
@@ -284,6 +284,7 @@ body.menu-open{overflow:hidden}
 .hero2 h1 .l{display:block;overflow:hidden}.hero2 h1 .l>span{display:inline-block;animation:rise .9s cubic-bezier(.2,.7,.2,1) both}
 .hero2 h1 .l:nth-child(2)>span{animation-delay:.08s}.hero2 h1 .l:nth-child(3)>span{animation-delay:.16s}
 .hero2 h1 em{font-style:normal;color:var(--brass)}
+.h1-eyebrow{display:flex}
 .h2-by{display:inline-flex;align-items:center;gap:12px;margin-top:28px;text-decoration:none;padding:6px 18px 6px 6px;border:1px solid var(--line);border-radius:999px;background:#fff;transition:border-color .25s,transform .25s}
 .h2-by:hover{border-color:var(--brass);transform:translateY(-2px)}
 .h2-by img{width:44px;height:44px;border-radius:50%;object-fit:cover;object-position:50% 20%}
@@ -360,7 +361,7 @@ box-shadow:0 28px 50px -18px rgba(0,0,0,.8),0 2px 0 rgba(255,255,255,.35) inset,
 /* about */
 .about{display:grid;grid-template-columns:.8fr 1.2fr;gap:clamp(32px,6vw,80px);align-items:center}.about>*{min-width:0}
 @media(max-width:820px){.about{grid-template-columns:1fr}}
-.about .ph{border-radius:6px;overflow:hidden;aspect-ratio:1;max-width:440px}.about .ph img{width:100%;height:100%;object-fit:cover;object-position:50% 20%}
+.about .ph{border-radius:6px;overflow:hidden;aspect-ratio:1;max-width:440px}.about .ph img{width:100%;height:100%;object-fit:cover;object-position:50% 20%}.about .ph.ph-tall{aspect-ratio:4/5;border-radius:10px;box-shadow:0 30px 60px -36px rgba(20,32,46,.6)}.about .ph.ph-tall img{object-position:50% 0}
 .quote{font:400 clamp(1.5rem,3vw,2.1rem)/1.3 var(--display);color:var(--navy);margin-top:6px}
 .about .body p{color:var(--muted);margin-top:16px;max-width:60ch}.about .sig{margin-top:24px;font:500 .74rem var(--mono);letter-spacing:.2em;text-transform:uppercase;color:var(--brass)}
 .pillars{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:20px;margin-top:32px}@media(max-width:560px){.pillars{grid-template-columns:1fr}}
@@ -559,7 +560,7 @@ def visit(show_map=False):
     return f"""<section class="sec visit" id="visit"><div class="wrap"><div class="visit-in">
 <div><p class="eyebrow">Visit</p><h3>Downtown Sarasota</h3><address style="font-style:normal"><p>{ADDR}</p></address><p><a class="link" href="{B['maps']}" target="_blank" rel="noopener">Get directions</a></p></div>
 <div><p class="eyebrow">Hours</p><h3>{B['hours']}</h3><p class="muted">By appointment. Closed Saturday &amp; Sunday.</p></div>
-<div><p class="eyebrow">Call or text</p><a class="tel" href="tel:{B['phone_e164']}">{B['phone']}</a><p class="muted">Our front desk will text you the booking link.</p></div>
+<div><p class="eyebrow">Call</p><a class="tel" href="tel:{B['phone_e164']}">{B['phone']}</a><p class="muted">Our front desk will help you book, or book online at theqsalonsrq.com/book.</p></div>
 </div>{gmap}</div></section>
 <footer class="foot"><div class="wrap">
 <div class="foot-links"><p class="eyebrow" style="color:var(--brass-l)">Services &amp; areas</p><nav aria-label="Services and areas">{"".join(f'<a href="{h}">{t}</a>' for h, t in SEO_LINKS)}</nav></div>
@@ -616,7 +617,7 @@ def page(path, title, desc, body, crumb=""):
 HOME_FAQ = [
     ("Is The Q Salon for Men a barbershop?", "It's a private men's hair salon with full barbering skills. Susy does skin fades, line-ups and clipper work alongside scissor cuts, executive cuts and men's gray blending. One chair, appointments only."),
     ("How much is a men's haircut at The Q?", "A Classic Haircut is $60 (about 45 minutes). The Executive Haircut and Skin Fade are $80 (about an hour). Natural Look Color & Style is $130, the Gentleman's Facial is $75, and kids' cuts for under-12s are $30."),
-    ("How do I book?", "Online through SQUIRE at theqsalonsrq.com/book, which takes under a minute. You can also call (941) 340-2389 and the front desk will text you the booking link."),
+    ("How do I book?", "Online through SQUIRE at theqsalonsrq.com/book, which takes under a minute. You can also call (941) 340-2389 and the front desk will help you book."),
     ("Where is The Q Salon for Men?", f"{ADDR}, in downtown Sarasota near Main Street and Five Points. It's about 10 minutes from Lido Key and St. Armands, 15 from Siesta Key, 20 from Longboat Key and 25 from Lakewood Ranch."),
     ("What are the hours?", "Monday through Friday, 9 AM to 2 PM, by appointment. Closed Saturday and Sunday."),
     ("Who cuts my hair?", "Susy, a master barber and stylist with more than 10 years of experience. She is the only stylist at The Q, so you see the same expert every visit."),
@@ -631,8 +632,7 @@ home = f"""
 <span class="h2-issue">The Q · Sarasota · Est. 2021</span>
 </div></figure>
 <div class="h2-copy"><div class="h2-inner">
-<p class="eyebrow">Men's hair salon &amp; barber · Downtown Sarasota</p>
-<h1><span class="l"><span>The cut</span></span><span class="l"><span>that carries</span></span><span class="l"><span><em>the room.</em></span></span></h1>
+<h1><span class="eyebrow h1-eyebrow">Men's hair salon &amp; barber · Downtown Sarasota</span><span class="l"><span>The cut</span></span><span class="l"><span>that carries</span></span><span class="l"><span><em>the room.</em></span></span></h1>
 <p class="lede">Men's haircuts, skin fades and natural gray blending in downtown Sarasota, from master stylist Susy. One chair, by appointment, and her full attention from start to finish.</p>
 <div class="acts"><a class="btn" href="{B['book']}" target="_blank" rel="noopener">Book an appointment {ARR}</a><a class="btn btn-line" href="#shop">Shop products</a></div>
 <a class="h2-by" href="#meet">{pic(IMG_SUSY + "-thumb", "", 44, 44)}<span><b>Every cut by Susy</b><small>Master barber &amp; stylist · 10+ years</small></span></a>
@@ -744,7 +744,7 @@ fade = seo_page("Skin fades with a clean, seamless blend", "Skin fade · Sarasot
 color = seo_page("Gray blending that looks like you", "Men's hair color · Sarasota, FL",
     "Natural-looking men's color and gray blending in downtown Sarasota. Softens the gray without the flat, dyed look.",
     """<h2>Blend, don't cover</h2>
-<p>Full-coverage dye on men's hair often looks flat and grows out with a hard line. Our <strong>Natural Look Color &amp; Style</strong> blends the gray instead, leaving some of it in so the result reads as your own hair, just a few years fresher.</p>
+<p>Gray blending in Sarasota is what most of Susy's color clients ask for. Full-coverage dye on men's hair often looks flat and grows out with a hard line. Our <strong>Natural Look Color &amp; Style</strong> blends the gray instead, leaving some of it in so the result reads as your own hair, just a few years fresher.</p>
 <h2>What to expect</h2>
 <p>The appointment runs about an hour and 15 minutes and includes your color, a cut refresh and styling, for $130. Most clients come back every four to six weeks to keep it consistent.</p>
 <h2>Low maintenance by design</h2>
@@ -781,7 +781,7 @@ executive = seo_page("The Executive Haircut", "Executive haircut · Sarasota, FL
 facial = seo_page("A Gentleman's Facial in Sarasota", "Men's facial · Sarasota, FL",
     "A 45-minute men's facial in Sarasota: cleanse, exfoliate and hydrate. Built for Florida sun and daily shaving.",
     """<h2>Why men book a facial</h2>
-<p>Sun, salt air, humidity and daily shaving are hard on skin. The Gentleman's Facial deep-cleans pores, exfoliates dull skin and restores hydration, so you leave looking rested rather than polished.</p>
+<p>The Q doubles as a small men's facial spa in downtown Sarasota. Sun, salt air, humidity and daily shaving are hard on skin. The Gentleman's Facial deep-cleans pores, exfoliates dull skin and restores hydration, so you leave looking rested rather than polished.</p>
 <h2>What happens in 45 minutes</h2>
 <ul><li>Cleanse and steam to open pores</li><li>Exfoliation to clear buildup and ingrown-prone areas</li><li>Hydration matched to your skin</li><li>A few simple at-home tips</li></ul>
 <h2>Pair it</h2>
@@ -809,16 +809,17 @@ grooming = seo_page("Men's grooming in Sarasota, all in one chair", "Men's groom
     FAQ_COMMON + [("How often should men get a haircut?", "Every two to three weeks for fades, three to five weeks for longer cuts.")],
     ALL, ["barber-sarasota.html", "mens-facial-sarasota.html", "mens-hair-color-sarasota.html", "grooming-guide.html"])
 
-def area_page(area, drive, route, local, popular, extra_faq):
+def area_page(area, drive, route, local, popular, extra_faq, deep=""):
     return seo_page(f"Men's haircuts for {area}", f"Men's haircut · {area}, FL",
         f"{area} men book with Susy at The Q Salon for Men: precision cuts, skin fades and gray blending in downtown Sarasota, {drive}.",
         f"""<h2>Getting here from {area}</h2>
 <p>{route} The salon is at {ADDR}, in downtown Sarasota near Main Street and Five Points, with public garages and street parking a short walk away.</p>
 <h2>Why {area} clients make the trip</h2>
 <p>{local} The Q is a private, one-chair men's salon, so your appointment starts on time and Susy's attention stays on you from consultation to finish.</p>
+{deep}
 <h2>Popular with {area} clients</h2>
 <ul>{popular}</ul>
-<h2>Easy to book</h2><p>Book online in under a minute, Monday through Friday, 9 AM to 2 PM. Or call {B['phone']} and our front desk will text you the link.</p>""",
+<h2>Easy to book</h2><p>Book online in under a minute, Monday through Friday, 9 AM to 2 PM. Or call {B['phone']} and our front desk will help you book.</p>""",
         FAQ_COMMON + extra_faq, CUTS | {"Natural Look Color & Style"},
         ["barber-sarasota.html", "skin-fade-sarasota.html", "executive-haircut-sarasota.html", "mens-hair-color-sarasota.html"])
 
@@ -832,22 +833,38 @@ lido = area_page("Lido Key & St. Armands", "about 10 minutes from Lido Key and S
     "From Lido Key or St. Armands Circle, head east over the John Ringling Causeway into downtown. It's one of the shortest drives to the salon, usually about 10 minutes.",
     "Island living means sun, salt and pool water, all hard on hair and color. Lido and St. Armands clients rely on Susy for cuts that hold their shape in the humidity and color that stays natural.",
     LI_CLASSIC + LI_COLOR + LI_FACIAL,
-    [("How far is The Q from Lido Key?", "About 10 minutes: east over the John Ringling Causeway into downtown Sarasota.")])
+    [("How far is The Q from Lido Key?", "About 10 minutes: east over the John Ringling Causeway into downtown Sarasota."),
+     ("How do I keep salt water and chlorine from damaging my hair?", "Rinse with fresh water right after the beach or pool, use a sulfate-free shampoo, and wear a hat on long days in the sun. If you color your hair, ask Susy about keeping the tone from going brassy.")],
+    deep="""<h2>Beach, Circle, then the chair</h2>
+<p>Lido Beach, St. Armands Circle and downtown Sarasota are only minutes apart, so a weekday appointment fits easily between a morning on the sand and lunch on the Circle. Appointments run Monday through Friday from 9 AM, and the causeway puts you at the salon door quickly.</p>
+<p>Island clients often pair a Classic Haircut with the Gentleman's Facial: one visit to reset hair and skin that spend most of the week in sun, salt and pool water.</p>""")
 lwr = area_page("Lakewood Ranch", "about 25 minutes from Lakewood Ranch",
     "From Lakewood Ranch, take University Parkway or Fruitville Road west toward downtown Sarasota. Most clients make it in about 25 minutes, often pairing the appointment with a downtown lunch or meeting.",
     "Lakewood Ranch has plenty of chain barbershops and busy salons. Clients who want the same expert every visit, and no waiting room, make the drive downtown.",
     LI_EXEC + LI_FADE + LI_COLOR,
-    [("How far is The Q from Lakewood Ranch?", "About 25 minutes, west on University Parkway or Fruitville Road to downtown Sarasota.")])
+    [("How far is The Q from Lakewood Ranch?", "About 25 minutes, west on University Parkway or Fruitville Road to downtown Sarasota."),
+     ("Is it worth driving from Lakewood Ranch for a haircut?", "If you want the same master barber every visit, yes. The Q has one chair and no waiting room, appointments start on time, and Susy keeps track of how you like your cut, so you don't have to explain it again.")],
+    deep="""<h2>Built around a Lakewood Ranch schedule</h2>
+<p>The drive from Lakewood Ranch is long on paper but simple in practice: one straight run west on University Parkway or Fruitville Road. Many clients book the 9 AM opening and are heading back east before lunch, or tie the visit to a meeting downtown.</p>
+<p>The Executive Haircut is the usual pick before board meetings, presentations and client dinners, and a skin fade on a two-to-three-week rhythm keeps the sides sharp between trips.</p>""")
 siesta = area_page("Siesta Key", "about 15 minutes from Siesta Key",
     "From Siesta Key, cross the Siesta Drive or Stickney Point bridge and head north on US-41 (Tamiami Trail) into downtown. It's about 15 minutes from the north end of the key.",
     "Sun, salt and humidity are rough on hair. Siesta Key clients rely on Susy for cuts that hold their shape at the beach and gray blending that doesn't fade brassy in the sun.",
     LI_FADE + LI_COLOR + LI_FACIAL,
-    [("How far is The Q from Siesta Key?", "About 15 minutes: over the Siesta Drive or Stickney Point bridge, then north on US-41 to downtown.")])
+    [("How far is The Q from Siesta Key?", "About 15 minutes: over the Siesta Drive or Stickney Point bridge, then north on US-41 to downtown."),
+     ("What's a good men's haircut for the beach?", "A cut with soft texture that air-dries well and still looks deliberate after a swim. Tell Susy how much time you spend in the water and she'll build the shape around it.")],
+    deep="""<h2>A cut that survives Siesta Beach</h2>
+<p>Living near Siesta Beach means sun and salt water most weeks. Susy cuts with that in mind: shapes that air-dry well and settle back into place without much product, and gray blending in tones that hold up in strong UV instead of turning brassy.</p>
+<p>Simple habit that helps: rinse the salt out with fresh water after the beach, then use a light product once it's dry. Ask Susy which one suits your hair at your next visit.</p>""")
 longboat = area_page("Longboat Key", "about 20 minutes from Longboat Key",
     "From Longboat Key, take Gulf of Mexico Drive south through St. Armands Circle and across the John Ringling Causeway. From mid-key it's roughly 20 minutes to the salon.",
     "Longboat Key clients expect a refined, unhurried experience and a stylist who remembers exactly how they like it. That's how The Q is built.",
     LI_EXEC + LI_CLASSIC + LI_COLOR,
-    [("How far is The Q from Longboat Key?", "About 20 minutes from mid-key: south through St. Armands Circle, then over the Ringling Causeway into downtown.")])
+    [("How far is The Q from Longboat Key?", "About 20 minutes from mid-key: south through St. Armands Circle, then over the Ringling Causeway into downtown."),
+     ("Do you offer men's facials for Longboat Key clients?", "Yes. The Gentleman's Facial ($75, about 45 minutes) is done at the salon in downtown Sarasota, and it pairs well with a haircut in the same visit.")],
+    deep="""<h2>Made for golf, boating and the Gulf breeze</h2>
+<p>On Longboat Key, a lot of the week happens outdoors: on the course, on the water, in the Gulf breeze. Susy builds cuts that fall back into place after a cap comes off, and keeps executive cuts looking right well past the first week.</p>
+<p>For skin that sees a lot of sun and salt air, the Gentleman's Facial is an easy add-on, and natural gray blending keeps a polished look without anyone noticing the color.</p>""")
 
 salon = seo_page("A men's hair salon in downtown Sarasota", "Men's hair salon · Sarasota, FL",
     "The Q Salon for Men is a private, one-chair men's hair salon in downtown Sarasota: haircuts, skin fades, gray blending and facials, all by master stylist Susy.",
@@ -867,7 +884,7 @@ about = f"""<section class="page-hero"><div class="wrap"><p class="eyebrow">Abou
 <p class="lede">The Q Salon for Men opened in downtown Sarasota in November 2021 with a simple idea: one master stylist, one chair, and men's grooming done properly.</p>
 <div class="acts"><a class="btn" href="{B['book']}" target="_blank" rel="noopener">Book with Susy {ARR}</a><a class="btn btn-line" href="index.html#services">See the menu</a></div></div></section>
 <section class="sec" id="susy"><div class="wrap about">
-<div class="ph">{pic(IMG_SUSY, "Susy, master barber and stylist and owner of the chair at The Q Salon for Men, Sarasota", 800, 802)}</div>
+<div class="ph ph-tall">{pic("susy-the-q-salon-downtown-sarasota", "Susy, master barber and stylist, at her chair inside The Q Salon for Men on 1st Street in downtown Sarasota", 960, 1200)}</div>
 <div class="prose"><p class="eyebrow">Master barber &amp; stylist</p><h2 style="margin-top:0">Meet Susy</h2>
 <p>Susy has more than ten years of experience cutting men's hair. She's known for fades that blend clean every time, executive cuts that still look right weeks later, and gray blending so natural nobody can tell.</p>
 <p>She is the only stylist at The Q. Every haircut, fade, color and facial on the menu is done by her, start to finish, so you get the same hands and the same standard on every visit.</p>
@@ -902,16 +919,16 @@ guide = f"""<section class="page-hero"><div class="wrap"><p class="eyebrow">Groo
 {cta()}"""
 
 PAGES = [  # (path, <title>, meta description, body, breadcrumb label)
-    ("index.html", "The Q Salon for Men | Men's Haircuts & Barber, Sarasota FL", "Men's haircuts, skin fades and gray blending in downtown Sarasota at 1415 1st St. One chair, every cut by master stylist Susy. Rated 4.9★ on Google.", home, ""),
-    ("about.html", "About Susy & The Q Salon for Men · Sarasota", "Meet Susy, the master barber and stylist behind The Q Salon for Men, a private one-chair men's salon in downtown Sarasota since 2021.", about, "About"),
+    ("index.html", "The Q Salon for Men | Men's Hair Salon & Barber, Sarasota FL", "Men's hair salon and barber in downtown Sarasota: haircuts, skin fades, gray blending and facials, every cut by master barber Susy. Rated 4.9★ on Google.", home, ""),
+    ("about.html", "About Susy, Master Barber · The Q Salon for Men, Sarasota", "Meet Susy, the master barber and stylist behind The Q Salon for Men, a private one-chair men's hair salon on 1st Street in downtown Sarasota since 2021.", about, "About"),
     ("mens-hair-salon-sarasota.html", "Men's Hair Salon in Sarasota, FL · The Q Salon", "A private men's hair salon in downtown Sarasota: haircuts from $60, skin fades, gray blending and facials, all by master stylist Susy. Book online.", salon, "Men's hair salon"),
-    ("shop.html", "The Q Shop · Men's Grooming Products, Sarasota", "Shop men's styling, beard and hair-care products and gift cards from The Q Salon for Men in Sarasota.", shop, "Shop"),
+    ("shop.html", "The Q Shop · Men's Grooming Products, Sarasota", "Susy's picks for men's grooming, from pomade and beard oil to scalp care and trimmers, plus gift cards for any service at The Q Salon in Sarasota.", shop, "Shop"),
     ("mens-haircut-sarasota.html", "Men's Haircut Sarasota, FL · From $60 · The Q Salon", "Men's haircuts in downtown Sarasota from $60. Classic and executive cuts by a master stylist at 1415 1st St. Book online.", haircut, "Men's haircut"),
     ("skin-fade-sarasota.html", "Skin Fade Sarasota, FL · $80 · The Q Salon", "Skin fades in downtown Sarasota for $80. Low, mid and high fades with a seamless blend. Book online at The Q Salon for Men.", fade, "Skin fade"),
-    ("mens-hair-color-sarasota.html", "Men's Gray Blending & Hair Color Sarasota · The Q", "Natural men's hair color and gray blending in downtown Sarasota. Natural Look Color & Style, $130. Book at The Q Salon for Men.", color, "Gray blending"),
+    ("mens-hair-color-sarasota.html", "Men's Gray Blending & Hair Color Sarasota · The Q", "Men's gray blending in Sarasota: natural-looking color that softens the gray without the dyed look. Natural Look Color & Style, $130, at The Q Salon.", color, "Gray blending"),
     ("barber-sarasota.html", "Barber in Sarasota, FL · Downtown · The Q Salon", "Looking for a barber in Sarasota? Private one-chair men's salon with master stylist Susy. Haircuts from $60, skin fades $80. Book online.", barber, "Barber"),
     ("executive-haircut-sarasota.html", "Executive Haircut Sarasota · $80 · The Q Salon", "The Executive Haircut in Sarasota: an hour with a master stylist and extra detail work, $80. Book online at The Q Salon for Men.", executive, "Executive haircut"),
-    ("mens-facial-sarasota.html", "Men's Facial Sarasota · $75 · The Q Salon", "Gentleman's Facial in Sarasota: 45-minute men's facial to cleanse, exfoliate and hydrate, $75. Book at The Q Salon for Men.", facial, "Men's facial"),
+    ("mens-facial-sarasota.html", "Men's Facial Sarasota · $75 · The Q Salon", "Men's facial in Sarasota: the 45-minute Gentleman's Facial cleanses, exfoliates and hydrates, $75. A men's facial spa service at The Q Salon.", facial, "Men's facial"),
     ("kids-haircut-sarasota.html", "Kids' Haircut Sarasota · $30 · The Q Salon", "Calm kids' haircuts in Sarasota for boys under 12, $30. One chair, no crowd. Book father-and-son appointments online.", kids, "Kids' haircut"),
     ("mens-grooming-sarasota.html", "Men's Grooming Sarasota · The Q Salon for Men", "Men's grooming in Sarasota: haircuts, fades, gray blending, facials and products from one master stylist. Book online.", grooming, "Men's grooming"),
     ("mens-haircut-lido-key.html", "Men's Haircut Lido Key & St. Armands · The Q", "Men's haircuts for Lido Key and St. Armands, 10 minutes away in downtown Sarasota: cuts, fades and gray blending with master stylist Susy.", lido, "Lido Key & St. Armands"),
