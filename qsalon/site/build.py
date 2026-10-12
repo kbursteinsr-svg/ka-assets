@@ -324,6 +324,7 @@ body.menu-open{overflow:hidden}
 .prod{background:var(--navy-2);border:1px solid var(--line-d);border-radius:10px;overflow:hidden;display:flex;flex-direction:column;transition:transform .35s cubic-bezier(.2,.7,.2,1),border-color .35s,box-shadow .35s}
 .prod:hover{transform:translateY(-6px);border-color:var(--brass);box-shadow:0 24px 50px -28px rgba(0,0,0,.8)}
 .prod .art{background:radial-gradient(circle at 50% 60%,#2c3d52 0,#1c2a3b 70%);aspect-ratio:5/4;display:grid;place-items:center;padding:18px}
+.prod .art.photo{background:#fff;padding:0}.prod .art.photo picture{display:contents}.prod .art.photo img{width:100%;height:100%;object-fit:contain;padding:16px;transition:transform .5s cubic-bezier(.2,.7,.2,1)}.prod:hover .art.photo img{transform:scale(1.05)}
 .prod .art svg{width:100%;max-width:220px;height:auto;transition:transform .5s cubic-bezier(.2,.7,.2,1)}.prod:hover .art svg{transform:scale(1.06) rotate(-2deg)}
 .prod .meta{padding:22px;display:flex;flex-direction:column;gap:8px;flex:1}
 .prod .k{font:500 .68rem var(--mono);letter-spacing:.18em;text-transform:uppercase;color:var(--brass-l)}
@@ -486,6 +487,10 @@ def faq_schema(faqs):
     return '<script type="application/ld+json">' + json.dumps({"@context": "https://schema.org", "@type": "FAQPage",
         "mainEntity": [{"@type": "Question", "name": q, "acceptedAnswer": {"@type": "Answer", "text": a}} for q, a in faqs]}, ensure_ascii=False) + "</script>"
 
+CAT_PHOTO = {"styling": ("american-crew-pomade", "American Crew Pomade, one of Susy's styling picks"),
+             "beard-care": ("doc-holliday-beard-oil-smoked-huckleberry", "DOC HOLLIDAY Beard Oil, one of Susy's beard care picks"),
+             "hair-scalp": ("cardon-strengthening-shampoo-conditioner", "Cardon Strengthening Shampoo and Conditioner, one of Susy's hair and scalp picks")}
+
 def product_cards():
     out = []
     for k, sub, d, svg, dest in PRODUCTS:
@@ -493,7 +498,9 @@ def product_cards():
             link = f'<a class="go" href="{B["book"]}" target="_blank" rel="noopener">Buy a gift card {ARR}</a>'
         else:
             link = f'<a class="go" href="shop.html#{dest}">See Susy\'s picks {ARR}</a>'
-        out.append(f"""<article class="prod"><div class="art">{svg}</div><div class="meta"><span class="k">{sub}</span><h3>{k}</h3><p>{d}</p>
+        photo = CAT_PHOTO.get(dest)
+        art = (f'<div class="art photo"><picture><source srcset="/assets/shop/{photo[0]}.webp" type="image/webp"><img src="/assets/shop/{photo[0]}.jpg" alt="{photo[1]}" width="800" height="800" loading="lazy"></picture></div>' if photo else f'<div class="art">{svg}</div>')
+        out.append(f"""<article class="prod">{art}<div class="meta"><span class="k">{sub}</span><h3>{k}</h3><p>{d}</p>
 {link}</div></article>""")
     return "".join(out)
 

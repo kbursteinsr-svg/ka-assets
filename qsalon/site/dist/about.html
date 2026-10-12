@@ -153,6 +153,7 @@ body.menu-open{overflow:hidden}
 .prod{background:var(--navy-2);border:1px solid var(--line-d);border-radius:10px;overflow:hidden;display:flex;flex-direction:column;transition:transform .35s cubic-bezier(.2,.7,.2,1),border-color .35s,box-shadow .35s}
 .prod:hover{transform:translateY(-6px);border-color:var(--brass);box-shadow:0 24px 50px -28px rgba(0,0,0,.8)}
 .prod .art{background:radial-gradient(circle at 50% 60%,#2c3d52 0,#1c2a3b 70%);aspect-ratio:5/4;display:grid;place-items:center;padding:18px}
+.prod .art.photo{background:#fff;padding:0}.prod .art.photo picture{display:contents}.prod .art.photo img{width:100%;height:100%;object-fit:contain;padding:16px;transition:transform .5s cubic-bezier(.2,.7,.2,1)}.prod:hover .art.photo img{transform:scale(1.05)}
 .prod .art svg{width:100%;max-width:220px;height:auto;transition:transform .5s cubic-bezier(.2,.7,.2,1)}.prod:hover .art svg{transform:scale(1.06) rotate(-2deg)}
 .prod .meta{padding:22px;display:flex;flex-direction:column;gap:8px;flex:1}
 .prod .k{font:500 .68rem var(--mono);letter-spacing:.18em;text-transform:uppercase;color:var(--brass-l)}
