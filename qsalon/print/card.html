@@ -1,0 +1,44 @@
+<!doctype html><html><head><meta charset="utf-8"><style>
+@font-face{font-family:Marcellus;src:url(node_modules/@fontsource/marcellus/files/marcellus-latin-400-normal.woff2)}
+@font-face{font-family:Hanken;font-weight:400;src:url(node_modules/@fontsource/hanken-grotesk/files/hanken-grotesk-latin-400-normal.woff2)}
+@font-face{font-family:Hanken;font-weight:500;src:url(node_modules/@fontsource/hanken-grotesk/files/hanken-grotesk-latin-500-normal.woff2)}
+@font-face{font-family:DMMono;font-weight:500;src:url(node_modules/@fontsource/dm-mono/files/dm-mono-latin-500-normal.woff2)}
+@page{size:3.75in 2.25in;margin:0}
+*{box-sizing:border-box;margin:0;padding:0}
+html,body{width:3.75in}
+.card{width:3.75in;height:2.25in;position:relative;overflow:hidden;page-break-after:always;-webkit-print-color-adjust:exact;print-color-adjust:exact}
+/* trim = 0.125in in from edge; safe = 0.3in in from edge */
+.front{background:#14202e;color:#efe8dc}
+.front::before{content:"";position:absolute;inset:0;background:radial-gradient(120% 140% at 0% 0%,rgba(214,185,132,.16),transparent 55%)}
+.brand{position:absolute;left:.32in;top:.3in;display:flex;align-items:center;gap:.1in}
+.q{width:.36in;height:.36in;border-radius:50%;border:.7pt solid #d6b984;display:grid;place-items:center;font:400 13pt/1 Marcellus;color:#d6b984;padding-top:1pt}
+.wm b{display:block;font:400 9.5pt/1 Marcellus;letter-spacing:.14em;color:#f3f0ea}
+.wm small{display:block;margin-top:3.5pt;font:500 4.6pt/1 DMMono;letter-spacing:.32em;color:#b08d57}
+.name{position:absolute;left:.32in;bottom:.3in}
+.name h1{font:400 23pt/1 Marcellus;color:#f3f0ea;letter-spacing:.01em}
+.name p{margin-top:5pt;font:500 4.8pt/1 DMMono;letter-spacing:.22em;text-transform:uppercase;color:#d6b984;display:flex;align-items:center;gap:5pt}
+.name p::before{content:"";width:.22in;height:.5pt;background:#b08d57}
+.contact{position:absolute;right:.32in;bottom:.3in;text-align:right;font:400 6.4pt/1.62 Hanken;color:#c9cfd6}
+.contact .ph{font:500 8pt/1.4 Hanken;color:#f3f0ea;letter-spacing:.02em}
+.rule{position:absolute;right:.32in;top:.3in;font:500 4.4pt/1 DMMono;letter-spacing:.3em;color:#8a95a3;text-transform:uppercase}
+.back{background:#f3f0ea;color:#14202e;display:flex;align-items:center;justify-content:center;gap:.24in}
+.back::after{content:"";position:absolute;inset:.27in;border:.5pt solid rgba(176,141,87,.55);border-radius:4pt;pointer-events:none}
+.qrbox{width:1.12in;height:1.12in;background:#fff;border-radius:5pt;padding:.08in;box-shadow:0 0 0 .5pt #d4cdc2}
+.qrbox img{width:100%;height:100%;display:block;image-rendering:pixelated}
+.bk h2{font:400 15pt/1.05 Marcellus;color:#14202e}
+.bk .e{font:500 4.6pt/1 DMMono;letter-spacing:.3em;text-transform:uppercase;color:#b08d57;margin-bottom:6pt;display:flex;align-items:center;gap:5pt}
+.bk .e::before{content:"";width:.18in;height:.5pt;background:#b08d57}
+.bk p{margin-top:6pt;font:400 6.2pt/1.5 Hanken;color:#6a6560;max-width:1.42in}
+.bk .u{margin-top:7pt;font:500 5pt/1 DMMono;letter-spacing:.14em;color:#14202e}
+</style></head><body>
+<section class="card front">
+<div class="brand"><div class="q">Q</div><div class="wm"><b>THE Q SALON</b><small>FOR MEN · SARASOTA</small></div></div>
+<div class="rule">Est. 2021</div>
+<div class="name"><h1>Susy</h1><p>Master Barber &amp; Stylist</p></div>
+<div class="contact"><div class="ph">(941) 340-2389</div>theqsalonsrq.com<br>1415 1st St, Sarasota, FL 34236<br>Mon–Fri · 9–2 · By appointment</div>
+</section>
+<section class="card back">
+<div class="qrbox"><img src="qr.svg" alt=""></div>
+<div class="bk"><div class="e">Scan to book</div><h2>Your chair<br>is waiting.</h2><p>Pick your service and any open time with Susy in under a minute.</p><div class="u">THEQSALONSRQ.COM/BOOK</div></div>
+</section>
+</body></html>
