@@ -1,0 +1,6 @@
+# Netlify settings for theqsalonsrq.com (site tranquil-yeot-e8ab44).
+# Production deploys come from the `qsalon-live` branch; base directory = qsalon/site.
+# No build step: build.py output is committed in dist/.
+[build]
+  publish = "dist"
+  command = "echo 'prebuilt site, no build step'"
