@@ -98,7 +98,7 @@ Redirects (`_redirects`): `/book` → SQUIRE (302), `/about` and `/gallery` → 
 **Small fixes already noticed:**
 1. Footer/visit block says **"Call or text (941) 340-2389"**. Calls go to Monica, but incoming texts aren't handled yet. Consider changing it to "Call" until texting (A2P approval) is live.
 2. A "Powered by Netlify" badge showed on the live site. It comes from Netlify, not the code; check whether visitors see it and whether it can be turned off in Netlify.
-3. Susy's picks product images are placeholder art until SiteStripe image URLs are added to `products.json`.
+3. Susy's picks product photos live in `dist/assets/shop/` (800×800 jpg + webp), supplied by Kris on 2026-10-12. Swap for Creators API images once the Associates account qualifies.
 4. The review count (4.9★ / 66) is hard-coded in the hero and review band.
 
 **SEO next steps:**

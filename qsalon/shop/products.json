@@ -7,8 +7,12 @@
     "variant": "2 oz, scented",
     "category": "Styling",
     "finish": "Matte finish · Strong hold",
-    "facts": ["Argan oil, green tea, niacinamide and hydrolyzed protein", "Matte finish, strong hold", "Made in the USA"],
-    "image": null
+    "facts": [
+      "Argan oil, green tea, niacinamide and hydrolyzed protein",
+      "Matte finish, strong hold",
+      "Made in the USA"
+    ],
+    "image": "/assets/shop/brickell-styling-clay-pomade"
   },
   {
     "slot": 2,
@@ -18,8 +22,12 @@
     "variant": "3 oz, pack of 2",
     "category": "Styling",
     "finish": "Medium hold · High shine",
-    "facts": ["Medium hold with high shine", "Classic barbershop pomade", "Two 3 oz tins"],
-    "image": null
+    "facts": [
+      "Medium hold with high shine",
+      "Classic barbershop pomade",
+      "Two 3 oz tins"
+    ],
+    "image": "/assets/shop/american-crew-pomade"
   },
   {
     "slot": 3,
@@ -29,8 +37,12 @@
     "variant": "2 oz",
     "category": "Styling",
     "finish": "Signature Sweet Tobacco scent",
-    "facts": ["Sweet Tobacco scent", "Glass jar with metal lid", "Made in the USA"],
-    "image": null
+    "facts": [
+      "Sweet Tobacco scent",
+      "Glass jar with metal lid",
+      "Made in the USA"
+    ],
+    "image": "/assets/shop/18-21-man-made-pomade-sweet-tobacco"
   },
   {
     "slot": 4,
@@ -40,8 +52,13 @@
     "variant": "5 pieces",
     "category": "Beard Care",
     "finish": "Wash · Conditioner · Oil · Balm · Comb",
-    "facts": ["Beard wash and conditioner (5 oz each, argan and jojoba)", "Beard oil (1 oz) and beard balm (2 oz)", "Wooden beard comb", "Sandalwood scent"],
-    "image": null
+    "facts": [
+      "Beard wash and conditioner (5 oz each, argan and jojoba)",
+      "Beard oil (1 oz) and beard balm (2 oz)",
+      "Wooden beard comb",
+      "Sandalwood scent"
+    ],
+    "image": "/assets/shop/viking-revolution-beard-kit-sandalwood"
   },
   {
     "slot": 5,
@@ -51,8 +68,13 @@
     "variant": "30 ml / 1 fl oz",
     "category": "Beard Care",
     "finish": "Non-greasy · With biotin",
-    "facts": ["Lightweight, non-greasy formula with biotin", "Desert botanicals: jojoba, aloe, agave and prickly pear", "Softens, tames and conditions; helps calm beard itch", "Smoked Huckleberry scent, pump bottle"],
-    "image": null
+    "facts": [
+      "Lightweight, non-greasy formula with biotin",
+      "Desert botanicals: jojoba, aloe, agave and prickly pear",
+      "Softens, tames and conditions; helps calm beard itch",
+      "Smoked Huckleberry scent, pump bottle"
+    ],
+    "image": "/assets/shop/doc-holliday-beard-oil-smoked-huckleberry"
   },
   {
     "slot": 6,
@@ -62,9 +84,14 @@
     "variant": "2 × 300 ml (10.15 fl oz)",
     "category": "Hair & Scalp",
     "finish": "Shampoo + conditioner duo",
-    "facts": ["Label: 5% minoxidil with biotin", "With ginseng and ginger", "Scalp-care formula for men and women", "Shampoo and conditioner, 300 ml each"],
+    "facts": [
+      "Label: 5% minoxidil with biotin",
+      "With ginseng and ginger",
+      "Scalp-care formula for men and women",
+      "Shampoo and conditioner, 300 ml each"
+    ],
     "copy_note": "Keep to label facts only. No hair-regrowth or medical promises in site, GBP or social copy.",
-    "image": null
+    "image": "/assets/shop/minoxidil-biotin-shampoo-conditioner"
   },
   {
     "slot": 7,
@@ -74,8 +101,13 @@
     "variant": "9.7 oz, 2 bottles",
     "category": "Hair & Scalp",
     "finish": "Sulfate-free · Scalp health",
-    "facts": ["Salicylic acid, biotin and yeast extract", "Sulfate-free", "Shampoo cleanses and repairs; conditioner nourishes and smooths", "Pump bottles, 288 ml each"],
-    "image": null
+    "facts": [
+      "Salicylic acid, biotin and yeast extract",
+      "Sulfate-free",
+      "Shampoo cleanses and repairs; conditioner nourishes and smooths",
+      "Pump bottles, 288 ml each"
+    ],
+    "image": "/assets/shop/cardon-strengthening-shampoo-conditioner"
   },
   {
     "slot": 8,
@@ -85,9 +117,14 @@
     "variant": "50 ml / 1.7 fl oz",
     "category": "Fragrance",
     "finish": "Citrus · Vanilla",
-    "facts": ["Eau de parfum with citrus and vanilla notes", "Long-lasting wear", "Sculpted gunmetal bottle", "50 ml"],
+    "facts": [
+      "Eau de parfum with citrus and vanilla notes",
+      "Long-lasting wear",
+      "Sculpted gunmetal bottle",
+      "50 ml"
+    ],
     "copy_note": "Brand voice: fragrance facts only. No pheromone/attraction claims, nothing flirty.",
-    "image": null
+    "image": "/assets/shop/cupids-hypnosis-eau-de-parfum"
   },
   {
     "slot": 9,
@@ -97,8 +134,13 @@
     "variant": "Body hair trimmer, Gunmetal Gray",
     "category": "Tools",
     "finish": "Waterproof wet/dry · USB-C",
-    "facts": ["SkinSafe blade technology", "Metal frame, waterproof for wet or dry use", "USB-C charging with battery display", "Four guard combs, shaver head and storage pouch"],
+    "facts": [
+      "SkinSafe blade technology",
+      "Metal frame, waterproof for wet or dry use",
+      "USB-C charging with battery display",
+      "Four guard combs, shaver head and storage pouch"
+    ],
     "copy_note": "Describe as a body grooming trimmer; keep copy tasteful.",
-    "image": null
+    "image": "/assets/shop/manscaped-lawn-mower-ultra-gen-6"
   }
 ]

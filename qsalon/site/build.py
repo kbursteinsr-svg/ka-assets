@@ -358,7 +358,7 @@ body.menu-open{overflow:hidden}
 .foot-links{padding-top:40px;border-bottom:1px solid var(--line-d);padding-bottom:28px}.foot-links nav{display:flex;flex-wrap:wrap;gap:10px 22px;font-size:.9rem}
 .affs{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:20px;margin-top:32px}@media(max-width:900px){.affs{grid-template-columns:repeat(2,minmax(0,1fr))}}@media(max-width:520px){.affs{grid-template-columns:1fr}}
 .aff{scroll-margin-top:110px;background:#fff;border:1px solid var(--line);border-radius:10px;overflow:hidden;display:flex;flex-direction:column;transition:transform .3s,box-shadow .3s}.aff:hover{transform:translateY(-4px);box-shadow:0 20px 40px -26px rgba(20,32,46,.5)}
-.aff-img{aspect-ratio:1;background:var(--stone);display:grid;place-items:center}.aff-img img{width:100%;height:100%;object-fit:contain;padding:18px}
+.aff-img{aspect-ratio:1;background:#fff;display:grid;place-items:center;border-bottom:1px solid var(--line)}.aff-img picture{display:contents}.aff-img img{width:100%;height:100%;object-fit:contain;padding:14px;transition:transform .4s}.aff:hover .aff-img img{transform:scale(1.04)}
 .aff-meta{padding:20px;display:flex;flex-direction:column;gap:6px;flex:1}.aff-meta .k{font:500 .68rem var(--mono);letter-spacing:.16em;text-transform:uppercase;color:var(--brass)}.aff-meta p{color:var(--muted);font-size:.92rem;flex:1}
 .aff-fb{aspect-ratio:4/3;background:radial-gradient(circle at 50% 55%,#2c3d52 0,#14202e 75%);display:flex;flex-direction:column;gap:6px;padding:22px}.aff-fb svg{width:60%;max-width:170px;height:auto}.aff-fb span{font:500 .7rem var(--mono);letter-spacing:.2em;text-transform:uppercase;color:var(--brass-l)}
 .aff-v{font-size:.82rem;color:var(--muted)}.aff-go{align-self:flex-start;margin-top:12px}
@@ -529,7 +529,7 @@ def _fallback_art(p):
     return f'<div class="aff-img aff-fb">{svg}<span>{esc(p["brand"])}</span></div>'
 
 def aff_card(p):
-    img = (f'<div class="aff-img"><img src="{p["image"]}" alt="{esc(p["name"])}" loading="lazy"></div>' if p.get("image") else _fallback_art(p))
+    img = (f'<div class="aff-img"><picture><source srcset="{p["image"]}.webp" type="image/webp"><img src="{p["image"]}.jpg" alt="{esc(p["name"])}" width="800" height="800" loading="lazy"></picture></div>' if p.get("image") else _fallback_art(p))
     return f"""<article class="aff">{img}
 <div class="aff-meta"><span class="k">{esc(p['category'])}</span><h3>{esc(p['name'])}</h3><p>{esc(AFF_NOTES.get(p['slot'], ''))}</p>
 <span class="aff-v">{esc(p['finish'])} · {esc(p['variant'])}</span>
