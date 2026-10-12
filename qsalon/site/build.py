@@ -324,7 +324,7 @@ body.menu-open{overflow:hidden}
 .prod{background:var(--navy-2);border:1px solid var(--line-d);border-radius:10px;overflow:hidden;display:flex;flex-direction:column;transition:transform .35s cubic-bezier(.2,.7,.2,1),border-color .35s,box-shadow .35s}
 .prod:hover{transform:translateY(-6px);border-color:var(--brass);box-shadow:0 24px 50px -28px rgba(0,0,0,.8)}
 .prod .art{background:radial-gradient(circle at 50% 60%,#2c3d52 0,#1c2a3b 70%);aspect-ratio:5/4;display:grid;place-items:center;padding:18px}
-.prod .art.photo{background:#fff;padding:0}.prod .art.photo picture{display:contents}.prod .art.photo img{width:100%;height:100%;object-fit:contain;padding:16px;transition:transform .5s cubic-bezier(.2,.7,.2,1)}.prod:hover .art.photo img{transform:scale(1.05)}
+.prod .art.photo{background:#fff;padding:0;display:block;position:relative;aspect-ratio:5/4;overflow:hidden}.prod .art.photo picture{position:absolute;inset:0;display:block}.prod .art.photo img{position:absolute;inset:0;width:100%;height:100%;max-width:none;object-fit:contain;object-position:center;padding:18px;box-sizing:border-box;transition:transform .5s cubic-bezier(.2,.7,.2,1)}.prod:hover .art.photo img{transform:scale(1.05)}
 .prod .art svg{width:100%;max-width:220px;height:auto;transition:transform .5s cubic-bezier(.2,.7,.2,1)}.prod:hover .art svg{transform:scale(1.06) rotate(-2deg)}
 .prod .meta{padding:22px;display:flex;flex-direction:column;gap:8px;flex:1}
 .prod .k{font:500 .68rem var(--mono);letter-spacing:.18em;text-transform:uppercase;color:var(--brass-l)}
@@ -358,6 +358,32 @@ box-shadow:0 28px 50px -18px rgba(0,0,0,.8),0 2px 0 rgba(255,255,255,.35) inset,
 .gift-acts{display:flex;flex-wrap:wrap;align-items:center;gap:14px 20px;margin-top:26px}
 .gift-acts span{font-size:.86rem;color:var(--muted-d);max-width:30ch}
 .gift-btn{background:linear-gradient(120deg,#c9a465,#f0dcab 50%,#c9a465);color:#14202e;box-shadow:0 10px 30px -12px rgba(214,185,132,.7)}.gift-btn:hover{filter:brightness(1.06)}.gift-btn .arr{color:#14202e;opacity:1}
+/* service pages */
+.sec-tight{padding-top:clamp(28px,4vw,48px)}
+.svc-wrap{display:flex;flex-direction:column;gap:clamp(36px,5vw,56px)}
+.aag{background:#fff;border:1px solid var(--line);border-radius:14px;padding:clamp(20px,3vw,32px);box-shadow:0 24px 50px -40px rgba(20,32,46,.5)}
+.aag .eyebrow{margin-bottom:14px}
+.aag-grid{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:0;margin:0;border:1px solid var(--line);border-radius:10px;overflow:hidden}
+.aag-grid>div{padding:14px 16px;border-right:1px solid var(--line)}.aag-grid>div:last-child{border-right:0}
+.aag-grid dt{font:500 .64rem var(--mono);letter-spacing:.16em;text-transform:uppercase;color:var(--brass)}
+.aag-grid dd{margin:6px 0 0;font:400 1.15rem/1.25 var(--display);color:var(--navy)}
+@media(max-width:700px){.aag-grid{grid-template-columns:1fr 1fr}.aag-grid>div:nth-child(2){border-right:0}.aag-grid>div:nth-child(-n+2){border-bottom:1px solid var(--line)}}
+.aag-sum{margin-top:16px;color:var(--muted);font-size:.95rem;max-width:70ch}
+.aag-also{margin-top:8px;font-size:.84rem;color:var(--muted)}
+.aag-acts{display:flex;flex-wrap:wrap;gap:10px;margin-top:18px}
+@media(max-width:520px){.aag-acts .btn{flex:1 1 100%;justify-content:center}}
+.aag-meta{margin-top:14px;font:500 .7rem/1.6 var(--mono);letter-spacing:.1em;text-transform:uppercase;color:var(--muted)}
+.svc-grid{display:grid;grid-template-columns:1.5fr .8fr;gap:56px;align-items:start}.svc-grid>*{min-width:0}
+.svc-side{position:sticky;top:100px}
+@media(max-width:860px){.svc-grid{grid-template-columns:1fr;gap:36px}.svc-side{position:static}}
+.side-h{font:400 1.35rem/1.2 var(--display);color:var(--navy)}
+.prices{margin-top:20px;border-top:1px solid var(--line);padding-top:6px}
+.prices summary{list-style:none;cursor:pointer;display:flex;justify-content:space-between;align-items:center;gap:12px;padding:12px 0}
+.prices summary::-webkit-details-marker{display:none}
+.prices summary b{display:block;font-weight:500;font-size:.92rem;color:var(--ink);margin-top:6px}
+.prices summary i{font-style:normal;font:300 1.6rem/1 var(--display);color:var(--brass);transition:transform .25s}
+.prices[open] summary i{transform:rotate(45deg)}
+.prices .item:first-of-type{border-top:1px solid var(--line)}
 /* about */
 .about{display:grid;grid-template-columns:.8fr 1.2fr;gap:clamp(32px,6vw,80px);align-items:center}.about>*{min-width:0}
 @media(max-width:820px){.about{grid-template-columns:1fr}}
@@ -386,7 +412,7 @@ box-shadow:0 28px 50px -18px rgba(0,0,0,.8),0 2px 0 rgba(255,255,255,.35) inset,
 .foot-links{padding-top:40px;border-bottom:1px solid var(--line-d);padding-bottom:28px}.foot-links nav{display:flex;flex-wrap:wrap;gap:10px 22px;font-size:.9rem}
 .affs{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:20px;margin-top:32px}@media(max-width:900px){.affs{grid-template-columns:repeat(2,minmax(0,1fr))}}@media(max-width:520px){.affs{grid-template-columns:1fr}}
 .aff{scroll-margin-top:110px;background:#fff;border:1px solid var(--line);border-radius:10px;overflow:hidden;display:flex;flex-direction:column;transition:transform .3s,box-shadow .3s}.aff:hover{transform:translateY(-4px);box-shadow:0 20px 40px -26px rgba(20,32,46,.5)}
-.aff-img{aspect-ratio:1;background:#fff;display:grid;place-items:center;border-bottom:1px solid var(--line)}.aff-img picture{display:contents}.aff-img img{width:100%;height:100%;object-fit:contain;padding:14px;transition:transform .4s}.aff:hover .aff-img img{transform:scale(1.04)}
+.aff-img{aspect-ratio:1;background:#fff;display:grid;place-items:center;border-bottom:1px solid var(--line);position:relative;overflow:hidden}.aff-img picture{position:absolute;inset:0;display:block}.aff-img img{position:absolute;inset:0;width:100%;height:100%;max-width:none;box-sizing:border-box;object-fit:contain;object-position:center;padding:14px;transition:transform .4s}.aff:hover .aff-img img{transform:scale(1.04)}
 .aff-meta{padding:20px;display:flex;flex-direction:column;gap:6px;flex:1}.aff-meta .k{font:500 .68rem var(--mono);letter-spacing:.16em;text-transform:uppercase;color:var(--brass)}.aff-meta p{color:var(--muted);font-size:.92rem;flex:1}
 .aff-fb{aspect-ratio:4/3;background:radial-gradient(circle at 50% 55%,#2c3d52 0,#14202e 75%);display:flex;flex-direction:column;gap:6px;padding:22px}.aff-fb svg{width:60%;max-width:170px;height:auto}.aff-fb span{font:500 .7rem var(--mono);letter-spacing:.2em;text-transform:uppercase;color:var(--brass-l)}
 .aff-v{font-size:.82rem;color:var(--muted)}.aff-go{align-self:flex-start;margin-top:12px}
@@ -704,17 +730,27 @@ def seo_page(h1, eyebrow, lede, sections, faqs, svc_filter, related=None):
     rel = related or ["mens-haircut-sarasota.html", "skin-fade-sarasota.html", "mens-hair-color-sarasota.html", "executive-haircut-sarasota.html"]
     names = dict(SEO_LINKS)
     rel_html = "".join(f'<a href="{h}">{names.get(h, h)}</a>' for h in rel)
-    price_line = "; ".join(f"{n} ${p} ({t})" for n, t, p, _ in items[:4])
-    facts = (f'<div class="facts"><p><strong>In short:</strong> {price_line} at The Q Salon for Men, {ADDR}.</p>'
-             f'<p>Every service is done by master barber &amp; stylist Susy. Mon–Fri, 9 AM – 2 PM, by appointment. '
-             f'<a class="link" href="{B["book"]}" target="_blank" rel="noopener">Book online</a> or call <a class="link" href="tel:{B["phone_e164"]}">{B["phone"]}</a>.</p></div>')
-    return f"""<section class="page-hero"><div class="wrap"><p class="eyebrow">{eyebrow}</p><h1>{h1}</h1><p class="lede">{lede}</p>
-<div class="acts"><a class="btn" href="{B['book']}" target="_blank" rel="noopener">Book now {ARR}</a><a class="btn btn-line" href="index.html#services">Full menu</a></div></div></section>
-<section class="sec"><div class="wrap split"><div class="sticky"><div class="side"><p class="eyebrow">Pricing</p>{menu(items, link=True)}
-<a class="btn btn-sm" style="margin-top:18px" href="{B['book']}" target="_blank" rel="noopener">Book this {ARR}</a></div></div>
-<div class="prose">{facts}{sections}
+    MAIN_KEY = [("executive", "Executive Haircut"), ("fade", "Skin Fade"), ("color", "Natural Look Color & Style"),
+                ("facial", "Gentleman's Facial"), ("kids", "Kid's Haircut (under 12)")]
+    want = next((n for k, n in MAIN_KEY if k in eyebrow.lower()), None)
+    main = next((x for x in items if x[0] == want), items[0] if items else SERVICES[0])
+    others = [x for x in items if x is not main]
+    also = (" Also available: " + "; ".join(f"{n} ${p} ({t})" for n, t, p, _ in others) + ".") if others else ""
+    glance = f"""<div class="aag"><p class="eyebrow">At a glance</p>
+<dl class="aag-grid"><div><dt>Service</dt><dd>{main[0]}</dd></div><div><dt>Price</dt><dd>${main[2]}</dd></div><div><dt>Time</dt><dd>{main[1]}</dd></div><div><dt>With</dt><dd>Susy, master barber</dd></div></dl>
+<p class="aag-sum">{main[3]} Every service at The Q Salon for Men is done by Susy, start to finish.</p>{f'<p class="aag-also">{also.strip()}</p>' if also else ''}
+<div class="aag-acts"><a class="btn" href="{B['book']}" target="_blank" rel="noopener">Book {main[0].split(' (')[0]} {ARR}</a><a class="btn btn-line" href="tel:{B['phone_e164']}">Call {B['phone']}</a></div>
+<p class="aag-meta">{ADDR} · Mon–Fri, 9 AM – 2 PM · By appointment</p></div>"""
+    prices = f"""<details class="prices"><summary><span><span class="eyebrow" style="margin:0">Prices &amp; times</span><b>{len(items)} services on this page</b></span><i aria-hidden="true">+</i></summary>
+{menu(items, link=True)}<a class="link" href="index.html#services" style="display:inline-block;margin-top:14px">See the full menu</a></details>"""
+    return f"""<section class="page-hero"><div class="wrap"><p class="eyebrow">{eyebrow}</p><h1>{h1}</h1><p class="lede">{lede}</p></div></section>
+<section class="sec sec-tight"><div class="wrap svc-wrap">{glance}
+<div class="svc-grid"><div class="prose">{sections}
 <h2>Questions</h2><div class="faq">{"".join(f'<details><summary>{q}</summary><p>{a}</p></details>' for q, a in faqs)}</div>
-<h2>Related services</h2><div class="related">{rel_html}</div></div></div></section>
+<h2>Related services</h2><div class="related">{rel_html}</div></div>
+<aside class="svc-side"><div class="side"><p class="eyebrow">Ready when you are</p><h3 class="side-h">{main[0]} · ${main[2]}</h3><p class="muted" style="font-size:.9rem;margin-top:4px">{main[1]} with Susy</p>
+<a class="btn" style="margin-top:16px;width:100%;justify-content:center" href="{B['book']}" target="_blank" rel="noopener">Book now {ARR}</a>
+{prices}</div></aside></div></div></section>
 {faq_schema(faqs)}
 {shop_section("Keep it sharp", "Products for between visits.")}
 {cta()}"""
