@@ -142,5 +142,128 @@
     ],
     "copy_note": "Describe as a body grooming trimmer; keep copy tasteful.",
     "image": "/assets/shop/manscaped-lawn-mower-ultra-gen-6"
+  },
+  {
+    "slot": 10,
+    "link": "https://link.amazon/B08ZxO21Y",
+    "brand": "Honest Amish",
+    "name": "Honest Amish Classic Beard Oil",
+    "variant": "2 fl oz",
+    "category": "Beard Care",
+    "finish": "7+ natural oils · Mineral-oil free",
+    "facts": [
+      "Blend of 7+ natural oils",
+      "Mineral-oil free",
+      "Dropper bottle, 2 fl oz"
+    ],
+    "image": "/assets/shop/honest-amish-classic-beard-oil"
+  },
+  {
+    "slot": 11,
+    "link": "https://link.amazon/B01zhYLbY",
+    "brand": "Honest Amish",
+    "name": "Honest Amish Heavy Duty Beard Balm",
+    "variant": "4 oz tin",
+    "category": "Beard Care",
+    "finish": "Extra control · Shea butter & beeswax",
+    "facts": [
+      "Organic shea butter and beeswax",
+      "Leave-in conditioner with extra control",
+      "4 oz tin"
+    ],
+    "image": "/assets/shop/honest-amish-heavy-duty-beard-balm"
+  },
+  {
+    "slot": 12,
+    "link": "https://link.amazon/B0fyXl7P4",
+    "brand": "JOHNNY B.",
+    "name": "JOHNNY B. Mode Styling Gel",
+    "variant": "Professional size",
+    "category": "Styling",
+    "finish": "Long-lasting hold · No flake",
+    "facts": [
+      "Alcohol-free",
+      "No-flake formula",
+      "Long-lasting hold"
+    ],
+    "image": "/assets/shop/johnny-b-mode-styling-gel"
+  },
+  {
+    "slot": 13,
+    "link": "https://link.amazon/A08Z2cqrM",
+    "brand": "L3VEL3",
+    "name": "L3VEL3 Styling Powder Dust",
+    "variant": "60 g value size",
+    "category": "Styling",
+    "finish": "Matte look · Texture & volume",
+    "facts": [
+      "Texturizing powder for volume",
+      "Matte, natural look",
+      "Buildable hold, level 3"
+    ],
+    "image": "/assets/shop/l3vel3-styling-powder-dust"
+  },
+  {
+    "slot": 14,
+    "link": "https://link.amazon/A08k3PaGl",
+    "brand": "NIOXIN",
+    "name": "NIOXIN System 4 Scalp + Hair Kit",
+    "variant": "Shampoo, conditioner & treatment",
+    "category": "Hair & Scalp",
+    "finish": "For colored, dry or damaged hair",
+    "facts": [
+      "Three-step kit: shampoo, conditioner and scalp treatment",
+      "Made for colored, dry or damaged hair",
+      "With niacinamide and biotin"
+    ],
+    "copy_note": "Label facts only. No regrowth or medical promises.",
+    "image": "/assets/shop/nioxin-system-4-scalp-hair-kit"
+  },
+  {
+    "slot": 15,
+    "link": "https://link.amazon/B02KjPnrw",
+    "brand": "Toppik",
+    "name": "Toppik Hair Building Fibers, Black",
+    "variant": "12 g",
+    "category": "Hair & Scalp",
+    "finish": "Instant fuller look · Keratin fibers",
+    "facts": [
+      "Keratin protein fibers",
+      "Fills in fine or thin-looking areas instantly",
+      "Shade: Black (9 shades available)"
+    ],
+    "copy_note": "Cosmetic appearance only. No regrowth claims.",
+    "image": "/assets/shop/toppik-hair-building-fibers-black"
+  },
+  {
+    "slot": 16,
+    "link": "https://link.amazon/B00xmHQrK",
+    "brand": "CeraVe",
+    "name": "CeraVe AM Facial Moisturizing Lotion SPF 30",
+    "variant": "3 fl oz",
+    "category": "Skin Care",
+    "finish": "Broad spectrum SPF 30 · Oil free",
+    "facts": [
+      "Broad spectrum SPF 30",
+      "3 essential ceramides, niacinamide and hyaluronic acid",
+      "Oil free"
+    ],
+    "image": "/assets/shop/cerave-am-facial-moisturizing-lotion-spf30"
+  },
+  {
+    "slot": 17,
+    "link": "https://link.amazon/A06LlOiOs",
+    "brand": "Neuro",
+    "name": "Neuro Energy & Focus Gum, Peppermint",
+    "variant": "90 pieces",
+    "category": "Daily Extras",
+    "finish": "Sugar free · Natural caffeine",
+    "facts": [
+      "Label: 40 mg natural caffeine and 60 mg L-theanine",
+      "Vitamins B6 and B12",
+      "Sugar free, peppermint"
+    ],
+    "copy_note": "Dietary supplement: website only, not on Google (products or posts). Label facts only.",
+    "image": "/assets/shop/neuro-energy-focus-gum-peppermint"
   }
 ]

@@ -1126,5 +1126,104 @@
   "call": false,
   "products": [],
   "photo": null
+ },
+ {
+  "day": 91,
+  "kind": "product",
+  "theme": "Skin Fade",
+  "geo": "Siesta Key",
+  "title": "Beard oil, simplified",
+  "dek": "Seven-plus natural oils. A few drops after a shower.",
+  "cta": "Shop Susy's picks",
+  "call": false,
+  "products": [
+   "honest-amish-classic-beard-oil"
+  ],
+  "photo": null
+ },
+ {
+  "day": 92,
+  "kind": "product",
+  "theme": "Executive Haircut",
+  "geo": "Lido Key",
+  "title": "Texture without the shine",
+  "dek": "Volume and a matte, natural look. Build it a pinch at a time.",
+  "cta": "Shop Susy's picks",
+  "call": false,
+  "products": [
+   "l3vel3-styling-powder-dust"
+  ],
+  "photo": null
+ },
+ {
+  "day": 93,
+  "kind": "product",
+  "theme": "Gray Blending",
+  "geo": "Downtown Sarasota",
+  "title": "Care for colored hair",
+  "dek": "Shampoo, conditioner and scalp treatment for colored hair.",
+  "cta": "Shop Susy's picks",
+  "call": false,
+  "products": [
+   "nioxin-system-4-scalp-hair-kit"
+  ],
+  "photo": null
+ },
+ {
+  "day": 94,
+  "kind": "product",
+  "theme": "Gentleman's Facial",
+  "geo": "Lakewood Ranch",
+  "title": "Daily SPF, done right",
+  "dek": "Broad spectrum SPF 30 with ceramides. Oil free.",
+  "cta": "Shop Susy's picks",
+  "call": false,
+  "products": [
+   "cerave-am-facial-moisturizing-lotion-spf30"
+  ],
+  "photo": null
+ },
+ {
+  "day": 95,
+  "kind": "product",
+  "theme": "Styling & products",
+  "geo": "Longboat Key",
+  "title": "Hold that lasts",
+  "dek": "Long-lasting hold. Alcohol-free, no flake.",
+  "cta": "Shop Susy's picks",
+  "call": false,
+  "products": [
+   "johnny-b-mode-styling-gel"
+  ],
+  "photo": null
+ },
+ {
+  "day": 96,
+  "kind": "product",
+  "theme": "Fade maintenance",
+  "geo": "Sarasota",
+  "title": "A fuller look, instantly",
+  "dek": "Keratin fibers for a fuller look in seconds.",
+  "cta": "Shop Susy's picks",
+  "call": false,
+  "products": [
+   "toppik-hair-building-fibers-black"
+  ],
+  "photo": null
+ },
+ {
+  "day": 97,
+  "kind": "product",
+  "theme": "Gift cards",
+  "geo": "Siesta Key",
+  "title": "A stocking stuffer for his beard",
+  "dek": "Shea butter and beeswax for extra control.",
+  "cta": "Shop Susy's picks",
+  "call": false,
+  "products": [
+   "honest-amish-heavy-duty-beard-balm",
+   "honest-amish-classic-beard-oil"
+  ],
+  "photo": null
  }
 ]

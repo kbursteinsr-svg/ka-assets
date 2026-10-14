@@ -85,8 +85,16 @@ AFF_NOTES = {   # short card copy, label facts only (no prices, ratings or healt
     7: "A sulfate-free set with salicylic acid, biotin and yeast extract, built around scalp health.",
     8: "An eau de parfum with bright citrus over warm vanilla, in a sculpted gunmetal bottle.",
     9: "A waterproof body trimmer with SkinSafe blades, USB-C charging and four guards for upkeep between visits.",
+    10: "A daily beard oil made from a blend of seven-plus natural oils, mineral-oil free, in a 2 oz dropper bottle.",
+    11: "A heavy-duty balm with organic shea butter and beeswax for extra control on fuller beards.",
+    12: "A professional styling gel with long-lasting hold. Alcohol-free and no flaking, even in Florida humidity.",
+    13: "A light texturizing powder for volume and a matte, natural look. Build the hold a pinch at a time.",
+    14: "A three-step scalp and hair kit for colored, dry or damaged hair: shampoo, conditioner and a scalp treatment.",
+    15: "Keratin hair fibers that fill in fine or thin-looking areas so hair looks fuller instantly. Shade shown: Black.",
+    16: "A daily facial moisturizer with broad spectrum SPF 30, ceramides, niacinamide and hyaluronic acid. Oil free.",
+    17: "A sugar-free peppermint gum with natural caffeine and L-theanine on the label, for long days.",
 }
-AFF_CATS = [("Styling", "styling"), ("Beard Care", "beard-care"), ("Hair & Scalp", "hair-scalp"), ("Fragrance", "fragrance"), ("Tools", "tools")]
+AFF_CATS = [("Styling", "styling"), ("Beard Care", "beard-care"), ("Hair & Scalp", "hair-scalp"), ("Skin Care", "skin-care"), ("Fragrance", "fragrance"), ("Tools", "tools"), ("Daily Extras", "extras")]
 AMZ_DISCLOSE = "As an Amazon Associate, The Q Salon earns from qualifying purchases."
 
 # Every SEO page, linked from the footer of every page (internal linking for Google).
@@ -595,7 +603,7 @@ def visit(show_map=False):
 <nav aria-label="Footer">{"".join(f'<a href="{h}">{t}</a>' for h, t in NAV)}</nav></div></div></footer>"""
 
 def _fallback_art(p):
-    svg = {"Styling": SVG_TIN, "Beard Care": SVG_DROP, "Hair & Scalp": SVG_PUMP, "Fragrance": SVG_BOTTLE, "Tools": SVG_TRIM}.get(p["category"], SVG_TIN)
+    svg = {"Styling": SVG_TIN, "Beard Care": SVG_DROP, "Hair & Scalp": SVG_PUMP, "Fragrance": SVG_BOTTLE, "Tools": SVG_TRIM, "Skin Care": SVG_PUMP, "Daily Extras": SVG_TIN}.get(p["category"], SVG_TIN)
     return f'<div class="aff-img aff-fb">{svg}<span>{esc(p["brand"])}</span></div>'
 
 def aff_card(p):

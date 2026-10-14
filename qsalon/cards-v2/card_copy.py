@@ -90,6 +90,13 @@ DEK = {
  88: "Everything Susy uses, restocked for the new year.",
  89: "Start the year with a call to The Q.",
  90: "Thank you for an incredible 90 days.",
+ 91: "Seven-plus natural oils. A few drops after a shower.",
+ 92: "Volume and a matte, natural look. Build it a pinch at a time.",
+ 93: "Shampoo, conditioner and scalp treatment for colored hair.",
+ 94: "Broad spectrum SPF 30 with ceramides. Oil free.",
+ 95: "Long-lasting hold. Alcohol-free, no flake.",
+ 96: "Keratin fibers for a fuller look in seconds.",
+ 97: "Shea butter and beeswax for extra control.",
 }
 
 # What goes on the right-hand panel.
@@ -109,6 +116,13 @@ PRODUCTS = {
  67: ["viking-revolution-beard-kit-sandalwood", "18-21-man-made-pomade-sweet-tobacco", "doc-holliday-beard-oil-smoked-huckleberry"],
  74: ["american-crew-pomade", "cupids-hypnosis-eau-de-parfum"],
  81: ["cardon-strengthening-shampoo-conditioner"],
+ 91: ["honest-amish-classic-beard-oil"],
+ 92: ["l3vel3-styling-powder-dust"],
+ 93: ["nioxin-system-4-scalp-hair-kit"],
+ 94: ["cerave-am-facial-moisturizing-lotion-spf30"],
+ 95: ["johnny-b-mode-styling-gel"],
+ 96: ["toppik-hair-building-fibers-black"],
+ 97: ["honest-amish-heavy-duty-beard-balm", "honest-amish-classic-beard-oil"],
  88: ["brickell-styling-clay-pomade", "viking-revolution-beard-kit-sandalwood", "cardon-strengthening-shampoo-conditioner", "manscaped-lawn-mower-ultra-gen-6"],
 }
 SUSY = {d: "susy-the-q-salon-downtown-sarasota" for d in (7, 28, 42, 56, 77)}  # the photo Kris supplied of Susy
