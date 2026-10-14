@@ -121,3 +121,10 @@ Redirects (`_redirects`): `/book` → SQUIRE (302), `/about` and `/gallery` → 
 - **Monica** (ElevenLabs voice agent on (941) 340-2389): asks the service and day, then texts the SQUIRE link only with the caller's yes.
 - **Review requests** (n8n `MXXX2W29N4Ci3trh`): Susy's checkout form at https://kbdigitalmkt.app.n8n.cloud/form/qsalon-checkout sends a thank-you plus Google review link from info@ one hour later.
 - **Content pipeline**: Drive folder "Q Salon — Susy Uploads" → n8n intake (`dffbu7IXPeortLTc`) captions photos → approval emails (`6q5E0dGpgB6YJmri`) → queue table `qsalon_content_queue`.
+
+## Hosting (moved 2026-10-14)
+- Netlify team: **KB Digital** (main account). Project `tranquil-yeot-e8ab44`, site ID `508cf4cc-c49a-42a0-8180-f42c39934a20`.
+- Continuous deploy from GitHub `kbursteinsr-svg/ka-assets`, branch `qsalon-live`, base dir `qsalon/site`, publish `dist` (netlify.toml, no build step).
+- To deploy: build into `qsalon/site/dist`, commit to main, then `git push origin main:qsalon-live`.
+- DNS (Squarespace / Google nameservers, unchanged): apex A 75.2.60.5, www CNAME tranquil-yeot-e8ab44.netlify.app. Primary domain www.
+- Old backup-account copy renamed `qsalon-backup-old` (no domain). Safe to delete later.
