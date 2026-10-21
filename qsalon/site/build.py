@@ -2,7 +2,11 @@
 """Builds The Q Salon for Men static site.
 Edit BUSINESS / SERVICES / PRODUCTS below, then run: python3 build.py
 Outputs full HTML pages in ./dist (for Netlify) and ./preview (artifact preview)."""
-import datetime, json, os, re
+import datetime, hashlib, json, os, re
+
+_SITE_DIR = os.path.dirname(os.path.abspath(__file__))
+TRACKING_JS = open(os.path.join(_SITE_DIR, 'tracking.js')).read()
+TRACKING_FILE = 'tracking-' + hashlib.sha256(TRACKING_JS.encode()).hexdigest()[:12] + '.js'
 
 BUSINESS = {
     "name": "The Q Salon for Men",
@@ -75,6 +79,27 @@ NAV = [("index.html", "Home"), ("index.html#services", "Services & prices"), ("s
 # {"name": "...", "brand": "...", "price": "$24", "img": "https://... or assets/...", "url": "https://affiliate-link", "note": "Why Susy likes it"}
 _PJ = os.path.join(os.path.dirname(os.path.abspath(__file__)), "..", "shop", "products.json")
 AFFILIATE = json.load(open(_PJ)) if os.path.exists(_PJ) else []
+
+def affiliate_slug(product):
+    return product.get('image', '').rsplit('/', 1)[-1] or f"product-{product['slot']}"
+
+# Retired URLs observed in Search Console. Each maps to a relevant replacement.
+# Leave removed pages without a suitable replacement as genuine 404s.
+LEGACY_REDIRECTS = [
+    ('/mens-haircuts-sarasota', '/mens-haircut-sarasota'),
+    ('/executive-haircuts-sarasota', '/executive-haircut-sarasota'),
+    ('/barbershop-sarasota', '/barber-sarasota'),
+    ('/mens-fade-haircut-sarasota', '/skin-fade-sarasota'),
+    ('/fade-haircuts-sarasota', '/skin-fade-sarasota'),
+    ('/best-mens-haircut-sarasota', '/mens-haircut-sarasota'),
+    ('/mens-scissor-cut-sarasota', '/mens-haircut-sarasota'),
+    ('/mens-grooming-salon-downtown-sarasota', '/mens-grooming-sarasota'),
+    ('/luxury-mens-grooming-sarasota', '/mens-grooming-sarasota'),
+    ('/services', '/#services'),
+    ('/contact', '/#visit'),
+    ('/blog', '/grooming-guide'),
+    ('/journal', '/grooming-guide'),
+]
 AFF_NOTES = {   # short card copy, label facts only (no prices, ratings or health claims)
     1: "A matte, strong-hold clay for textured cuts and crops that need to keep their shape.",
     2: "The classic barbershop pomade: medium hold and high shine for side parts, slick-backs and executive cuts.",
@@ -177,7 +202,7 @@ def schema(path, title, desc, crumb):
     graph = [business_node(), susy_node(),
              {"@type": "WebSite", "@id": B["site"] + "/#website", "url": B["site"] + "/", "name": B["name"],
               "publisher": {"@id": BIZ_ID}, "inLanguage": "en-US"}]
-    wp = {"@type": "AboutPage" if path == "about.html" else "WebPage", "@id": page_url + "#webpage", "url": page_url,
+    wp = {"@type": "AboutPage" if path == "about.html" else "CollectionPage" if path == "shop.html" else "WebPage", "@id": page_url + "#webpage", "url": page_url,
           "name": title, "description": desc, "isPartOf": {"@id": B["site"] + "/#website"}, "about": {"@id": BIZ_ID},
           "inLanguage": "en-US", "dateModified": TODAY,
           "primaryImageOfPage": {"@type": "ImageObject", "url": B["site"] + IMG_SHARE, "width": 1200, "height": 630}}
@@ -186,6 +211,14 @@ def schema(path, title, desc, crumb):
             {"@type": "ListItem", "position": 1, "name": "Home", "item": B["site"] + "/"},
             {"@type": "ListItem", "position": 2, "name": crumb, "item": page_url}]})
         wp["breadcrumb"] = {"@id": page_url + "#breadcrumb"}
+    if path == 'shop.html':
+        wp['mainEntity'] = {'@id': page_url + '#products'}
+        graph.append({'@type': 'ItemList', '@id': page_url + '#products',
+                      'name': "Susy's men's grooming product picks", 'numberOfItems': len(AFFILIATE),
+                      'itemListElement': [
+                          {'@type': 'ListItem', 'position': i, 'name': p['name'],
+                           'url': page_url + '#product-' + affiliate_slug(p)}
+                          for i, p in enumerate(AFFILIATE, 1)]})
     graph.append(wp)
     for n, t, p, d in SERVICES:
         if n in PAGE_SERVICES.get(path, []):
@@ -459,7 +492,8 @@ def head(title, desc, path, crumb):
 <link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Marcellus&family=Hanken+Grotesk:wght@400;500;600&family=DM+Mono:wght@400;500&display=swap">
 <script type="application/ld+json">{schema(path, title, desc, crumb)}</script>
-<style>{CSS}</style>"""
+<style>{CSS}</style>
+<script defer src="/assets/{TRACKING_FILE}"></script>"""
 
 def esc(t):
     return str(t).replace("&", "&amp;").replace("<", "&lt;").replace(">", "&gt;").replace('"', "&quot;")
@@ -607,11 +641,12 @@ def _fallback_art(p):
     return f'<div class="aff-img aff-fb">{svg}<span>{esc(p["brand"])}</span></div>'
 
 def aff_card(p):
+    product_id = affiliate_slug(p)
     img = (f'<div class="aff-img"><picture><source srcset="{p["image"]}.webp" type="image/webp"><img src="{p["image"]}.jpg" alt="{esc(p["name"])}" width="800" height="800" loading="lazy"></picture></div>' if p.get("image") else _fallback_art(p))
     return f"""<article class="aff">{img}
-<div class="aff-meta"><span class="k">{esc(p['category'])}</span><h3>{esc(p['name'])}</h3><p>{esc(AFF_NOTES.get(p['slot'], ''))}</p>
+<div class="aff-meta"><span class="k">{esc(p['category'])}</span><h3 id="product-{esc(product_id)}">{esc(p['name'])}</h3><p>{esc(AFF_NOTES.get(p['slot'], ''))}</p>
 <span class="aff-v">{esc(p['finish'])} · {esc(p['variant'])}</span>
-<a class="btn btn-sm aff-go" href="{p['link']}" target="_blank" rel="sponsored nofollow noopener">See it on Amazon {ARR}</a></div></article>"""
+<a class="btn btn-sm aff-go" id="amazon-{esc(product_id)}" data-product-id="{esc(product_id)}" data-product-name="{esc(p['name'])}" data-product-category="{esc(p['category'])}" href="{esc(p['link'])}" target="_blank" rel="sponsored nofollow noopener">See it on Amazon {ARR}</a></div></article>"""
 
 def affiliate_grid():
     if not AFFILIATE:
@@ -713,7 +748,7 @@ home = f"""
 
 # ---------- Shop ----------
 shop = f"""
-<section class="page-hero"><div class="wrap"><p class="eyebrow">The Q Shop</p><h1>Products for the morning after your cut.</h1>
+<section class="page-hero"><div class="wrap"><p class="eyebrow">The Q Shop</p><h1>Men's grooming products, picked by Susy.</h1>
 <p class="lede">Styling, beard, hair-care, fragrance and grooming tools picked by Susy, plus gift cards for any service.</p>
 <div class="acts"><a class="btn" href="#picks">See Susy's picks {ARR}</a><a class="btn btn-line" href="{B['book']}" target="_blank" rel="noopener">Book a cut</a></div></div></section>
 {shop_section("Shop by need", "Everything Susy reaches for.")}
@@ -723,6 +758,14 @@ shop = f"""
 <p class="disclose muted">{AMZ_DISCLOSE} Links open Amazon, where current prices and availability are shown.</p>
 {affiliate_grid()}
 </div></section>
+<section class="sec stone"><div class="wrap split"><div><p class="eyebrow">Find your routine</p><h2>Choose the finish that fits your cut.</h2>
+<p>Start with the look you want and the steps you'll use between appointments. Ask Susy which finish she used on your cut.</p></div>
+<div class="prose"><h3>Matte texture or polished shine?</h3>
+<p><a href="#product-brickell-styling-clay-pomade">Brickell Styling Clay</a> offers strong hold with a matte finish. <a href="#product-l3vel3-styling-powder-dust">L3VEL3 Styling Powder</a> is another matte option for texture and volume. For medium hold and high shine, compare <a href="#product-american-crew-pomade">American Crew Pomade</a>.</p>
+<h3>Beard oil, balm or a complete kit?</h3>
+<p><a href="#product-honest-amish-classic-beard-oil">Honest Amish Classic Beard Oil</a> is the oil option in the shop. Its <a href="#product-honest-amish-heavy-duty-beard-balm">Heavy Duty Beard Balm</a> uses shea butter and beeswax for added control on fuller beards. The <a href="#product-viking-revolution-beard-kit-sandalwood">Viking Revolution Sandalwood Kit</a> brings wash, conditioner, oil, balm and a comb together.</p>
+<h3>Check the exact version before ordering.</h3>
+<p>Sizes, scents, shades and pack quantities vary. Each product card shows the version featured here; Amazon shows the current price, availability and seller details. Follow the product's directions when adding it to your routine.</p></div></div></section>
 {cta("Fresh cut first, then the products to keep it.")}
 """
 
@@ -966,7 +1009,7 @@ PAGES = [  # (path, <title>, meta description, body, breadcrumb label)
     ("index.html", "The Q Salon for Men | Men's Hair Salon & Barber, Sarasota FL", "Men's hair salon and barber in downtown Sarasota: haircuts, skin fades, gray blending and facials, every cut by master barber Susy. Rated 4.9★ on Google.", home, ""),
     ("about.html", "About Susy, Master Barber · The Q Salon for Men, Sarasota", "Meet Susy, the master barber and stylist behind The Q Salon for Men, a private one-chair men's hair salon on 1st Street in downtown Sarasota since 2021.", about, "About"),
     ("mens-hair-salon-sarasota.html", "Men's Hair Salon in Sarasota, FL · The Q Salon", "A private men's hair salon in downtown Sarasota: haircuts from $60, skin fades, gray blending and facials, all by master stylist Susy. Book online.", salon, "Men's hair salon"),
-    ("shop.html", "The Q Shop · Men's Grooming Products, Sarasota", "Susy's picks for men's grooming, from pomade and beard oil to scalp care and trimmers, plus gift cards for any service at The Q Salon in Sarasota.", shop, "Shop"),
+    ("shop.html", "Men's Grooming Products | Susy's Picks · The Q Salon", "Shop Susy's men's grooming picks: pomades, beard oil, shampoo, scalp care and trimmers. Compare finishes and check current prices on Amazon.", shop, "Shop"),
     ("mens-haircut-sarasota.html", "Men's Haircut Sarasota, FL · From $60 · The Q Salon", "Men's haircuts in downtown Sarasota from $60. Classic and executive cuts by a master stylist at 1415 1st St. Book online.", haircut, "Men's haircut"),
     ("skin-fade-sarasota.html", "Skin Fade Sarasota, FL · $80 · The Q Salon", "Skin fades in downtown Sarasota for $80. Low, mid and high fades with a seamless blend. Book online at The Q Salon for Men.", fade, "Skin fade"),
     ("mens-hair-color-sarasota.html", "Men's Gray Blending & Hair Color Sarasota · The Q", "Men's gray blending in Sarasota: natural-looking color that softens the gray without the dyed look. Natural Look Color & Style, $130, at The Q Salon.", color, "Gray blending"),
@@ -1014,7 +1057,7 @@ def llms_txt():
 ## Services and prices
 {svc}
 - Gift cards: from $50, good for any service.
-- Shop: "Susy's picks", nine grooming products linked to Amazon (affiliate links, disclosed on the page).
+- Shop: "Susy's picks", {len(AFFILIATE)} grooming and daily-use products linked to Amazon (affiliate links, disclosed on the page).
 
 ## Frequently asked
 {faq}
@@ -1025,6 +1068,8 @@ def llms_txt():
 
 if __name__ == "__main__":
     os.makedirs("dist", exist_ok=True)
+    os.makedirs('dist/assets', exist_ok=True)
+    open(f'dist/assets/{TRACKING_FILE}', 'w').write(TRACKING_JS)
     for path, title, desc, body, crumb in PAGES:
         open(f"dist/{path}", "w").write(page(path, title, desc, body, crumb))
     urls = "".join(f"<url><loc>{url(p)}</loc><lastmod>{TODAY}</lastmod></url>" for p, *_ in PAGES)
@@ -1035,7 +1080,8 @@ if __name__ == "__main__":
     open(f"dist/{INDEXNOW_KEY}.txt", "w").write(INDEXNOW_KEY)
     open("dist/_redirects", "w").write(
         "/downtown-sarasota-barbershop /mens-haircut-sarasota 301\n/gallery /about 301\n"
-        "/mens-hair-salon /mens-hair-salon-sarasota 301\n/book " + B['book'] + " 302\n")
+        "/mens-hair-salon /mens-hair-salon-sarasota 301\n/book " + B['book'] + " 302\n" +
+        ''.join(f'{old} {new} 301\n' for old, new in LEGACY_REDIRECTS))
     open("dist/_headers", "w").write(
         "/assets/*\n  Cache-Control: public, max-age=31536000, immutable\n"
         "/*\n  X-Content-Type-Options: nosniff\n  Referrer-Policy: strict-origin-when-cross-origin\n"
