@@ -701,7 +701,7 @@ home = f"""
 <span class="h2-issue">The Q · Sarasota · Est. 2021</span>
 </div></figure>
 <div class="h2-copy"><div class="h2-inner">
-<h1><span class="eyebrow h1-eyebrow">Men's hair salon &amp; barber · Downtown Sarasota</span><span class="l"><span>The cut</span></span><span class="l"><span>that carries</span></span><span class="l"><span><em>the room.</em></span></span></h1>
+<h1><span class="eyebrow h1-eyebrow">Men's haircuts &amp; barber · Downtown Sarasota</span><span class="l"><span>The cut</span></span><span class="l"><span>that carries</span></span><span class="l"><span><em>the room.</em></span></span></h1>
 <p class="lede">Men's haircuts, skin fades and natural gray blending in downtown Sarasota, from master stylist Susy. One chair, by appointment, and her full attention from start to finish.</p>
 <div class="acts"><a class="btn" href="{B['book']}" target="_blank" rel="noopener">Book an appointment {ARR}</a><a class="btn btn-line" href="#shop">Shop products</a></div>
 <a class="h2-by" href="#meet">{pic(IMG_SUSY + "-thumb", "", 44, 44)}<span><b>Every cut by Susy</b><small>Master barber &amp; stylist · 10+ years</small></span></a>
@@ -804,9 +804,24 @@ haircut = seo_page("Men's haircuts in downtown Sarasota", "Men's haircut · Sara
 <p>Every cut starts with a short consultation: how you style it, how often you come in, and how it should look in week three, not just day one. Susy cuts with scissors and clippers to suit your hair type, then finishes and shows you how to style it at home.</p>
 <h2>Classic or Executive?</h2>
 <p>The <strong>Classic Haircut</strong> ($60, about 45 minutes) is a precise scissor-and-clipper cut, styled to finish. The <strong>Executive Haircut</strong> ($80, about an hour) adds extra time and detail work, the right pick before an interview, an event, or when you want the full experience.</p>
+<h2>Men's haircut styles Susy cuts every week</h2>
+<ul><li><strong>Scissor cuts</strong> for longer, textured or wavy hair that needs shape without looking clipped.</li>
+<li><strong>Tapers and fades</strong>, from a soft low taper to a <a href="skin-fade-sarasota.html">skin fade</a> down to the skin.</li>
+<li><strong>Classic business cuts</strong>: side parts, crew cuts and the clean, conservative look that works in any meeting.</li>
+<li><strong>Textured crops and modern styles</strong> with a matte, natural finish.</li>
+<li><strong>Thinning or receding hair</strong>, cut to look fuller, and <a href="mens-hair-color-sarasota.html">gray blending</a> if you want to soften the silver.</li></ul>
+<h2>What's included in every men's haircut</h2>
+<p>A consultation before the first snip, the cut itself, a clean neckline and edges, and a finish styled the way you'll actually wear it. Susy shows you the product and technique to recreate it at home, so the cut still looks right weeks later, not just when you leave the chair.</p>
+<h2>How much is a men's haircut in Sarasota?</h2>
+<p>At The Q, a Classic Haircut is $60 and the Executive Haircut is $80. Kids under 12 are $30. Prices are listed up front, and every appointment is with the same master stylist, so you're paying for consistency: the same expert hands, visit after visit, with no rotating chairs and no rushing.</p>
+<h2>How often should men get a haircut?</h2>
+<p>Short styles and fades look sharpest when they're refreshed every two to three weeks. Medium-length cuts usually go four to six weeks. Susy will tell you the right rhythm for your cut, and you can rebook online before you leave.</p>
 <h2>Convenient to downtown</h2>
-<p>We're at {ADDR}, a short walk from Main Street and Five Points, and an easy stop for anyone working downtown, in the Rosemary District or along Fruitville Road.</p>""",
-    FAQ_COMMON, {"Classic Haircut", "Executive Haircut", "Kid's Haircut (under 12)"})
+<p>We're at {ADDR}, a short walk from Main Street and Five Points, and an easy stop for anyone working downtown, in the Rosemary District or along Fruitville Road. Clients also drive in from <a href="mens-haircut-lido-key.html">Lido Key</a>, <a href="mens-haircut-siesta-key.html">Siesta Key</a>, <a href="mens-haircut-longboat-key.html">Longboat Key</a> and <a href="mens-haircut-lakewood-ranch.html">Lakewood Ranch</a>.</p>""",
+    FAQ_COMMON + [("How much does a men's haircut cost at The Q?", "A Classic Haircut is $60 (about 45 minutes) and an Executive Haircut is $80 (about an hour). Kids' cuts for under-12s are $30."),
+                  ("Do you cut longer men's hair, or just short styles?", "Both. Susy does scissor cuts for longer and textured hair as well as short cuts, tapers and fades."),
+                  ("Is this a barbershop?", "It's a private men's hair salon with full barbering skills: fades, line-ups and clipper work, plus scissor cuts, consultation and men's color.")],
+    {"Classic Haircut", "Executive Haircut", "Kid's Haircut (under 12)"})
 
 fade = seo_page("Skin fades with a clean, seamless blend", "Skin fade · Sarasota, FL",
     "Skin fades in downtown Sarasota: low, mid or high, with crisp lines and no visible steps.",
@@ -998,14 +1013,14 @@ guide = f"""<section class="page-hero"><div class="wrap"><p class="eyebrow">Groo
 {cta()}"""
 
 PAGES = [  # (path, <title>, meta description, body, breadcrumb label)
-    ("index.html", "The Q Salon for Men | Men's Hair Salon & Barber, Sarasota FL", "Men's hair salon and barber in downtown Sarasota: haircuts, skin fades, gray blending and facials, every cut by master barber Susy. Rated 4.9★ on Google.", home, ""),
+    ("index.html", "Men's Haircuts & Barber in Sarasota, FL | The Q Salon for Men", "Men's haircuts in downtown Sarasota from $60: classic and executive cuts, skin fades and gray blending by master barber Susy. Rated 4.9★ on Google.", home, ""),
     ("about.html", "About Susy, Master Barber · The Q Salon for Men, Sarasota", "Meet Susy, the master barber and stylist behind The Q Salon for Men, a private one-chair men's hair salon on 1st Street in downtown Sarasota since 2021.", about, "About"),
     ("mens-hair-salon-sarasota.html", "Men's Hair Salon in Sarasota, FL · The Q Salon", "A private men's hair salon in downtown Sarasota: haircuts from $60, skin fades, gray blending and facials, all by master stylist Susy. Book online.", salon, "Men's hair salon"),
     ("shop.html", "The Q Shop · Men's Grooming Products, Sarasota", "Susy's picks for men's grooming, from pomade and beard oil to scalp care and trimmers, plus gift cards for any service at The Q Salon in Sarasota.", shop, "Shop"),
-    ("mens-haircut-sarasota.html", "Men's Haircut Sarasota, FL · From $60 · The Q Salon", "Men's haircuts in downtown Sarasota from $60. Classic and executive cuts by a master stylist at 1415 1st St. Book online.", haircut, "Men's haircut"),
+    ("mens-haircut-sarasota.html", "Men's Haircuts in Sarasota, FL · From $60 · The Q Salon", "Men's haircuts in downtown Sarasota from $60: scissor cuts, tapers, fades and executive cuts by master stylist Susy at 1415 1st St. Book online in a minute.", haircut, "Men's haircut"),
     ("skin-fade-sarasota.html", "Skin Fade Sarasota, FL · $80 · The Q Salon", "Skin fades in downtown Sarasota for $80. Low, mid and high fades with a seamless blend. Book online at The Q Salon for Men.", fade, "Skin fade"),
     ("mens-hair-color-sarasota.html", "Men's Gray Blending & Hair Color Sarasota · The Q", "Men's gray blending in Sarasota: natural-looking color that softens the gray without the dyed look. Natural Look Color & Style, $130, at The Q Salon.", color, "Gray blending"),
-    ("barber-sarasota.html", "Barber in Sarasota, FL · Downtown · The Q Salon", "Looking for a barber in Sarasota? Private one-chair men's salon with master stylist Susy. Haircuts from $60, skin fades $80. Book online.", barber, "Barber"),
+    ("barber-sarasota.html", "Barber Shop in Downtown Sarasota, FL · The Q Salon", "Looking for a barber in Sarasota? Private one-chair men's salon with master stylist Susy. Haircuts from $60, skin fades $80. Book online.", barber, "Barber"),
     ("executive-haircut-sarasota.html", "Executive Haircut Sarasota · $80 · The Q Salon", "The Executive Haircut in Sarasota: an hour with a master stylist and extra detail work, $80. Book online at The Q Salon for Men.", executive, "Executive haircut"),
     ("mens-facial-sarasota.html", "Men's Facial Sarasota · $75 · The Q Salon", "Men's facial in Sarasota: the 45-minute Gentleman's Facial cleanses, exfoliates and hydrates, $75. A men's facial spa service at The Q Salon.", facial, "Men's facial"),
     ("kids-haircut-sarasota.html", "Kids' Haircut Sarasota · $30 · The Q Salon", "Calm kids' haircuts in Sarasota for boys under 12, $30. One chair, no crowd. Book father-and-son appointments online.", kids, "Kids' haircut"),
