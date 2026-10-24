@@ -635,6 +635,40 @@ def clean_links(html):
     html = re.sub(r'href="([a-z0-9-]+)\.html(#[^"]*)?"', fix, html)
     return html.replace('src="assets/', 'src="/assets/')
 
+# Conversion click tracking. Google Analytics itself (G-V0NPW7N594, page views and amazon_click)
+# is loaded by the Netlify snippet "Q Salon analytics and Amazon clicks"; this only adds named events.
+CLICK_TRACKING = """<script>document.addEventListener('click',function(e){var a=e.target.closest&&e.target.closest('a[href]');if(!a)return;
+var h=a.href||'',t=(a.textContent||'').replace(/\\s+/g,' ').trim().slice(0,80),ev=null,
+p={link_text:t,link_url:h,link_location:a.closest('header')?'header':a.closest('footer')?'footer':a.closest('.m-cta')?'mobile_bar':'body',page_path:location.pathname};
+if(h.indexOf('tel:')===0)ev='phone_call_click';
+else if(h.indexOf('sms:')===0)ev='text_message_click';
+else if(h.indexOf('mailto:')===0)ev='email_click';
+else if(/getsqr\\.co|getsquire\\.com|theqsalonsrq\\.com\\/book/.test(h))ev=/gift/i.test(t)?'gift_card_click':'booking_click';
+else if(/writereview/.test(h))ev='review_click';
+else if(/maps\\.google|google\\.com\\/maps/.test(h))ev=/review/i.test(t)?'reviews_view_click':'directions_click';
+else if(/instagram\\.com/.test(h))ev='instagram_click';
+else if(/facebook\\.com/.test(h))ev='facebook_click';
+if(ev)(window.gtag||function(){(window.dataLayer=window.dataLayer||[]).push(arguments);})('event',ev,p);},true);</script>"""
+
+# Old-site addresses Google still requests, each mapped to the closest current page.
+LEGACY_REDIRECTS = {
+    "/downtown-sarasota-barbershop": "/mens-haircut-sarasota", "/barbershop-sarasota": "/barber-sarasota",
+    "/gallery": "/about", "/contact": "/about", "/how-to-tell-if-hair-stylist-is-good": "/about",
+    "/mens-hair-salon": "/mens-hair-salon-sarasota", "/services": "/",
+    "/mens-haircuts-sarasota": "/mens-haircut-sarasota", "/best-mens-haircut-sarasota": "/mens-haircut-sarasota",
+    "/mens-scissor-cut-sarasota": "/mens-haircut-sarasota", "/mens-mullet-haircut-sarasota": "/mens-haircut-sarasota",
+    "/how-much-should-mens-haircut-cost-sarasota": "/mens-haircut-sarasota", "/mens-haircut-venice": "/mens-haircut-sarasota",
+    "/executive-haircuts-sarasota": "/executive-haircut-sarasota",
+    "/mens-fade-haircut-sarasota": "/skin-fade-sarasota", "/fade-haircuts-sarasota": "/skin-fade-sarasota",
+    "/fade-vs-taper-which-is-better": "/skin-fade-sarasota", "/styles/low-taper": "/skin-fade-sarasota",
+    "/beard-grooming-sarasota": "/mens-grooming-sarasota", "/beard-trim-sarasota": "/mens-grooming-sarasota",
+    "/hot-towel-shave-sarasota": "/mens-grooming-sarasota", "/scalp-treatments-men-sarasota": "/mens-grooming-sarasota",
+    "/luxury-mens-grooming-sarasota": "/mens-grooming-sarasota", "/mens-grooming-salon-downtown-sarasota": "/mens-grooming-sarasota",
+    "/mens-spa-sarasota": "/mens-facial-sarasota",
+    "/blog": "/grooming-guide", "/journal": "/grooming-guide", "/what-haircut-should-i-get": "/grooming-guide",
+    "/what-haircut-do-girls-like": "/grooming-guide", "/3-2-1-rule-mens-haircuts": "/grooming-guide",
+}
+
 def page(path, title, desc, body, crumb=""):
     if crumb:
         body = body.replace('<section class="page-hero"><div class="wrap">', '<section class="page-hero"><div class="wrap">' + crumbs(crumb), 1)
@@ -645,6 +679,7 @@ def page(path, title, desc, body, crumb=""):
 {header(path)}
 <main id="main">{body}</main>
 {visit(show_map=path in ("index.html", "about.html"))}
+{CLICK_TRACKING}
 </body></html>""")
 
 # ---------- Home ----------
@@ -1034,8 +1069,7 @@ if __name__ == "__main__":
     open("dist/llms.txt", "w").write(llms_txt())
     open(f"dist/{INDEXNOW_KEY}.txt", "w").write(INDEXNOW_KEY)
     open("dist/_redirects", "w").write(
-        "/downtown-sarasota-barbershop /mens-haircut-sarasota 301\n/gallery /about 301\n"
-        "/mens-hair-salon /mens-hair-salon-sarasota 301\n/book " + B['book'] + " 302\n")
+        "".join(f"{src} {dst} 301\n" for src, dst in LEGACY_REDIRECTS.items()) + "/book " + B['book'] + " 302\n")
     open("dist/_headers", "w").write(
         "/assets/*\n  Cache-Control: public, max-age=31536000, immutable\n"
         "/*\n  X-Content-Type-Options: nosniff\n  Referrer-Policy: strict-origin-when-cross-origin\n"
