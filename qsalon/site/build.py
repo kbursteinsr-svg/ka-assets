@@ -22,6 +22,8 @@ BUSINESS = {
     "rating": "4.9", "review_count": 66,   # shown as text only; update when Google changes
 }
 B = BUSINESS
+# Google Analytics 4 measurement ID (G-XXXXXXXXXX). Tracking is only added to pages when this is set.
+GA4_ID = ""
 ADDR = f"{B['street']}, {B['city']}, {B['state']} {B['zip']}"
 AREAS = ["Sarasota", "Downtown Sarasota", "Lido Key", "St. Armands", "Siesta Key", "Longboat Key", "Lakewood Ranch", "Sarasota County"]
 IMG_HERO = "mens-haircut-sarasota-silver-swept-back"
@@ -635,12 +637,31 @@ def clean_links(html):
     html = re.sub(r'href="([a-z0-9-]+)\.html(#[^"]*)?"', fix, html)
     return html.replace('src="assets/', 'src="/assets/')
 
+def tracking_head():
+    """GA4 tag plus one click tracker that names every conversion action on the site."""
+    if not GA4_ID:
+        return ""
+    return f"""<script async src="https://www.googletagmanager.com/gtag/js?id={GA4_ID}"></script>
+<script>window.dataLayer=window.dataLayer||[];function gtag(){{dataLayer.push(arguments);}}gtag('js',new Date());gtag('config','{GA4_ID}');
+document.addEventListener('click',function(e){{var a=e.target.closest&&e.target.closest('a[href]');if(!a)return;
+var h=a.href||'',t=(a.textContent||'').replace(/\\s+/g,' ').trim().slice(0,80),loc=(a.closest('header')?'header':a.closest('footer')?'footer':a.closest('.m-cta')?'mobile_bar':'body'),ev=null,p={{link_text:t,link_url:h,link_location:loc,page_path:location.pathname}};
+if(h.indexOf('tel:')===0)ev='phone_call_click';
+else if(h.indexOf('mailto:')===0)ev='email_click';
+else if(/getsqr\\.co|getsquire\\.com|\\/book(\\b|$)/.test(h))ev=/gift/i.test(t)?'gift_card_click':'booking_click';
+else if(/link\\.amazon|amzn\\.to|amazon\\.com/.test(h)){{ev='amazon_product_click';var c=a.closest('[data-product]');if(c)p.product=c.getAttribute('data-product');}}
+else if(/writereview/.test(h))ev='review_click';
+else if(/maps\\.google|google\\.com\\/maps/.test(h))ev=/review/i.test(t)?'reviews_view_click':'directions_click';
+else if(/instagram\\.com/.test(h))ev='instagram_click';
+else if(/facebook\\.com/.test(h))ev='facebook_click';
+if(ev)gtag('event',ev,p);}},true);</script>"""
+
 def page(path, title, desc, body, crumb=""):
     if crumb:
         body = body.replace('<section class="page-hero"><div class="wrap">', '<section class="page-hero"><div class="wrap">' + crumbs(crumb), 1)
     return clean_links(f"""<!doctype html>
 <html lang="en-US"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
 {head(title, desc, path, crumb)}
+{tracking_head()}
 </head><body>
 {header(path)}
 <main id="main">{body}</main>
