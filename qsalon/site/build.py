@@ -981,7 +981,7 @@ about = f"""<section class="page-hero"><div class="wrap"><p class="eyebrow">Abou
 <p class="lede">The Q Salon for Men opened in downtown Sarasota in November 2021 with a simple idea: one master stylist, one chair, and men's grooming done properly.</p>
 <div class="acts"><a class="btn" href="{B['book']}" target="_blank" rel="noopener">Book with Susy {ARR}</a><a class="btn btn-line" href="index.html#services">See the menu</a></div></div></section>
 <section class="sec" id="susy"><div class="wrap about">
-<div class="ph ph-tall">{pic("susy-the-q-salon-downtown-sarasota", "Susy, master barber and stylist, at her chair inside The Q Salon for Men on 1st Street in downtown Sarasota", 960, 1200)}</div>
+<div class="ph ph-tall">{pic("susy-the-q-salon-downtown-sarasota", "Susy, master barber and stylist at The Q Salon for Men in downtown Sarasota", 960, 1200)}</div>
 <div class="prose"><p class="eyebrow">Master barber &amp; stylist</p><h2 style="margin-top:0">Meet Susy</h2>
 <p>Susy has more than ten years of experience cutting men's hair. She's known for fades that blend clean every time, executive cuts that still look right weeks later, and gray blending so natural nobody can tell.</p>
 <p>She is the only stylist at The Q. Every haircut, fade, color and facial on the menu is done by her, start to finish, so you get the same hands and the same standard on every visit.</p>
