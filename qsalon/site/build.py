@@ -69,7 +69,7 @@ PRODUCTS = [
 ]
 
 NAV = [("index.html", "Home"), ("index.html#services", "Services & prices"), ("shop.html", "Shop"),
-       ("about.html", "About"), ("grooming-guide.html", "Grooming Guide")]   # footer links
+       ("about.html", "About"), ("grooming-guide.html", "Grooming Guide"), ("blog.html", "Journal")]   # footer links
 
 # Affiliate products ("Susy's Picks"). Add one dict per product:
 # {"name": "...", "brand": "...", "price": "$24", "img": "https://... or assets/...", "url": "https://affiliate-link", "note": "Why Susy likes it"}
@@ -107,6 +107,7 @@ SEO_LINKS = [
     ("mens-haircut-lido-key.html", "Lido Key & St. Armands"),
     ("mens-haircut-lakewood-ranch.html", "Lakewood Ranch"), ("mens-haircut-siesta-key.html", "Siesta Key"),
     ("mens-haircut-longboat-key.html", "Longboat Key"), ("grooming-guide.html", "Grooming Guide"),
+    ("blog.html", "The Q Journal"), ("mens-grooming-gift-guide.html", "Grooming Gift Guide"),
     ("about.html", "About Susy & The Q"),
 ]
 
@@ -419,6 +420,7 @@ box-shadow:0 28px 50px -18px rgba(0,0,0,.8),0 2px 0 rgba(255,255,255,.35) inset,
 .disclose{font-size:.82rem;margin-top:18px;max-width:70ch}
 .foot-links{padding-top:40px;border-bottom:1px solid var(--line-d);padding-bottom:28px}.foot-links nav{display:flex;flex-wrap:wrap;gap:10px 22px;font-size:.9rem}
 .affs{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:20px;margin-top:32px}@media(max-width:900px){.affs{grid-template-columns:repeat(2,minmax(0,1fr))}}@media(max-width:520px){.affs{grid-template-columns:1fr}}
+.prose .affs{grid-template-columns:repeat(2,minmax(0,1fr));margin:24px 0 8px}@media(max-width:620px){.prose .affs{grid-template-columns:1fr}}.prose .aff-go{max-width:100%}
 .aff{scroll-margin-top:110px;background:#fff;border:1px solid var(--line);border-radius:10px;overflow:hidden;display:flex;flex-direction:column;transition:transform .3s,box-shadow .3s}.aff:hover{transform:translateY(-4px);box-shadow:0 20px 40px -26px rgba(20,32,46,.5)}
 .aff-img{aspect-ratio:1;background:#fff;display:grid;place-items:center;border-bottom:1px solid var(--line);position:relative;overflow:hidden}.aff-img picture{position:absolute;inset:0;display:block}.aff-img img{position:absolute;inset:0;width:100%;height:100%;max-width:none;box-sizing:border-box;object-fit:contain;object-position:center;padding:14px;transition:transform .4s}.aff:hover .aff-img img{transform:scale(1.04)}
 .aff-meta{padding:20px;display:flex;flex-direction:column;gap:6px;flex:1}.aff-meta .k{font:500 .68rem var(--mono);letter-spacing:.16em;text-transform:uppercase;color:var(--brass)}.aff-meta p{color:var(--muted);font-size:.92rem;flex:1}
@@ -665,7 +667,7 @@ LEGACY_REDIRECTS = {
     "/hot-towel-shave-sarasota": "/mens-grooming-sarasota", "/scalp-treatments-men-sarasota": "/mens-grooming-sarasota",
     "/luxury-mens-grooming-sarasota": "/mens-grooming-sarasota", "/mens-grooming-salon-downtown-sarasota": "/mens-grooming-sarasota",
     "/mens-spa-sarasota": "/mens-facial-sarasota",
-    "/blog": "/grooming-guide", "/journal": "/grooming-guide", "/what-haircut-should-i-get": "/grooming-guide",
+    "/journal": "/blog","/what-haircut-should-i-get": "/grooming-guide",
     "/what-haircut-do-girls-like": "/grooming-guide", "/3-2-1-rule-mens-haircuts": "/grooming-guide",
 }
 
@@ -1012,6 +1014,75 @@ guide = f"""<section class="page-hero"><div class="wrap"><p class="eyebrow">Groo
 {shop_section("Keep it sharp", "Products for between visits.")}
 {cta()}"""
 
+# ---------- Blog ----------
+# One dict per post. "picks" = product slots from products.json (label facts only, no prices).
+BLOG_POSTS = [
+    {
+        "path": "mens-grooming-gift-guide.html",
+        "title": "Grooming Gifts for Men, Picked by a Sarasota Barber (2026)",
+        "meta": "Holiday grooming gifts for men, chosen by Sarasota master barber Susy: beard oil, pomade, clay, SPF moisturizer, a body trimmer and The Q Salon gift card.",
+        "crumb": "Gift guide",
+        "eyebrow": "Holiday gift guide · 2026",
+        "h1": "Grooming gifts for men, picked by a Sarasota barber.",
+        "lede": "Skip the generic gift set. These are the products Susy recommends from her chair at The Q Salon, sorted by the kind of guy you're shopping for.",
+        "date": "2026-11-13",
+        "intro": [
+            "The best grooming gift is one he'll actually use, which means matching it to how he already wears his hair and beard. Find him in one of the sections below and pick one thing. One good product beats a box of five he'll never open.",
+            "Not sure what he uses? Jump to the last section. A gift card is the one grooming gift that always fits.",
+        ],
+        "sections": [
+            ("For the beard guy", "A beard looks better soft and shaped than long and wiry. Oil is the daily step, and a balm adds hold for fuller beards. In Florida humidity, lighter oils work best, and a few drops after a shower is plenty.", [10, 4]),
+            ("For the pomade guy", "If his hair has a part or a slick-back, he needs shine and medium hold. These two cover the classic finish and a signature scent people notice.", [2, 3]),
+            ("For the textured, matte look", "Crops, textured tops and messy-on-purpose styles look best with a matte product. Clay gives real hold; powder adds lift without weight.", [1, 13]),
+            ("For the guy who skips sunscreen", "Sarasota sun shows up on a man's face first. A daily moisturizer with SPF is the easiest habit to give him, and it pairs well with a Gentleman's Facial.", [16]),
+            ("For upkeep between cuts", "A good body trimmer keeps things tidy between appointments. Waterproof, with guards for different lengths, so it works in the shower.", [9]),
+        ],
+        "faq": [
+            ("What's a good grooming gift if I don't know his routine?", "A gift card for a service is the safest choice, because Susy matches the cut, color or facial to him in person. If you'd rather give a product, beard oil (for a bearded guy) or an SPF moisturizer suits almost anyone."),
+            ("Does The Q Salon sell gift cards?", "Yes. Gift cards start at $50 and are good for any service: the Classic Haircut ($60), Executive Haircut ($80), Skin Fade ($80), Gentleman's Facial ($75) or Natural Look Color & Style ($130). Buy them online through SQUIRE."),
+            ("Where do I buy the products on this list?", "Each pick links to Amazon, where you'll see the current price and delivery dates. Order early in December for holiday delivery."),
+        ],
+    },
+]
+
+def blog_cards(slots):
+    by_slot = {p["slot"]: p for p in AFFILIATE}
+    return '<div class="affs">' + "".join(aff_card(by_slot[s]) for s in slots if s in by_slot) + "</div>"
+
+def blog_post(p):
+    secs = "".join(f'<h2 id="s-{i}">{esc(h)}</h2><p>{esc(t)}</p>{blog_cards(slots)}' for i, (h, t, slots) in enumerate(p["sections"], 1))
+    faq_html = "".join(f'<details><summary>{esc(q)}</summary><p>{esc(a)}</p></details>' for q, a in p["faq"])
+    toc = "".join(f'<p style="margin-top:10px"><a class="link" href="#s-{i}">{esc(h)}</a></p>' for i, (h, _, _) in enumerate(p["sections"], 1))
+    article = {"@context": "https://schema.org", "@type": "BlogPosting", "headline": p["title"], "description": p["meta"],
+               "datePublished": p["date"], "dateModified": TODAY, "mainEntityOfPage": url(p["path"]),
+               "image": B["site"] + IMG_SHARE, "author": {"@id": SUSY_ID, "@type": "Person", "name": "Susy"},
+               "publisher": {"@id": BIZ_ID}, "inLanguage": "en-US"}
+    return f"""<section class="page-hero"><div class="wrap"><p class="eyebrow">{esc(p['eyebrow'])}</p><h1>{esc(p['h1'])}</h1>
+<p class="lede">{esc(p['lede'])}</p>
+<div class="acts"><a class="btn" href="{B['book']}" target="_blank" rel="noopener">Give a gift card {ARR}</a><a class="btn btn-line" href="shop.html">See all of Susy's picks</a></div></div></section>
+<section class="sec"><div class="wrap split"><div class="sticky"><div class="side"><p class="eyebrow">In this guide</p>{toc}
+<p style="margin-top:10px"><a class="link" href="#gift-card">The gift card</a></p></div></div>
+<div class="prose">{"".join(f"<p>{esc(x)}</p>" for x in p['intro'])}
+<p class="disclose muted">{AMZ_DISCLOSE} Links open Amazon, where current prices and availability are shown.</p>
+{secs}
+<h2 id="gift-card">The gift that always fits</h2>
+<p>A gift card to The Q Salon covers any service, from a sharp Classic Haircut to the Executive Haircut, a skin fade, natural gray blending or the Gentleman's Facial. Gift cards start at $50 and are redeemed in the salon with Susy, in downtown Sarasota.</p>
+<div class="acts"><a class="btn" href="{B['book']}" target="_blank" rel="noopener">Buy a gift card {ARR}</a></div>
+<h2>Questions</h2><div class="faq">{faq_html}</div>
+<h2>Keep reading</h2><div class="related"><a href="grooming-guide.html">Grooming guide</a><a href="mens-grooming-sarasota.html">Men's grooming in Sarasota</a><a href="mens-facial-sarasota.html">Gentleman's Facial</a><a href="blog.html">All posts</a></div>
+</div></div></section>
+{faq_schema(p['faq'])}
+<script type="application/ld+json">{json.dumps(article, ensure_ascii=False)}</script>
+{cta("Fresh cut first, then the products to keep it.")}"""
+
+blog_index = f"""<section class="page-hero"><div class="wrap"><p class="eyebrow">The Q Journal</p><h1>Notes from Susy's chair.</h1>
+<p class="lede">Grooming advice, product picks and seasonal guides for men in Sarasota.</p></div></section>
+<section class="sec"><div class="wrap"><div class="prose">
+{"".join(f'<h2><a href="{p["path"]}">{esc(p["h1"])}</a></h2><p class="muted">{esc(p["eyebrow"])}</p><p>{esc(p["lede"])}</p><p><a class="link" href="{p["path"]}">Read the guide</a></p>' for p in BLOG_POSTS)}
+<h2><a href="grooming-guide.html">Tips from Susy's chair</a></h2><p>Fades, styling products, gray blending, razor bumps and beard care in Florida humidity.</p><p><a class="link" href="grooming-guide.html">Read the grooming guide</a></p>
+</div></div></section>
+{cta()}"""
+
 PAGES = [  # (path, <title>, meta description, body, breadcrumb label)
     ("index.html", "Men's Haircuts & Barber in Sarasota, FL | The Q Salon for Men", "Men's haircuts in downtown Sarasota from $60: classic and executive cuts, skin fades and gray blending by master barber Susy. Rated 4.9★ on Google.", home, ""),
     ("about.html", "About Susy, Master Barber · The Q Salon for Men, Sarasota", "Meet Susy, the master barber and stylist behind The Q Salon for Men, a private one-chair men's hair salon on 1st Street in downtown Sarasota since 2021.", about, "About"),
@@ -1030,7 +1101,8 @@ PAGES = [  # (path, <title>, meta description, body, breadcrumb label)
     ("mens-haircut-siesta-key.html", "Men's Haircut Siesta Key · The Q Salon", "Men's haircuts for Siesta Key: cuts, skin fades and sun-proof gray blending with master stylist Susy, 15 minutes away. Book online.", siesta, "Siesta Key"),
     ("mens-haircut-longboat-key.html", "Men's Haircut Longboat Key · The Q Salon", "Men's haircuts for Longboat Key: refined cuts, fades and gray blending with master stylist Susy, about 20 minutes away. Book online.", longboat, "Longboat Key"),
     ("grooming-guide.html", "Men's Grooming Guide · Tips from a Sarasota Barber", "Practical men's grooming tips from Sarasota master stylist Susy: fades, styling products, gray blending, razor bumps and beard care.", guide, "Grooming guide"),
-]
+    ("blog.html", "The Q Journal · Men's Grooming Blog, Sarasota", "Grooming advice, product picks and seasonal guides from Susy, master barber at The Q Salon for Men in downtown Sarasota.", blog_index, "Journal"),
+] + [(p["path"], p["title"], p["meta"], blog_post(p), p["crumb"]) for p in BLOG_POSTS]
 
 # IndexNow key (Bing, Yandex, Seznam...). Public by design: the key file is served at /<key>.txt.
 INDEXNOW_KEY = "7f3c9a1e5b2d4c8e9a6f0b1d2e3c4a5b"
@@ -1064,7 +1136,8 @@ def llms_txt():
 ## Services and prices
 {svc}
 - Gift cards: from $50, good for any service.
-- Shop: "Susy's picks", nine grooming products linked to Amazon (affiliate links, disclosed on the page).
+- Shop: "Susy's picks", {len(AFFILIATE)} grooming products linked to Amazon (affiliate links, disclosed on the page).
+- Blog: {B['site']}/blog (grooming advice and seasonal guides, including the men's grooming gift guide).
 
 ## Frequently asked
 {faq}
