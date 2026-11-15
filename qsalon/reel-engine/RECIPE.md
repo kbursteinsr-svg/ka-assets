@@ -17,3 +17,17 @@ Reference build: mon/v4/reel.json -> qsalon_mon_reelB_final.mp4 (31.5s)
 - Delivery: upload MP4 to ka-assets/qsalon/reels/, serve via
   https://cdn.jsdelivr.net/gh/kbursteinsr-svg/ka-assets@main/qsalon/reels/<file>.mp4 (video/mp4),
   add a row to n8n data table qsalon_ig_reels (status queued, scheduledAt UTC). Scheduler: gJuWHnhFBsLMEoKR.
+
+## Susy's CTA portrait (updated 2026-11-15)
+
+Use `qsalon/reels/src/susy_portrait.jpg` — 800x800, cropped from the photo
+Kris supplied on 15 Nov. It replaces the `susy_garage_1.jpg` crop, which was
+dim and shot side-on.
+
+The source was a screenshot of an incoming-call screen, so the crop is
+deliberately bounded: the caller name sits over her hair above y=600 and the
+Message / Voicemail buttons start around y=1700. The usable square is
+(40, 600) to (1140, 1700). Do not widen it.
+
+Still true: never use the old site `susy.jpg` — that was an AI portrait and is
+not Susy.
