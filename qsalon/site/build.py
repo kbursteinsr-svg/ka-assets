@@ -142,7 +142,7 @@ def business_node():
     return {
         "@type": "HairSalon", "@id": BIZ_ID, "name": B["name"],
         "alternateName": ["The Q Salon", "The Q", "Q Salon for Men", "The Q Salon Sarasota"],
-        "description": "Private, one-chair men's hair salon and barber in downtown Sarasota, FL. Master barber and stylist Susy "
+        "description": "Private, one-chair men's hair salon in downtown Sarasota, FL. Master stylist Susy "
                        "does every cut: men's haircuts, executive cuts, skin fades, natural gray blending, gentleman's facials and kids' cuts. Appointments only.",
         "url": B["site"] + "/", "telephone": B["phone_e164"], "email": B["email"],
         "image": [B["site"] + IMG_SHARE, f"{B['site']}/assets/{IMG_SUSY}.jpg", f"{B['site']}/assets/susy-the-q-salon-downtown-sarasota.jpg", f"{B['site']}/assets/{IMG_HERO}.jpg"],
@@ -167,7 +167,7 @@ def business_node():
     }
 
 def susy_node():
-    return {"@type": "Person", "@id": SUSY_ID, "name": "Susy", "jobTitle": "Master Barber & Stylist",
+    return {"@type": "Person", "@id": SUSY_ID, "name": "Susy", "jobTitle": "Master Stylist",
             "description": "Master barber and men's stylist with more than 10 years of experience; the only stylist at The Q Salon for Men in Sarasota.",
             "worksFor": {"@id": BIZ_ID}, "image": [f"{B['site']}/assets/susy-the-q-salon-downtown-sarasota.jpg", f"{B['site']}/assets/{IMG_SUSY}.jpg"],
             "knowsAbout": ["Men's haircuts", "Skin fades", "Gray blending", "Men's grooming"]}
@@ -704,10 +704,10 @@ home = f"""
 <span class="h2-issue">The Q · Sarasota · Est. 2021</span>
 </div></figure>
 <div class="h2-copy"><div class="h2-inner">
-<h1><span class="eyebrow h1-eyebrow">Men's haircuts &amp; barber · Downtown Sarasota</span><span class="l"><span>The cut</span></span><span class="l"><span>that carries</span></span><span class="l"><span><em>the room.</em></span></span></h1>
+<h1><span class="eyebrow h1-eyebrow">Men's hair salon · Downtown Sarasota</span><span class="l"><span>The cut</span></span><span class="l"><span>that carries</span></span><span class="l"><span><em>the room.</em></span></span></h1>
 <p class="lede">Men's haircuts, skin fades and natural gray blending in downtown Sarasota, from master stylist Susy. One chair, by appointment, and her full attention from start to finish.</p>
 <div class="acts"><a class="btn" href="{B['book']}" target="_blank" rel="noopener">Book an appointment {ARR}</a><a class="btn btn-line" href="#shop">Shop products</a></div>
-<a class="h2-by" href="#meet">{pic(IMG_SUSY + "-thumb", "", 44, 44)}<span><b>Every cut by Susy</b><small>Master barber &amp; stylist · 10+ years</small></span></a>
+<a class="h2-by" href="#meet">{pic(IMG_SUSY + "-thumb", "", 44, 44)}<span><b>Every cut by Susy</b><small>Master men's stylist · 10+ years</small></span></a>
 <div class="stats"><div><b>{B['rating']}★</b><span>{B['review_count']} Google reviews</span></div><div><b>10+</b><span>Years behind the chair</span></div><div><b>1</b><span>Chair. Your time.</span></div></div>
 </div></div>
 </section>
@@ -720,13 +720,13 @@ home = f"""
 </div></section>
 <section class="sec stone" id="at-a-glance"><div class="wrap">
 <div class="sec-head"><div><p class="eyebrow">At a glance</p><h2>The Q Salon for Men, in brief.</h2></div>
-<p>A private, appointment-only men's hair salon and barber in downtown Sarasota, Florida, open since 2021.</p></div>
+<p>A private, appointment-only men's hair salon in downtown Sarasota, Florida, open since 2021.</p></div>
 <dl class="glance">
 <div><dt>Address</dt><dd>{ADDR}</dd></div>
 <div><dt>Hours</dt><dd>Mon–Fri, 9 AM – 2 PM<br>Closed Sat &amp; Sun</dd></div>
 <div><dt>Phone</dt><dd><a href="tel:{B['phone_e164']}">{B['phone']}</a></dd></div>
 <div><dt>Booking</dt><dd>Online via SQUIRE · <a href="{B['book']}" target="_blank" rel="noopener">book now</a></dd></div>
-<div><dt>Stylist</dt><dd>Susy, master barber &amp; stylist, 10+ years</dd></div>
+<div><dt>Stylist</dt><dd>Susy, master men's stylist, 10+ years</dd></div>
 <div><dt>Prices</dt><dd>Haircuts $60–$80 · Fades $80 · Gray blending $130 · Kids $30</dd></div>
 <div><dt>Specialties</dt><dd>Executive cuts, skin fades, natural gray blending, men's facials</dd></div>
 <div><dt>Serving</dt><dd>Sarasota, Lido Key, St. Armands, Siesta Key, Longboat Key, Lakewood Ranch</dd></div>
@@ -1085,7 +1085,7 @@ blog_index = f"""<section class="page-hero"><div class="wrap"><p class="eyebrow"
 {cta()}"""
 
 PAGES = [  # (path, <title>, meta description, body, breadcrumb label)
-    ("index.html", "Men's Haircuts & Barber in Sarasota, FL | The Q Salon for Men", "Men's haircuts in downtown Sarasota from $60: classic and executive cuts, skin fades and gray blending by master barber Susy. Rated 4.9★ on Google.", home, ""),
+    ("index.html", "Men's Hair Salon in Sarasota, FL | The Q Salon for Men", "Men's hair salon in downtown Sarasota. Haircuts from $60: classic and executive cuts, skin fades and gray blending by master stylist Susy. Rated 4.9★ on Google.", home, ""),
     ("about.html", "About Susy, Master Barber · The Q Salon for Men, Sarasota", "Meet Susy, the master barber and stylist behind The Q Salon for Men, a private one-chair men's hair salon on 1st Street in downtown Sarasota since 2021.", about, "About"),
     ("mens-hair-salon-sarasota.html", "Men's Hair Salon in Sarasota, FL · The Q Salon", "A private men's hair salon in downtown Sarasota: haircuts from $60, skin fades, gray blending and facials, all by master stylist Susy. Book online.", salon, "Men's hair salon"),
     ("shop.html", "The Q Shop · Men's Grooming Products, Sarasota", "Susy's picks for men's grooming, from pomade and beard oil to scalp care and trimmers, plus gift cards for any service at The Q Salon in Sarasota.", shop, "Shop"),
@@ -1117,11 +1117,11 @@ def llms_txt():
     faq = "\n".join(f"- **{q}** {a}" for q, a in HOME_FAQ)
     return f"""# {B['name']}
 
-> Private, appointment-only men's hair salon and barber in downtown Sarasota, Florida. One chair: every haircut, skin fade, gray blending, facial and kids' cut is done by Susy, a master barber and stylist with 10+ years of experience. Rated {B['rating']} stars on Google ({B['review_count']} reviews).
+> Private, appointment-only men's hair salon in downtown Sarasota, Florida. One chair: every haircut, skin fade, gray blending, facial and kids' cut is done by Susy, a master barber and stylist with 10+ years of experience. Rated {B['rating']} stars on Google ({B['review_count']} reviews).
 
 ## Key facts
 - Name: {B['name']} (also "The Q Salon", "The Q")
-- Type: men's hair salon and barber (Google categories: Hair salon, Barber shop, Facial spa)
+- Type: men's hair salon (Google categories: Hair salon primary, Barber shop, Facial spa)
 - Address: {ADDR}, USA (downtown Sarasota, near Main Street and Five Points)
 - Phone: {B['phone']} (calls answered by the front desk, which texts the booking link)
 - Email: {B['email']}
