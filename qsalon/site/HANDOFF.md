@@ -10,6 +10,7 @@
 - Share image: `dist/assets/the-q-journal-mens-grooming-share.jpg` (made by make_assets.py; `/assets/*` is cached as immutable, so use a new filename when changing an image).
 - Hosting (moved 2026-11-24): Netlify project **the-q-journal** (site ID `f0be4979-4453-4d12-afb6-936658053c64`) on the **Sarasota Building Company** team (sarasotabuildingcompany@gmail.com). The old project tranquil-yeot-e8ab44 on the KB Digital team no longer holds the domain and is not connected to anything live.
 - Ship: edit build.py, run `python3 build.py` (and `python3 make_assets.py <fonts-dir>` for the share image; fonts are Marcellus, DM Mono and Hanken Grotesk from google/fonts), then deploy `dist/` to the-q-journal with the Netlify API (file-digest deploy). Commit build.py and dist/ to `qsalon-live` with `[skip netlify]` in the message so the old project doesn't build.
+- Netlify project setting: `sso_login` must stay **false**. On Nov 24 it was on (team login wall), so every visitor not signed in to Netlify got a 401. If the site 'won't load' on a phone, check this first.
 - Product picks come from `qsalon/shop/products.json` (17 Amazon picks, link.amazon short links). Build without that file and the shop renders empty.
 
 ---

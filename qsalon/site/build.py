@@ -88,6 +88,7 @@ AMZ_DISCLOSE = "As an Amazon Associate, The Q Salon earns from qualifying purcha
 # Journal pages, linked from the footer of every page.
 SEO_LINKS = [
     ("blog.html", "The Q Journal"), ("mens-grooming-gift-guide.html", "Grooming Gift Guide 2026"),
+    ("pomade-vs-clay-vs-gel.html", "Pomade vs Clay vs Gel"), ("beard-oil-vs-beard-balm.html", "Beard Oil vs Beard Balm"),
     ("grooming-guide.html", "The Grooming Guide"), ("shop.html", "Product Picks"), ("about.html", "About the Journal"),
 ]
 
@@ -496,6 +497,58 @@ guide = f"""<section class="page-hero"><div class="wrap"><p class="eyebrow">Groo
 # ---------- Journal articles ----------
 # One dict per post. "picks" = product slots from products.json (label facts only, no prices).
 BLOG_POSTS = [
+    {
+        "path": "pomade-vs-clay-vs-gel.html",
+        "title": "Pomade vs Clay vs Gel vs Powder: Which Men's Hair Product to Use · The Q Journal",
+        "meta": "Pomade, clay, gel or styling powder? How each men's hair product holds, how it finishes, which haircuts it suits, and what holds up best in Florida humidity.",
+        "crumb": "Pomade vs clay vs gel",
+        "eyebrow": "Styling · How to choose",
+        "h1": "Pomade, clay, gel or powder: which one your hair actually needs.",
+        "lede": "Most men use the wrong styling product for their cut. Here's how the four main types differ, and how to pick one in about ten seconds.",
+        "date": "2026-11-24",
+        "intro": [
+            "Every styling product comes down to two choices: how much hold you want, and how much shine. Pomade is shine. Clay is matte hold. Gel is the strongest hold with a wet look. Powder is lift with almost no weight. Pick the finish your haircut was cut for, then the hold you need.",
+            "Humidity changes the math. Damp air makes hair swell and drop, so in Florida the products that last are the ones with real grip and a light, flexible finish. A heavy product just collapses faster.",
+            "Quick answer: side part or slick-back, use pomade. Textured crop, fade with length on top or messy-on-purpose, use clay or powder. Want it locked in place all day, use gel.",
+        ],
+        "sections": [
+            ("Pomade: shine and a clean, combed look", "Pomade gives medium hold with a glossy finish, which is why it's the classic barbershop product for side parts, pompadours and slick-backs. It stays workable, so you can re-comb it at lunch. The tradeoff is weight: on fine hair it can flatten, and in heavy humidity a high-shine style can start to look greasy by the afternoon. Use less than you think, warmed between your palms, and comb it through damp-dry hair.", [2, 3]),
+            ("Clay: matte hold for texture", "Clay is the go-to for modern cuts: textured crops, fringes and anything with movement on top. It dries matte, adds thickness and holds shape without looking like product. It's also the most forgiving in humidity, because the hold doesn't depend on shine. Work a fingertip of it through dry hair, then twist and pinch for separation.", [1]),
+            ("Gel: maximum hold, wet look", "Gel sets hard and holds longest, which makes it the pick for sharp, structured styles and for anyone who needs the look to survive a full day outside. Modern gels don't have to flake or crunch: look for alcohol-free formulas. Apply to damp hair, style once, and leave it alone while it sets.", [12]),
+            ("Powder: lift without weight", "Styling powder is the answer for fine or flat hair. A pinch at the roots adds volume and grip with a natural matte look, and it adds almost no weight, so it doesn't fall in damp air the way a heavy product can. It's also a good base under clay for extra height.", [13]),
+            ("How to pick in ten seconds", "Look at your haircut, not the label. If it was cut to be combed, choose pomade. If it was cut to be messy or textured, choose clay, plus powder if your hair is fine. If it has to stay put no matter what, choose gel. And whatever you use, start with a pea-sized amount: you can always add, but too much is the most common reason a style falls by noon.", []),
+        ],
+        "faq": [
+            ("What's the best men's hair product for humidity?", "A matte product with real grip, such as a clay or a styling powder, usually outlasts a high-shine pomade in humid weather. If you need the style locked in all day, use an alcohol-free gel."),
+            ("Is clay or pomade better for a fade?", "It depends on the top. A textured or messy top suits clay; a combed, side-parted top suits pomade."),
+            ("Can I mix styling products?", "Yes. Powder at the roots with clay on top is a common combination for fine hair that needs both volume and hold."),
+        ],
+    },
+    {
+        "path": "beard-oil-vs-beard-balm.html",
+        "title": "Beard Oil vs Beard Balm: Which One You Need (and When to Use Both) · The Q Journal",
+        "meta": "Beard oil or beard balm? What each one does, which beard length needs which, how to use them together, and what works in hot, humid weather.",
+        "crumb": "Beard oil vs balm",
+        "eyebrow": "Beard care · How to choose",
+        "h1": "Beard oil vs beard balm: which one you need, and when to use both.",
+        "lede": "Oil treats the skin and softens the beard. Balm adds hold and shape. Here's which one your beard length calls for.",
+        "date": "2026-11-24",
+        "intro": [
+            "Beard oil and beard balm get sold as the same thing. They aren't. Oil is skin care: it gets down to the skin under the beard, where dryness and itch start, and softens the hair. Balm is styling: it's oil thickened with butters and wax, so it conditions and holds the beard in shape.",
+            "Short version: short beard or stubble, oil is enough. Medium to full beard, use oil first and balm on top. In hot, humid weather, go lighter on both.",
+        ],
+        "sections": [
+            ("Beard oil: the daily step", "Use a few drops after a shower, while the beard is still slightly damp, and work it down to the skin with your fingertips before combing through. That's where oil does its job: calmer skin, less itch and a softer beard. If you only buy one beard product, buy oil.", [10, 5]),
+            ("Beard balm: shape and control", "Balm is for beards long enough to go their own way. The butter and wax tame flyaways, keep the shape your barber cut and add a little weight to a wiry beard. Warm a small amount between your palms, apply after oil, and shape with a comb or brush.", [11]),
+            ("Using both together", "Oil first, then balm. Oil treats the skin underneath; balm locks the shape on top. On a full beard this is the routine that keeps it looking cut rather than grown. A kit is an easy way to get both, plus a wash and comb, in one go.", [4]),
+            ("Beard care in Florida heat", "Heat and humidity make heavy products feel greasy fast. Use fewer drops of oil, a lighter hand with balm, and wash the beard with a proper beard wash rather than body soap, which can dry out the skin underneath. If your beard is faded into the hairline, keep products off the faded part so it stays sharp.", []),
+        ],
+        "faq": [
+            ("Do I need beard oil if I have stubble?", "Not necessarily for the hair, but stubble is when itch is worst, and a couple of drops of oil on the skin helps."),
+            ("Can beard balm replace beard oil?", "Balm conditions too, but it sits on top of the beard. Oil reaches the skin. For a medium or full beard, using both works best."),
+            ("How often should I use beard oil?", "Once a day is plenty for most beards, ideally after a shower."),
+        ],
+    },
     {
         "path": "mens-grooming-gift-guide.html",
         "title": "Grooming Gifts for Men: The 2026 Gift Guide · The Q Journal",
