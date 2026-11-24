@@ -1,33 +1,25 @@
 #!/usr/bin/env python3
-"""Builds The Q Salon for Men static site.
-Edit BUSINESS / SERVICES / PRODUCTS below, then run: python3 build.py
-Outputs full HTML pages in ./dist (for Netlify) and ./preview (artifact preview)."""
+"""Builds The Q Journal, the men's grooming journal at theqsalonsrq.com.
+Edit SITE / ARTICLES / products below, then run: python3 build.py
+Outputs full HTML pages in ./dist (for Netlify).
+
+Editorial rules: articles carry "The Q Journal" byline. No appointment, booking or
+gift-card links, and no copy inviting readers to visit for a service.
+Former service and area pages are retired with 302 redirects (see RETIRED), so they
+can be brought back by restoring the previous build.py from git."""
 import datetime, json, os, re
 
-BUSINESS = {
-    "name": "The Q Salon for Men",
-    "street": "1415 1st St", "city": "Sarasota", "state": "FL", "zip": "34236",
-    "phone": "(941) 340-2389", "phone_e164": "+19413402389",
+SITE = {
+    "name": "The Q Journal",
+    "tagline": "A men's grooming journal",
     "email": "info@theqsalonsrq.com",
     "site": "https://www.theqsalonsrq.com",
-    "book": "https://getsqr.co/susy-r-6",
-    # Swap for the Squire retail/shop link once it's set up:
-    "shop": "https://getsqr.co/susy-r-6",
-    "hours": "Mon–Fri · 9 AM – 2 PM",
-    "maps": "https://maps.google.com/maps?cid=5285718134082124023",
-    "reviews": "https://search.google.com/local/writereview?placeid=ChIJB1LNsmpBw4gR9zjOVKOkWkk",
-    "instagram": "https://www.instagram.com/theqsalon_srq/",
-    "lat": 27.337317, "lng": -82.542342,   # US Census geocoder, 1415 1st St
-    "founded": "2021-11",
-    "rating": "4.9", "review_count": 66,   # shown as text only; update when Google changes
 }
-B = BUSINESS
-ADDR = f"{B['street']}, {B['city']}, {B['state']} {B['zip']}"
-AREAS = ["Sarasota", "Downtown Sarasota", "Lido Key", "St. Armands", "Siesta Key", "Longboat Key", "Lakewood Ranch", "Sarasota County"]
+B = SITE
 IMG_HERO = "mens-haircut-sarasota-silver-swept-back"
-IMG_SUSY = "susy-master-barber-sarasota"
-IMG_SHARE = "/assets/the-q-salon-for-men-sarasota-share.jpg"
+IMG_SHARE = "/assets/the-q-journal-mens-grooming-share.jpg"
 TODAY = datetime.date.today().isoformat()
+BYLINE = "The Q Journal"
 
 def pic(base, alt, w, h, cls="", lazy=True, extra=""):
     """<picture> with WebP + JPEG fallback (files built by make_assets.py)."""
@@ -36,14 +28,9 @@ def pic(base, alt, w, h, cls="", lazy=True, extra=""):
     return (f'<picture><source srcset="/assets/{base}.webp" type="image/webp">'
             f'<img{c} src="/assets/{base}.jpg" alt="{alt}" width="{w}" height="{h}" {load}{extra}></picture>')
 
-SERVICES = [
-    ("Classic Haircut", "45 min", 60, "Scissor and clipper cut, styled to finish."),
-    ("Executive Haircut", "1 hr", 80, "Our signature cut with extra time and detail work."),
-    ("Skin Fade", "1 hr", 80, "Seamless fade down to the skin, sharp lines and blend."),
-    ("Natural Look Color & Style", "1 hr 15 min", 130, "Gray blending that looks like you, not like dye."),
-    ("Gentleman's Facial", "45 min", 75, "Cleanse, exfoliate and hydrate. Leave refreshed."),
-    ("Kid's Haircut (under 12)", "30 min", 30, "Clean, comfortable cuts for young gentlemen."),
-]
+def nice_date(iso):
+    d = datetime.date.fromisoformat(iso)
+    return d.strftime("%b ") + str(d.day) + d.strftime(", %Y")
 
 # ---- Product illustrations (generic category art, no brand names) ----
 SVG_TIN = """<svg viewBox="0 0 200 160" aria-hidden="true"><defs><linearGradient id="tA" x1="0" x2="1"><stop offset="0" stop-color="#8f7146"/><stop offset=".45" stop-color="#d9bd8a"/><stop offset="1" stop-color="#8a6b40"/></linearGradient><linearGradient id="tB" x1="0" x2="1"><stop offset="0" stop-color="#1b2735"/><stop offset=".5" stop-color="#2d3e52"/><stop offset="1" stop-color="#16202c"/></linearGradient></defs>
@@ -61,18 +48,19 @@ SVG_GIFT = """<svg viewBox="0 0 200 160" aria-hidden="true"><defs><linearGradien
 SVG_BOTTLE = """<svg viewBox="0 0 200 160" aria-hidden="true"><ellipse cx="100" cy="146" rx="46" ry="7" fill="#000" opacity=".18"/><rect x="58" y="58" width="84" height="86" rx="16" fill="#3a4350"/><rect x="58" y="58" width="84" height="86" rx="16" fill="none" stroke="#c9a96e" stroke-width="2"/><path d="M70 70 L130 130" stroke="#5a6472" stroke-width="3"/><path d="M82 66 L138 122" stroke="#5a6472" stroke-width="3"/><rect x="82" y="34" width="36" height="26" rx="4" fill="#14202e"/><rect x="74" y="98" width="52" height="22" rx="2" fill="#14202e"/><text x="100" y="113" text-anchor="middle" font-family="Marcellus,serif" font-size="9" fill="#c9a96e" letter-spacing="1">PARFUM</text></svg>"""
 SVG_TRIM = """<svg viewBox="0 0 200 160" aria-hidden="true"><ellipse cx="100" cy="148" rx="30" ry="6" fill="#000" opacity=".18"/><rect x="80" y="30" width="40" height="116" rx="18" fill="#1b2735"/><rect x="78" y="18" width="44" height="18" rx="3" fill="#5a6472"/><g stroke="#c9a96e" stroke-width="1.5">""" + "".join(f'<line x1="{80+i*4}" y1="12" x2="{80+i*4}" y2="20"/>' for i in range(11)) + """</g><circle cx="100" cy="74" r="6" fill="none" stroke="#c9a96e" stroke-width="2"/><circle cx="100" cy="112" r="11" fill="none" stroke="#c9a96e" stroke-width="2"/></svg>"""
 
-# Shop categories. Add real products (name, price, link, photo) as they're stocked.
+
+# Product categories shown as cards (link into the picks page).
 PRODUCTS = [
     ("Styling", "Pomades & clays", "Hold from natural to sharp, from matte clay to high-shine pomade.", SVG_TIN, "styling"),
-    ("Beard Care", "Oils & kits", "Soften, tame the itch and keep it groomed between visits.", SVG_DROP, "beard-care"),
+    ("Beard Care", "Oils & kits", "Soften, tame the itch and keep it groomed day to day.", SVG_DROP, "beard-care"),
     ("Hair & Scalp", "Shampoo & conditioner", "Daily scalp care for men's hair, sulfate-free options included.", SVG_PUMP, "hair-scalp"),
 ]
 
-NAV = [("index.html", "Home"), ("index.html#services", "Services & prices"), ("shop.html", "Shop"),
-       ("about.html", "About"), ("grooming-guide.html", "Grooming Guide"), ("blog.html", "Journal")]   # footer links
+# Footer links
+NAV = [("blog.html", "Journal"), ("grooming-guide.html", "Grooming Guide"), ("mens-grooming-gift-guide.html", "Gift Guide"),
+       ("shop.html", "Product Picks"), ("about.html", "About")]
 
-# Affiliate products ("Susy's Picks"). Add one dict per product:
-# {"name": "...", "brand": "...", "price": "$24", "img": "https://... or assets/...", "url": "https://affiliate-link", "note": "Why Susy likes it"}
+# Editorial product picks, loaded from qsalon/shop/products.json.
 _PJ = os.path.join(os.path.dirname(os.path.abspath(__file__)), "..", "shop", "products.json")
 AFFILIATE = json.load(open(_PJ)) if os.path.exists(_PJ) else []
 AFF_NOTES = {   # short card copy, label facts only (no prices, ratings or health claims)
@@ -84,7 +72,7 @@ AFF_NOTES = {   # short card copy, label facts only (no prices, ratings or healt
     6: "A shampoo and conditioner duo with 5% minoxidil and biotin on the label, plus ginseng and ginger.",
     7: "A sulfate-free set with salicylic acid, biotin and yeast extract, built around scalp health.",
     8: "An eau de parfum with bright citrus over warm vanilla, in a sculpted gunmetal bottle.",
-    9: "A waterproof body trimmer with SkinSafe blades, USB-C charging and four guards for upkeep between visits.",
+    9: "A waterproof body trimmer with SkinSafe blades, USB-C charging and four guards for upkeep between haircuts.",
     10: "A daily beard oil made from a blend of seven-plus natural oils, mineral-oil free, in a 2 oz dropper bottle.",
     11: "A heavy-duty balm with organic shea butter and beeswax for extra control on fuller beards.",
     12: "A professional styling gel with long-lasting hold. Alcohol-free and no flaking, even in Florida humidity.",
@@ -95,91 +83,44 @@ AFF_NOTES = {   # short card copy, label facts only (no prices, ratings or healt
     17: "A sugar-free peppermint gum with natural caffeine and L-theanine on the label, for long days.",
 }
 AFF_CATS = [("Styling", "styling"), ("Beard Care", "beard-care"), ("Hair & Scalp", "hair-scalp"), ("Skin Care", "skin-care"), ("Fragrance", "fragrance"), ("Tools", "tools"), ("Daily Extras", "extras")]
-AMZ_DISCLOSE = "As an Amazon Associate, The Q Salon earns from qualifying purchases."
+AMZ_DISCLOSE = "As an Amazon Associate, The Q Salon earns from qualifying purchases."   # existing disclosure, keep verbatim
 
-# Every SEO page, linked from the footer of every page (internal linking for Google).
+# Journal pages, linked from the footer of every page.
 SEO_LINKS = [
-    ("mens-hair-salon-sarasota.html", "Men's Hair Salon Sarasota"),
-    ("barber-sarasota.html", "Barber in Sarasota"), ("mens-haircut-sarasota.html", "Men's Haircut Sarasota"),
-    ("executive-haircut-sarasota.html", "Executive Haircut"), ("skin-fade-sarasota.html", "Skin Fade Sarasota"),
-    ("mens-hair-color-sarasota.html", "Men's Gray Blending"), ("mens-facial-sarasota.html", "Men's Facial Sarasota"),
-    ("kids-haircut-sarasota.html", "Kids' Haircuts Sarasota"), ("mens-grooming-sarasota.html", "Men's Grooming Sarasota"),
-    ("mens-haircut-lido-key.html", "Lido Key & St. Armands"),
-    ("mens-haircut-lakewood-ranch.html", "Lakewood Ranch"), ("mens-haircut-siesta-key.html", "Siesta Key"),
-    ("mens-haircut-longboat-key.html", "Longboat Key"), ("grooming-guide.html", "Grooming Guide"),
-    ("blog.html", "The Q Journal"), ("mens-grooming-gift-guide.html", "Grooming Gift Guide"),
-    ("about.html", "About Susy & The Q"),
+    ("blog.html", "The Q Journal"), ("mens-grooming-gift-guide.html", "Grooming Gift Guide 2026"),
+    ("grooming-guide.html", "The Grooming Guide"), ("shop.html", "Product Picks"), ("about.html", "About the Journal"),
 ]
 
-# Which page is the "home" for each service (used in Service schema + internal links).
-SERVICE_PAGE = {
-    "Classic Haircut": "mens-haircut-sarasota", "Executive Haircut": "executive-haircut-sarasota",
-    "Skin Fade": "skin-fade-sarasota", "Natural Look Color & Style": "mens-hair-color-sarasota",
-    "Gentleman's Facial": "mens-facial-sarasota", "Kid's Haircut (under 12)": "kids-haircut-sarasota",
-}
-# Pages that are primarily about specific services -> Service schema on that page.
-PAGE_SERVICES = {
-    "mens-haircut-sarasota.html": ["Classic Haircut", "Executive Haircut"],
-    "executive-haircut-sarasota.html": ["Executive Haircut"],
-    "skin-fade-sarasota.html": ["Skin Fade"],
-    "mens-hair-color-sarasota.html": ["Natural Look Color & Style"],
-    "mens-facial-sarasota.html": ["Gentleman's Facial"],
-    "kids-haircut-sarasota.html": ["Kid's Haircut (under 12)"],
+# Former salon service and area pages -> closest journal page (302 so the change stays reversible).
+RETIRED = {
+    "mens-hair-salon-sarasota": "/blog", "barber-sarasota": "/blog", "mens-haircut-sarasota": "/blog",
+    "executive-haircut-sarasota": "/blog", "skin-fade-sarasota": "/grooming-guide", "mens-hair-color-sarasota": "/grooming-guide",
+    "mens-facial-sarasota": "/grooming-guide", "kids-haircut-sarasota": "/blog", "mens-grooming-sarasota": "/grooming-guide",
+    "mens-haircut-lido-key": "/blog", "mens-haircut-lakewood-ranch": "/blog", "mens-haircut-siesta-key": "/blog",
+    "mens-haircut-longboat-key": "/blog",
 }
 
 def url(path):
     return B["site"] + ("/" if path == "index.html" else "/" + path.replace(".html", ""))
 
-BIZ_ID = B["site"] + "/#salon"
-SUSY_ID = B["site"] + "/about#susy"
+ORG_ID = B["site"] + "/#journal"
 
-def minutes(t):
-    h = re.search(r"(\d+)\s*hr", t); m = re.search(r"(\d+)\s*min", t)
-    return (int(h.group(1)) * 60 if h else 0) + (int(m.group(1)) if m else 0)
-
-def business_node():
-    """The salon as one entity. Same @id on every page so Google/Bing/AI tools merge it with the GBP listing."""
-    return {
-        "@type": "HairSalon", "@id": BIZ_ID, "name": B["name"],
-        "alternateName": ["The Q Salon", "The Q", "Q Salon for Men", "The Q Salon Sarasota"],
-        "description": "Private, one-chair men's hair salon in downtown Sarasota, FL. Master stylist Susy "
-                       "does every cut: men's haircuts, executive cuts, skin fades, natural gray blending, gentleman's facials and kids' cuts. Appointments only.",
-        "url": B["site"] + "/", "telephone": B["phone_e164"], "email": B["email"],
-        "image": [B["site"] + IMG_SHARE, f"{B['site']}/assets/{IMG_SUSY}.jpg", f"{B['site']}/assets/susy-the-q-salon-downtown-sarasota.jpg", f"{B['site']}/assets/{IMG_HERO}.jpg"],
-        "logo": B["site"] + "/assets/icon-512.png", "priceRange": "$30–$130", "currenciesAccepted": "USD",
-        "foundingDate": B["founded"],
-        "address": {"@type": "PostalAddress", "streetAddress": B["street"], "addressLocality": B["city"],
-                    "addressRegion": B["state"], "postalCode": B["zip"], "addressCountry": "US"},
-        "geo": {"@type": "GeoCoordinates", "latitude": B["lat"], "longitude": B["lng"]},
-        "hasMap": B["maps"],
-        "areaServed": [{"@type": "City", "name": a} if a in ("Sarasota",) else {"@type": "Place", "name": a + ", FL"} for a in AREAS],
-        "openingHoursSpecification": [{"@type": "OpeningHoursSpecification",
-            "dayOfWeek": ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday"], "opens": "09:00", "closes": "14:00"}],
-        "sameAs": [B["maps"], B["instagram"]],
-        "potentialAction": {"@type": "ReserveAction", "target": B["book"], "name": "Book an appointment"},
-        "employee": {"@id": SUSY_ID},
-        "knowsAbout": ["Men's haircuts", "Skin fades", "Executive haircuts", "Men's gray blending", "Men's hair color",
-                       "Men's facials", "Kids' haircuts", "Men's grooming"],
-        "hasOfferCatalog": {"@type": "OfferCatalog", "name": "Services", "itemListElement": [
-            {"@type": "Offer", "price": str(p), "priceCurrency": "USD",
-             "itemOffered": {"@type": "Service", "@id": f"{B['site']}/{SERVICE_PAGE[n]}#service", "name": n,
-                             "description": d, "url": f"{B['site']}/{SERVICE_PAGE[n]}"}} for n, t, p, d in SERVICES]},
-    }
-
-def susy_node():
-    return {"@type": "Person", "@id": SUSY_ID, "name": "Susy", "jobTitle": "Master Stylist",
-            "description": "Master barber and men's stylist with more than 10 years of experience; the only stylist at The Q Salon for Men in Sarasota.",
-            "worksFor": {"@id": BIZ_ID}, "image": [f"{B['site']}/assets/susy-the-q-salon-downtown-sarasota.jpg", f"{B['site']}/assets/{IMG_SUSY}.jpg"],
-            "knowsAbout": ["Men's haircuts", "Skin fades", "Gray blending", "Men's grooming"]}
+def org_node():
+    """The publisher. Same @id on every page."""
+    return {"@type": "Organization", "@id": ORG_ID, "name": B["name"], "url": B["site"] + "/",
+            "description": "A men's grooming journal: practical advice on haircuts, beards, skin and styling, plus editorial product picks.",
+            "logo": {"@type": "ImageObject", "url": B["site"] + "/assets/icon-512.png", "width": 512, "height": 512},
+            "email": B["email"]}
 
 def schema(path, title, desc, crumb):
-    """One @graph per page: business + Susy + website + this page (+ breadcrumb, + services)."""
+    """One @graph per page: publisher + website + this page (+ breadcrumb)."""
     page_url = url(path)
-    graph = [business_node(), susy_node(),
+    graph = [org_node(),
              {"@type": "WebSite", "@id": B["site"] + "/#website", "url": B["site"] + "/", "name": B["name"],
-              "publisher": {"@id": BIZ_ID}, "inLanguage": "en-US"}]
-    wp = {"@type": "AboutPage" if path == "about.html" else "WebPage", "@id": page_url + "#webpage", "url": page_url,
-          "name": title, "description": desc, "isPartOf": {"@id": B["site"] + "/#website"}, "about": {"@id": BIZ_ID},
+              "description": B["tagline"], "publisher": {"@id": ORG_ID}, "inLanguage": "en-US"}]
+    kind = {"about.html": "AboutPage", "blog.html": "CollectionPage", "index.html": "CollectionPage"}.get(path, "WebPage")
+    wp = {"@type": kind, "@id": page_url + "#webpage", "url": page_url,
+          "name": title, "description": desc, "isPartOf": {"@id": B["site"] + "/#website"}, "publisher": {"@id": ORG_ID},
           "inLanguage": "en-US", "dateModified": TODAY,
           "primaryImageOfPage": {"@type": "ImageObject", "url": B["site"] + IMG_SHARE, "width": 1200, "height": 630}}
     if path != "index.html":
@@ -188,14 +129,6 @@ def schema(path, title, desc, crumb):
             {"@type": "ListItem", "position": 2, "name": crumb, "item": page_url}]})
         wp["breadcrumb"] = {"@id": page_url + "#breadcrumb"}
     graph.append(wp)
-    for n, t, p, d in SERVICES:
-        if n in PAGE_SERVICES.get(path, []):
-            graph.append({"@type": "Service", "@id": f"{B['site']}/{SERVICE_PAGE[n]}#service", "name": n,
-                          "serviceType": n, "description": d, "provider": {"@id": BIZ_ID},
-                          "areaServed": [{"@type": "Place", "name": a + ", FL"} for a in AREAS[:7]],
-                          "offers": {"@type": "Offer", "price": str(p), "priceCurrency": "USD", "url": B["book"],
-                                     "availability": "https://schema.org/InStock"},
-                          "timeRequired": f"PT{minutes(t)}M"})
     return json.dumps({"@context": "https://schema.org", "@graph": graph}, ensure_ascii=False)
 
 CSS = r"""
@@ -218,7 +151,7 @@ p{margin:0}.muted{color:var(--muted)}
 .btn-line{background:transparent;color:var(--navy);box-shadow:inset 0 0 0 1px var(--navy)}.btn-line:hover{background:var(--navy);color:#fff}
 .on-dark .btn-line{color:#fff;box-shadow:inset 0 0 0 1px rgba(255,255,255,.5)}.on-dark .btn-line:hover{background:#fff;color:var(--navy)}
 .btn-sm{padding:10px 18px;font-size:.88rem}
-.btn,.brand-t{white-space:nowrap}.book-top{flex:0 0 auto}.brand{min-width:0}
+.btn,.brand-t{white-space:nowrap}.brand{min-width:0}
 a:focus-visible,.btn:focus-visible{outline:2px solid var(--brass);outline-offset:3px}
 .link{color:var(--brass);text-underline-offset:4px;font-weight:500}
 /* header */
@@ -229,53 +162,22 @@ a:focus-visible,.btn:focus-visible{outline:2px solid var(--brass);outline-offset
 .brand-t{font:400 1.05rem/1.05 var(--display);letter-spacing:.06em;text-transform:uppercase}.brand-t small{display:block;font:500 .62rem var(--mono);letter-spacing:.24em;color:var(--brass);margin-top:3px}
 .nav{display:flex;align-items:center;gap:4px;font-size:.92rem}
 .nav-a{display:inline-flex;align-items:center;gap:6px;padding:9px 12px;border-radius:999px;border:0;background:none;font:inherit;color:var(--muted);text-decoration:none;cursor:pointer;transition:color .2s,background .2s}
-.nav-a:hover,.nav-a[aria-current],.dd.is-on>.nav-a,.dd.open>.nav-a{color:var(--ink)}.dd.open>.nav-a{background:rgba(20,32,46,.06)}
+.nav-a:hover,.nav-a[aria-current]{color:var(--ink)}
 .nav-a:focus-visible,.burger:focus-visible,.mnav summary:focus-visible{outline:2px solid var(--brass);outline-offset:2px}
-.chev{width:12px;height:12px;transition:transform .2s}.dd.open .chev,.mnav details[open] .chev{transform:rotate(180deg)}
-.dd{position:relative}
-.dd-panel{position:absolute;top:calc(100% + 12px);left:50%;transform:translate(-50%,6px);min-width:280px;background:#fff;border:1px solid var(--line);border-radius:12px;box-shadow:0 30px 60px -30px rgba(20,32,46,.45);padding:18px;opacity:0;visibility:hidden;transition:opacity .18s,transform .18s,visibility 0s .18s;z-index:30}
-.dd-panel::before{content:"";position:absolute;inset:-14px 0 auto;height:14px}
-.dd.open .dd-panel{opacity:1;visibility:visible;transform:translate(-50%,0);transition:opacity .18s,transform .18s}
-@media(hover:hover) and (min-width:901px){.dd:hover .dd-panel{opacity:1;visibility:visible;transform:translate(-50%,0);transition:opacity .18s,transform .18s}.dd:hover>.nav-a{color:var(--ink)}}
-.dd-wide{min-width:540px}.dd-cols{display:grid;grid-template-columns:1fr 1fr;gap:6px 18px}
-.dd-h{font:500 .66rem var(--mono);letter-spacing:.18em;text-transform:uppercase;color:var(--brass);padding:4px 10px 8px}
-.dd-link{display:block;padding:9px 10px;border-radius:8px;text-decoration:none;transition:background .15s}.dd-link:hover,.dd-link[aria-current]{background:var(--stone-2)}
-.dd-link b{display:block;font:400 1rem/1.25 var(--display);color:var(--navy)}.dd-link small{display:block;font-size:.8rem;color:var(--muted);margin-top:2px}
-.dd-foot{display:flex;justify-content:space-between;align-items:center;gap:12px;margin-top:12px;padding:14px 10px 2px;border-top:1px solid var(--line)}
 .burger{display:none;flex:0 0 auto;width:44px;height:44px;border:1px solid var(--line);border-radius:50%;background:#fff;cursor:pointer;flex-direction:column;justify-content:center;align-items:center;gap:4px;padding:0}
 .burger span{display:block;width:18px;height:1.5px;background:var(--navy);transition:transform .2s,opacity .2s}
 .burger[aria-expanded="true"] span:nth-child(1){transform:translateY(5.5px) rotate(45deg)}.burger[aria-expanded="true"] span:nth-child(2){opacity:0}.burger[aria-expanded="true"] span:nth-child(3){transform:translateY(-5.5px) rotate(-45deg)}
 .mnav{border-top:1px solid var(--line);background:var(--stone-2);max-height:calc(100dvh - 68px);overflow-y:auto;overscroll-behavior:contain;padding-bottom:calc(20px + env(safe-area-inset-bottom,0px))}
 .mnav .m-top,.mnav summary{display:flex;justify-content:space-between;align-items:center;padding:16px 2px;border-bottom:1px solid var(--line);font:400 1.25rem var(--display);color:var(--navy);text-decoration:none;cursor:pointer;list-style:none}
-.mnav summary::-webkit-details-marker{display:none}
-.m-list{padding:4px 0 12px;border-bottom:1px solid var(--line)}.m-list a{display:block;padding:10px 12px;text-decoration:none;color:var(--ink);border-radius:8px}.m-list a[aria-current],.m-top[aria-current]{color:var(--brass)}
-.m-h{font:500 .66rem var(--mono);letter-spacing:.18em;text-transform:uppercase;color:var(--brass);padding:12px 12px 4px}
-.m-list .m-all{color:var(--brass);font-weight:600}
-.m-cta{display:grid;gap:10px;margin-top:20px}.m-cta .btn{justify-content:center}
 body.menu-open{overflow:hidden}
 @media(max-width:900px){.nav{display:none}.burger{display:inline-flex}.top-in{gap:10px}}
-@media(max-width:420px){.book-top{padding:9px 14px;font-size:.82rem}.brand-t{font-size:.92rem}.brand-t small{font-size:.56rem;letter-spacing:.18em}.mono{width:36px;height:36px;font-size:1.2rem}.brand{gap:9px}}
-@media(max-width:350px){.top-in{gap:8px}.brand-t small{display:none}.brand-t{font-size:.84rem;letter-spacing:.03em}.book-top{padding:8px 12px}.burger{width:40px;height:40px}}
+@media(max-width:420px){.brand-t{font-size:.92rem}.brand-t small{font-size:.56rem;letter-spacing:.18em}.mono{width:36px;height:36px;font-size:1.2rem}.brand{gap:9px}}
+@media(max-width:350px){.top-in{gap:8px}.brand-t small{display:none}.brand-t{font-size:.84rem;letter-spacing:.03em}.burger{width:40px;height:40px}}
 @media(min-width:901px){.mnav{display:none!important}}
-/* hero */
-.hero{padding-block:clamp(40px,7vw,84px) clamp(48px,7vw,88px);overflow:hidden}
-.hero-in{display:grid;grid-template-columns:1.1fr .9fr;gap:clamp(32px,6vw,80px);align-items:center}
-.hero-in>*{min-width:0}
-.hero h1 .l{display:block;overflow:hidden}.hero h1 .l>span{display:inline-block;animation:rise .9s cubic-bezier(.2,.7,.2,1) both}
-.hero h1 .l:nth-child(2)>span{animation-delay:.08s}.hero h1 .l:nth-child(3)>span{animation-delay:.16s}
-.hero h1 em{font-style:normal;color:var(--brass)}
+/* hero copy */
 .lede{font-size:1.15rem;color:var(--muted);max-width:46ch;margin-top:24px}
 .acts{display:flex;flex-wrap:wrap;gap:12px;margin-top:32px}
-.stats{display:flex;flex-wrap:wrap;gap:28px 40px;margin-top:40px;padding-top:28px;border-top:1px solid var(--line)}
-.stats b{display:block;font:400 1.7rem/1 var(--display);color:var(--navy)}.stats span{font:500 .7rem var(--mono);letter-spacing:.16em;text-transform:uppercase;color:var(--muted)}
-.portrait{position:relative;max-width:460px;justify-self:end;width:100%}
-.portrait::before{content:"";position:absolute;inset:18px -18px -18px 18px;border:1px solid var(--brass);border-radius:220px 220px 6px 6px}
-.portrait .frame{position:relative;border-radius:220px 220px 6px 6px;overflow:hidden;aspect-ratio:4/5;background:var(--stone);animation:fade 1.1s ease both .1s}
-.portrait img{width:100%;height:100%;object-fit:cover;object-position:50% 18%;transition:transform 1.2s cubic-bezier(.2,.7,.2,1)}
-.portrait:hover img{transform:scale(1.04)}
-.badge{position:absolute;left:-24px;bottom:36px;background:var(--navy);color:#fff;padding:16px 20px;border-radius:6px;box-shadow:0 18px 40px -18px rgba(20,32,46,.7);animation:rise 1s cubic-bezier(.2,.7,.2,1) both .35s}
-.badge b{display:block;font:400 1.15rem var(--display)}.badge span{font:500 .66rem var(--mono);letter-spacing:.18em;text-transform:uppercase;color:var(--brass-l)}
-@media(max-width:860px){.hero-in{grid-template-columns:1fr}.portrait{justify-self:center;max-width:380px}.badge{left:0}}
+@keyframes rise{from{transform:translateY(105%)}to{transform:none}}
 /* hero v2: editorial split */
 .hero2{display:grid;grid-template-columns:minmax(0,.95fr) minmax(0,1.05fr);min-height:min(calc(100vh - 68px),720px);border-bottom:1px solid var(--line)}
 .h2-media{position:relative;margin:0;display:flex;align-items:center;justify-content:center;padding:clamp(24px,3.2vw,48px);background:var(--stone)}
@@ -294,10 +196,6 @@ body.menu-open{overflow:hidden}
 .hero2 h1 .l:nth-child(2)>span{animation-delay:.08s}.hero2 h1 .l:nth-child(3)>span{animation-delay:.16s}
 .hero2 h1 em{font-style:normal;color:var(--brass)}
 .h1-eyebrow{display:flex}
-.h2-by{display:inline-flex;align-items:center;gap:12px;margin-top:28px;text-decoration:none;padding:6px 18px 6px 6px;border:1px solid var(--line);border-radius:999px;background:#fff;transition:border-color .25s,transform .25s}
-.h2-by:hover{border-color:var(--brass);transform:translateY(-2px)}
-.h2-by img{width:44px;height:44px;border-radius:50%;object-fit:cover;object-position:50% 20%}
-.h2-by b{display:block;font:400 1rem/1.1 var(--display);color:var(--navy)}.h2-by small{font:500 .64rem var(--mono);letter-spacing:.12em;text-transform:uppercase;color:var(--muted)}
 .hero2 .stats{margin-top:28px;padding-top:22px;gap:20px 32px;flex-wrap:nowrap}
 .hero2 .stats b{font-size:1.45rem;margin-bottom:6px}.hero2 .stats span{font-size:.62rem;letter-spacing:.1em;white-space:nowrap}
 .hero2 h1{font-size:clamp(2.6rem,4.9vw,4.4rem)}
@@ -306,7 +204,6 @@ body.menu-open{overflow:hidden}
 @keyframes h2zoom{from{transform:scale(1.08)}to{transform:none}}
 @keyframes tagin{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:none}}
 @media(max-width:860px){.hero2{grid-template-columns:1fr;min-height:0}.h2-frame{max-width:440px}.h2-tag{font-size:.6rem;padding:8px 10px}.h2-tag.t1{top:9%;right:5%}.h2-tag.t2{bottom:10%;left:5%}.h2-issue{display:none}.h2-media::before{display:none}}
-@keyframes rise{from{transform:translateY(105%)}to{transform:none}}
 @keyframes fade{from{opacity:.2;transform:scale(1.03)}to{opacity:1;transform:none}}
 /* marquee */
 .ticker{background:var(--navy);color:var(--stone);overflow:hidden;border-block:1px solid var(--line-d)}
@@ -320,13 +217,6 @@ body.menu-open{overflow:hidden}
 .sec-head p{max-width:46ch;color:var(--muted)}
 .on-dark{background:var(--navy);color:#f1ede6}.on-dark .muted,.on-dark .sec-head p{color:var(--muted-d)}.on-dark .eyebrow{color:var(--brass-l)}
 .stone{background:var(--stone)}
-/* menu */
-.menu{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:0 56px}@media(max-width:760px){.menu{grid-template-columns:1fr}}
-.item{display:grid;grid-template-columns:1fr auto;gap:4px 16px;padding-block:22px;border-top:1px solid var(--line)}
-.item h3{display:flex;align-items:baseline;gap:12px;min-width:0}.item h3::after{content:"";flex:1;border-bottom:1px dotted var(--line);transform:translateY(-5px)}
-.item .price{font:500 1.2rem var(--mono);color:var(--navy);font-variant-numeric:tabular-nums}
-.item p{grid-column:1/-1;color:var(--muted);font-size:.95rem}.item .dur{font:500 .72rem var(--mono);letter-spacing:.12em;text-transform:uppercase;color:var(--brass)}
-.menu-foot{display:flex;flex-wrap:wrap;gap:16px;justify-content:space-between;align-items:center;margin-top:36px;padding-top:28px;border-top:1px solid var(--line)}
 /* shop */
 .products{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:20px}
 @media(max-width:760px){.products{grid-template-columns:1fr}}
@@ -340,69 +230,8 @@ body.menu-open{overflow:hidden}
 .prod p{color:var(--muted-d);font-size:.93rem;flex:1}.prod .go{margin-top:10px;font-weight:600;color:#fff;text-decoration:none;display:inline-flex;gap:8px;align-items:center}
 .prod .go .arr{transition:transform .25s}.prod:hover .go .arr{transform:translateX(4px)}
 .shop-note{margin-top:28px;color:var(--muted-d);font-size:.88rem}
-/* gift card feature */
-.gift{position:relative;margin-top:56px;display:grid;grid-template-columns:.95fr 1.05fr;gap:clamp(28px,5vw,64px);align-items:center;padding:clamp(28px,4.5vw,56px);border-radius:16px;background:radial-gradient(120% 140% at 0% 0%,#2a3d57 0,#14202e 60%);border:1px solid rgba(214,185,132,.55);box-shadow:0 30px 80px -40px rgba(0,0,0,.9),inset 0 1px 0 rgba(255,255,255,.06);overflow:hidden}
-.gift::before{content:"";position:absolute;inset:-40% auto auto -10%;width:60%;height:120%;background:radial-gradient(closest-side,rgba(214,185,132,.18),transparent);pointer-events:none}
-@media(max-width:820px){.gift{grid-template-columns:1fr}}
-.gift>*{min-width:0;position:relative}
-.gift-art{display:grid;place-items:center;perspective:1000px}
-.gcard{position:relative;width:min(100%,400px);aspect-ratio:1.586;border-radius:18px;padding:22px 24px;color:#14202e;overflow:hidden;
-background:linear-gradient(125deg,#7e5f34 0%,#d9bd86 22%,#f6e7c1 38%,#c9a465 55%,#efdcae 72%,#9b7744 100%);
-box-shadow:0 28px 50px -18px rgba(0,0,0,.8),0 2px 0 rgba(255,255,255,.35) inset,0 -2px 0 rgba(0,0,0,.18) inset;transform:rotateY(-14deg) rotateX(6deg) rotate(-3deg);transition:transform .6s cubic-bezier(.2,.7,.2,1)}
-.gift:hover .gcard{transform:rotateY(-4deg) rotateX(2deg) rotate(-1deg) translateY(-4px)}
-.gc-q{position:absolute;top:20px;left:22px;width:46px;height:46px;border-radius:50%;border:1.5px solid rgba(20,32,46,.75);display:grid;place-items:center;font:400 1.5rem var(--display)}
-.gc-brand{position:absolute;top:22px;right:24px;text-align:right;font:400 1rem/1.1 var(--display);letter-spacing:.12em;text-transform:uppercase}
-.gc-brand small{display:block;margin-top:5px;font:500 .55rem var(--mono);letter-spacing:.22em;opacity:.75}
-.gc-title{position:absolute;left:24px;bottom:22px;font:400 clamp(1.5rem,3.4vw,2.1rem)/1 var(--display)}
-.gc-val{position:absolute;right:24px;bottom:22px;font:500 1.15rem var(--mono)}.gc-val sup{font-size:.7em}
-.gc-chip{position:absolute;left:24px;top:50%;width:40px;height:30px;margin-top:-15px;border-radius:6px;background:linear-gradient(135deg,rgba(20,32,46,.25),rgba(20,32,46,.05));border:1px solid rgba(20,32,46,.35)}
-.gc-shine{position:absolute;inset:0;background:linear-gradient(105deg,transparent 35%,rgba(255,255,255,.55) 48%,transparent 60%);transform:translateX(-120%);animation:gcShine 5.5s ease-in-out infinite}
-@keyframes gcShine{0%,55%{transform:translateX(-120%)}75%,100%{transform:translateX(120%)}}
-.gift-copy .eyebrow{color:var(--brass-l)}
-.gift-copy h3{font:400 clamp(1.7rem,3.4vw,2.5rem)/1.12 var(--display);color:#fff}
-.gift-copy>p{color:var(--muted-d);margin-top:14px;max-width:52ch}
-.gift-menu{list-style:none;margin:22px 0 0;padding:0;border-top:1px solid var(--line-d);max-width:440px}
-.gift-menu li{display:flex;justify-content:space-between;gap:14px;padding:11px 0;border-bottom:1px solid var(--line-d);color:#efe8dc}
-.gift-menu b{font:500 1rem var(--mono);color:var(--brass-l)}
-.gift-acts{display:flex;flex-wrap:wrap;align-items:center;gap:14px 20px;margin-top:26px}
-.gift-acts span{font-size:.86rem;color:var(--muted-d);max-width:30ch}
-.gift-btn{background:linear-gradient(120deg,#c9a465,#f0dcab 50%,#c9a465);color:#14202e;box-shadow:0 10px 30px -12px rgba(214,185,132,.7)}.gift-btn:hover{filter:brightness(1.06)}.gift-btn .arr{color:#14202e;opacity:1}
-/* service pages */
-.sec-tight{padding-top:clamp(28px,4vw,48px)}
-.svc-wrap{display:flex;flex-direction:column;gap:clamp(36px,5vw,56px)}
-.aag{background:#fff;border:1px solid var(--line);border-radius:14px;padding:clamp(20px,3vw,32px);box-shadow:0 24px 50px -40px rgba(20,32,46,.5)}
-.aag .eyebrow{margin-bottom:14px}
-.aag-grid{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:0;margin:0;border:1px solid var(--line);border-radius:10px;overflow:hidden}
-.aag-grid>div{padding:14px 16px;border-right:1px solid var(--line)}.aag-grid>div:last-child{border-right:0}
-.aag-grid dt{font:500 .64rem var(--mono);letter-spacing:.16em;text-transform:uppercase;color:var(--brass)}
-.aag-grid dd{margin:6px 0 0;font:400 1.15rem/1.25 var(--display);color:var(--navy)}
-@media(max-width:700px){.aag-grid{grid-template-columns:1fr 1fr}.aag-grid>div:nth-child(2){border-right:0}.aag-grid>div:nth-child(-n+2){border-bottom:1px solid var(--line)}}
-.aag-sum{margin-top:16px;color:var(--muted);font-size:.95rem;max-width:70ch}
-.aag-also{margin-top:8px;font-size:.84rem;color:var(--muted)}
-.aag-acts{display:flex;flex-wrap:wrap;gap:10px;margin-top:18px}
-@media(max-width:520px){.aag-acts .btn{flex:1 1 100%;justify-content:center}}
-.aag-meta{margin-top:14px;font:500 .7rem/1.6 var(--mono);letter-spacing:.1em;text-transform:uppercase;color:var(--muted)}
-.svc-grid{display:grid;grid-template-columns:1.5fr .8fr;gap:56px;align-items:start}.svc-grid>*{min-width:0}
-.svc-side{position:sticky;top:100px}
-@media(max-width:860px){.svc-grid{grid-template-columns:1fr;gap:36px}.svc-side{position:static}}
-.side-h{font:400 1.35rem/1.2 var(--display);color:var(--navy)}
-.prices{margin-top:20px;border-top:1px solid var(--line);padding-top:6px}
-.prices summary{list-style:none;cursor:pointer;display:flex;justify-content:space-between;align-items:center;gap:12px;padding:12px 0}
-.prices summary::-webkit-details-marker{display:none}
-.prices summary b{display:block;font-weight:500;font-size:.92rem;color:var(--ink);margin-top:6px}
-.prices summary i{font-style:normal;font:300 1.6rem/1 var(--display);color:var(--brass);transition:transform .25s}
-.prices[open] summary i{transform:rotate(45deg)}
-.prices .item:first-of-type{border-top:1px solid var(--line)}
 /* about */
-.about{display:grid;grid-template-columns:.8fr 1.2fr;gap:clamp(32px,6vw,80px);align-items:center}.about>*{min-width:0}
 @media(max-width:820px){.about{grid-template-columns:1fr}}
-.about .ph{border-radius:6px;overflow:hidden;aspect-ratio:1;max-width:440px}.about .ph img{width:100%;height:100%;object-fit:cover;object-position:50% 20%}.about .ph.ph-tall{aspect-ratio:4/5;border-radius:10px;box-shadow:0 30px 60px -36px rgba(20,32,46,.6)}.about .ph.ph-tall img{object-position:50% 0}
-.quote{font:400 clamp(1.5rem,3vw,2.1rem)/1.3 var(--display);color:var(--navy);margin-top:6px}
-.about .body p{color:var(--muted);margin-top:16px;max-width:60ch}.about .sig{margin-top:24px;font:500 .74rem var(--mono);letter-spacing:.2em;text-transform:uppercase;color:var(--brass)}
-.pillars{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:20px;margin-top:32px}@media(max-width:560px){.pillars{grid-template-columns:1fr}}
-.pillars div{border-top:1px solid var(--brass);padding-top:14px}.pillars b{font:400 1.1rem var(--display);display:block;color:var(--navy)}.pillars span{font-size:.88rem;color:var(--muted)}
-/* review band */
-.review{text-align:center}.review .stars{color:var(--brass);letter-spacing:.3em;font-size:1.2rem}.review h2{margin-top:14px}.review p{color:var(--muted-d);margin-top:14px}
 /* inner pages */
 .prose{max-width:66ch}.prose p{color:var(--muted);margin-top:16px}.prose h2{margin-top:48px;font-size:clamp(1.6rem,3vw,2.2rem)}.prose ul{color:var(--muted);padding-left:20px}.prose li{margin-top:6px}.prose strong{color:var(--ink);font-weight:600}
 .split{display:grid;grid-template-columns:.9fr 1.3fr;gap:56px}.split>*{min-width:0}@media(max-width:860px){.split{grid-template-columns:1fr;gap:32px}}
@@ -411,10 +240,8 @@ box-shadow:0 28px 50px -18px rgba(0,0,0,.8),0 2px 0 rgba(255,255,255,.35) inset,
 .faq details{border-bottom:1px solid var(--line);padding-block:18px}.faq summary{cursor:pointer;font:400 1.15rem var(--display);color:var(--navy)}.faq details p{margin-top:10px}
 .page-hero{padding-block:clamp(56px,8vw,96px) clamp(40px,6vw,64px);border-bottom:1px solid var(--line)}
 .page-hero .lede{max-width:56ch}
-/* cta + visit */
+/* cta + footer */
 .cta-in{display:grid;grid-template-columns:1.2fr auto;gap:28px;align-items:center}@media(max-width:760px){.cta-in{grid-template-columns:1fr}}
-.visit-in{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:36px}@media(max-width:820px){.visit-in{grid-template-columns:1fr}}
-.visit h3{font-size:1.5rem;color:var(--navy);margin-bottom:8px}.visit p+p{margin-top:6px}.visit .tel{font:400 1.5rem var(--display);color:var(--navy);text-decoration:none}
 .foot{background:var(--navy);color:var(--muted-d)}.foot-in{display:flex;flex-wrap:wrap;gap:14px 28px;justify-content:space-between;align-items:center;padding-block:28px;font-size:.85rem}
 .foot nav{display:flex;flex-wrap:wrap;gap:18px}.foot a{text-decoration:none}.foot a:hover{color:#fff}
 .disclose{font-size:.82rem;margin-top:18px;max-width:70ch}
@@ -430,15 +257,23 @@ box-shadow:0 28px 50px -18px rgba(0,0,0,.8),0 2px 0 rgba(255,255,255,.35) inset,
 .aff-row{display:flex;justify-content:space-between;align-items:center;gap:12px;margin-top:10px}.aff-row b{font:500 1.1rem var(--mono);color:var(--navy)}
 .related{display:flex;flex-wrap:wrap;gap:10px;margin-top:20px}.related a{border:1px solid var(--line);border-radius:999px;padding:8px 16px;text-decoration:none;font-size:.9rem;color:var(--navy);background:#fff}.related a:hover{border-color:var(--brass)}
 .crumbs{font:500 .7rem/1.4 var(--mono);letter-spacing:.14em;text-transform:uppercase;color:var(--muted);margin-bottom:22px}.crumbs ol{list-style:none;display:flex;flex-wrap:wrap;gap:8px;margin:0;padding:0}.crumbs li+li::before{content:"/";margin-right:8px;color:var(--line)}.crumbs a{text-decoration:none}.crumbs a:hover{color:var(--brass)}
-.glance{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:0;border-top:1px solid var(--line);border-left:1px solid var(--line);margin-top:8px}@media(max-width:900px){.glance{grid-template-columns:repeat(2,minmax(0,1fr))}}@media(max-width:480px){.glance{grid-template-columns:1fr}}
-.glance div{border-right:1px solid var(--line);border-bottom:1px solid var(--line);padding:22px}.glance dt{font:500 .68rem var(--mono);letter-spacing:.16em;text-transform:uppercase;color:var(--brass)}.glance dd{margin:8px 0 0;color:var(--ink)}.glance dd a{color:var(--navy)}
-.facts{background:#fff;border:1px solid var(--line);border-left:3px solid var(--brass);border-radius:6px;padding:20px 22px;margin-top:28px}.facts p{margin:0;color:var(--ink)}.facts p+p{margin-top:6px}
-.map{margin-top:36px;border:1px solid var(--line);border-radius:10px;overflow:hidden;aspect-ratio:16/7;background:var(--stone)}.map iframe{width:100%;height:100%;border:0;display:block}@media(max-width:700px){.map{aspect-ratio:4/3}}
 .foot .contact{display:flex;flex-wrap:wrap;gap:8px 22px;margin-top:10px}.foot .contact a{color:var(--brass-l)}
 @media(prefers-reduced-motion:reduce){html{scroll-behavior:auto}*,*::before,*::after{animation:none!important;transition:none!important}}
+/* journal */
+.byline{display:flex;flex-wrap:wrap;gap:6px 18px;margin-top:22px;font:500 .72rem/1.4 var(--mono);letter-spacing:.14em;text-transform:uppercase;color:var(--muted)}.byline b{color:var(--navy);font-weight:500}
+.posts{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:22px}@media(max-width:760px){.posts{grid-template-columns:1fr}}
+.post{display:flex;flex-direction:column;gap:12px;background:#fff;border:1px solid var(--line);border-radius:12px;padding:clamp(22px,3vw,34px);text-decoration:none;transition:transform .3s,border-color .3s,box-shadow .3s}
+.post:hover{transform:translateY(-4px);border-color:var(--brass);box-shadow:0 24px 50px -34px rgba(20,32,46,.6)}
+.post .k{font:500 .68rem var(--mono);letter-spacing:.16em;text-transform:uppercase;color:var(--brass)}
+.post h3{font-size:clamp(1.4rem,2.4vw,1.8rem);color:var(--navy)}.post p{color:var(--muted)}.post .more{margin-top:auto;padding-top:6px;color:var(--brass);font-weight:600}
+.post:last-child:nth-child(even){grid-column:1/-1}.post.lead{grid-column:1/-1;background:var(--navy);border-color:var(--line-d)}.post.lead h3{color:#fff;font-size:clamp(1.8rem,3.4vw,2.6rem)}.post.lead p{color:var(--muted-d)}.post.lead .k,.post.lead .more{color:var(--brass-l)}
+.tips{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));border-top:1px solid var(--line);border-left:1px solid var(--line)}@media(max-width:900px){.tips{grid-template-columns:repeat(2,minmax(0,1fr))}}@media(max-width:520px){.tips{grid-template-columns:1fr}}
+.tips a{display:block;padding:22px;border-right:1px solid var(--line);border-bottom:1px solid var(--line);text-decoration:none;transition:background .2s}.tips a:hover{background:#fff}
+.tips span{font:500 .68rem var(--mono);letter-spacing:.16em;color:var(--brass)}.tips b{display:block;margin-top:10px;font:400 1.1rem/1.3 var(--display);color:var(--navy)}
+.foot-brand{font:400 1.3rem var(--display);color:#fff}
 """
 
-def head(title, desc, path, crumb):
+def head(title, desc, path, crumb, og_type="website"):
     canon = url(path)
     preload = (f'<link rel="preload" as="image" href="/assets/{IMG_HERO}.webp" type="image/webp" fetchpriority="high">'
                if path == "index.html" else "")
@@ -450,13 +285,13 @@ def head(title, desc, path, crumb):
 <meta name="msvalidate.01" content="546F1A7DB87AE1EE6E4E6560EB0FE698">
 <meta name="theme-color" content="#14202e">
 <link rel="icon" href="/favicon.ico" sizes="any"><link rel="apple-touch-icon" href="/assets/apple-touch-icon.png">
+<link rel="alternate" type="application/rss+xml" title="{B['name']}" href="/feed.xml">
 <meta property="og:site_name" content="{B['name']}"><meta property="og:locale" content="en_US">
 <meta property="og:title" content="{title}"><meta property="og:description" content="{desc}">
-<meta property="og:type" content="website"><meta property="og:url" content="{canon}">
+<meta property="og:type" content="{og_type}"><meta property="og:url" content="{canon}">
 <meta property="og:image" content="{B['site']}{IMG_SHARE}"><meta property="og:image:width" content="1200"><meta property="og:image:height" content="630">
-<meta property="og:image:alt" content="The Q Salon for Men, men's haircuts in downtown Sarasota">
+<meta property="og:image:alt" content="The Q Journal, a men's grooming journal">
 <meta name="twitter:card" content="summary_large_image"><meta name="twitter:title" content="{title}"><meta name="twitter:description" content="{desc}"><meta name="twitter:image" content="{B['site']}{IMG_SHARE}">
-<meta name="geo.region" content="US-FL"><meta name="geo.placename" content="Sarasota"><meta name="geo.position" content="{B['lat']};{B['lng']}"><meta name="ICBM" content="{B['lat']}, {B['lng']}">
 <link rel="alternate" type="text/plain" href="/llms.txt" title="LLM-friendly summary">
 {preload}
 <link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -468,68 +303,27 @@ def esc(t):
     return str(t).replace("&", "&amp;").replace("<", "&lt;").replace(">", "&gt;").replace('"', "&quot;")
 ARR = '<span class="arr" aria-hidden="true">→</span>'
 
-# Header menu groups: (heading, [(page, label, note)])
-MENU_SERVICES = [
-    ("Haircuts", [("mens-haircut-sarasota.html", "Men's Haircut", "Classic cut · $60"),
-                  ("executive-haircut-sarasota.html", "Executive Haircut", "The full hour · $80"),
-                  ("skin-fade-sarasota.html", "Skin Fade", "Low, mid or high · $80"),
-                  ("kids-haircut-sarasota.html", "Kids' Haircut", "Under 12 · $30")]),
-    ("Color & care", [("mens-hair-color-sarasota.html", "Gray Blending", "Natural Look Color · $130"),
-                      ("mens-facial-sarasota.html", "Gentleman's Facial", "45 minutes · $75"),
-                      ("mens-grooming-sarasota.html", "Men's Grooming", "Your full routine"),
-                      ("grooming-guide.html", "Grooming Guide", "Tips from Susy's chair")]),
-]
-MENU_AREAS = [("barber-sarasota.html", "Downtown Sarasota", "Barber in Sarasota"),
-              ("mens-hair-salon-sarasota.html", "Men's Hair Salon", "Sarasota, FL"),
-              ("mens-haircut-lido-key.html", "Lido Key & St. Armands", "About 10 min"),
-              ("mens-haircut-siesta-key.html", "Siesta Key", "About 15 min"),
-              ("mens-haircut-longboat-key.html", "Longboat Key", "About 20 min"),
-              ("mens-haircut-lakewood-ranch.html", "Lakewood Ranch", "About 25 min")]
-SERVICE_PAGES = {p for _, g in MENU_SERVICES for p, *_ in g}
-AREA_PAGES = {p for p, *_ in MENU_AREAS}
-CHEV = '<svg class="chev" viewBox="0 0 12 12" aria-hidden="true"><path d="M2.5 4.5 6 8l3.5-3.5" fill="none" stroke="currentColor" stroke-width="1.5"/></svg>'
+# Main navigation: the journal comes first.
+MAIN_NAV = [("blog.html", "Journal"), ("grooming-guide.html", "Grooming Guide"), ("mens-grooming-gift-guide.html", "Gift Guide"),
+            ("shop.html", "Product Picks"), ("about.html", "About")]
 
-NAV_JS = """<script>(()=>{const q=s=>[...document.querySelectorAll(s)],
-close=()=>q('.dd').forEach(d=>{d.classList.remove('open');d.querySelector('.dd-btn').setAttribute('aria-expanded','false')});
-q('.dd-btn').forEach(b=>b.addEventListener('click',e=>{const d=b.parentElement,o=!d.classList.contains('open');close();if(o){d.classList.add('open');b.setAttribute('aria-expanded','true')}e.stopPropagation()}));
-document.addEventListener('click',e=>{if(!e.target.closest('.dd'))close()});
-const bg=document.querySelector('.burger'),m=document.getElementById('mnav'),
+NAV_JS = """<script>(()=>{const bg=document.querySelector('.burger'),m=document.getElementById('mnav'),
 tog=o=>{m.hidden=!o;bg.setAttribute('aria-expanded',String(o));bg.setAttribute('aria-label',o?'Close menu':'Open menu');document.body.classList.toggle('menu-open',o)};
 bg.addEventListener('click',()=>tog(m.hidden));m.querySelectorAll('a').forEach(a=>a.addEventListener('click',()=>tog(false)));
-document.addEventListener('keydown',e=>{if(e.key==='Escape'){close();tog(false)}});
+document.addEventListener('keydown',e=>{if(e.key==='Escape')tog(false)});
 matchMedia('(min-width:901px)').addEventListener('change',e=>{if(e.matches)tog(false)});})();</script>"""
 
 def header(active):
-    cur = ' aria-current="page"'
-    def ac(p): return cur if p == active else ""
-    def li(p, label, note):
-        return f'<a class="dd-link" href="{p}"{ac(p)}><b>{label}</b><small>{note}</small></a>'
-    svc_cols = "".join(f'<div><p class="dd-h">{h}</p>{"".join(li(*x) for x in g)}</div>' for h, g in MENU_SERVICES)
-    areas = "".join(li(*x) for x in MENU_AREAS)
-    def on(pages): return " is-on" if active in pages else ""
-    m_svc = "".join(f'<p class="m-h">{h}</p>' + "".join(f'<a href="{p}"{ac(p)}>{l}</a>' for p, l, _ in g) for h, g in MENU_SERVICES)
-    m_area = "".join(f'<a href="{p}"{ac(p)}>{l}</a>' for p, l, _ in MENU_AREAS)
+    def ac(p): return ' aria-current="page"' if p == active else ""
+    desk = "".join(f'<a class="nav-a" href="{p}"{ac(p)}>{l}</a>' for p, l in MAIN_NAV)
+    mob = "".join(f'<a class="m-top" href="{p}"{ac(p)}>{l}</a>' for p, l in MAIN_NAV)
     return f"""<header class="top"><div class="wrap top-in">
-<a class="brand" href="index.html" aria-label="The Q Salon for Men home"><span class="mono" aria-hidden="true">Q</span><span class="brand-t">The Q Salon<small>For Men · Sarasota</small></span></a>
-<nav class="nav" aria-label="Main">
-<a class="nav-a" href="index.html"{ac("index.html")}>Home</a>
-<div class="dd{on(SERVICE_PAGES)}"><button class="nav-a dd-btn" type="button" aria-expanded="false" aria-controls="dd-svc">Services {CHEV}</button>
-<div class="dd-panel dd-wide" id="dd-svc"><div class="dd-cols">{svc_cols}</div>
-<div class="dd-foot"><a class="link" href="index.html#services">Full menu &amp; prices</a><a class="btn btn-sm" href="{B['book']}" target="_blank" rel="noopener">Book with Susy</a></div></div></div>
-<div class="dd{on(AREA_PAGES)}"><button class="nav-a dd-btn" type="button" aria-expanded="false" aria-controls="dd-area">Areas {CHEV}</button>
-<div class="dd-panel" id="dd-area"><p class="dd-h">Areas we serve</p>{areas}</div></div>
-<a class="nav-a" href="shop.html"{ac("shop.html")}>Shop</a>
-<a class="nav-a" href="about.html"{ac("about.html")}>About</a>
-</nav>
-<a class="btn btn-sm book-top" href="{B['book']}" target="_blank" rel="noopener">Book now</a>
+<a class="brand" href="index.html" aria-label="The Q Journal home"><span class="mono" aria-hidden="true">Q</span><span class="brand-t">The Q Journal<small>Men's grooming</small></span></a>
+<nav class="nav" aria-label="Main">{desk}</nav>
 <button class="burger" type="button" aria-expanded="false" aria-controls="mnav" aria-label="Open menu"><span></span><span></span><span></span></button>
 </div>
 <div class="mnav" id="mnav" hidden><div class="wrap">
-<a class="m-top" href="index.html"{ac("index.html")}>Home</a>
-<details{" open" if active in SERVICE_PAGES else ""}><summary>Services {CHEV}</summary><div class="m-list">{m_svc}<a class="m-all" href="index.html#services">Full menu &amp; prices</a></div></details>
-<details{" open" if active in AREA_PAGES else ""}><summary>Areas we serve {CHEV}</summary><div class="m-list">{m_area}</div></details>
-<a class="m-top" href="shop.html"{ac("shop.html")}>Shop</a><a class="m-top" href="about.html"{ac("about.html")}>About Susy</a>
-<div class="m-cta"><a class="btn" href="{B['book']}" target="_blank" rel="noopener">Book with Susy {ARR}</a><a class="btn btn-line" href="tel:{B['phone_e164']}">Call {B['phone']}</a></div>
+<a class="m-top" href="index.html"{ac("index.html")}>Home</a>{mob}
 </div></div></header>
 {NAV_JS}"""
 
@@ -538,71 +332,47 @@ def crumbs(label):
             f'<li aria-current="page">{label}</li></ol></nav>')
 
 def ticker():
-    words = ["Classic Cuts", "Skin Fades", "Executive Cuts", "Gray Blending", "Gentleman's Facials", "Grooming Products", "Gift Cards"]
+    words = ["Haircuts", "Beard Care", "Skin", "Styling", "Fragrance", "Gift Guides", "Product Picks"]
     run = "".join(f"<span>{w}</span>" for w in words)
     return f'<div class="ticker" aria-hidden="true"><div class="track">{run}{run}</div></div>'
-
-def menu(items=SERVICES, link=False):
-    def name(n):
-        return f'<a href="{SERVICE_PAGE[n]}.html" style="text-decoration:none">{n}</a>' if link else n
-    return "".join(f"""<div class="item"><h3>{name(n)}</h3><span class="price">${p}</span><p><span class="dur">{t}</span> · {d}</p></div>""" for n, t, p, d in items)
 
 def faq_schema(faqs):
     return '<script type="application/ld+json">' + json.dumps({"@context": "https://schema.org", "@type": "FAQPage",
         "mainEntity": [{"@type": "Question", "name": q, "acceptedAnswer": {"@type": "Answer", "text": a}} for q, a in faqs]}, ensure_ascii=False) + "</script>"
 
-CAT_PHOTO = {"styling": ("american-crew-pomade", "American Crew Pomade, one of Susy's styling picks"),
-             "beard-care": ("doc-holliday-beard-oil-smoked-huckleberry", "DOC HOLLIDAY Beard Oil, one of Susy's beard care picks"),
-             "hair-scalp": ("cardon-strengthening-shampoo-conditioner", "Cardon Strengthening Shampoo and Conditioner, one of Susy's hair and scalp picks")}
+CAT_PHOTO = {"styling": ("american-crew-pomade", "American Crew Pomade, one of The Q Journal's styling picks"),
+             "beard-care": ("doc-holliday-beard-oil-smoked-huckleberry", "DOC HOLLIDAY Beard Oil, one of The Q Journal's beard care picks"),
+             "hair-scalp": ("cardon-strengthening-shampoo-conditioner", "Cardon Strengthening Shampoo and Conditioner, one of The Q Journal's hair and scalp picks")}
 
 def product_cards():
     out = []
     for k, sub, d, svg, dest in PRODUCTS:
-        if dest == "book":
-            link = f'<a class="go" href="{B["book"]}" target="_blank" rel="noopener">Buy a gift card {ARR}</a>'
-        else:
-            link = f'<a class="go" href="shop.html#{dest}">See Susy\'s picks {ARR}</a>'
+        link = f'<a class="go" href="shop.html#{dest}">See the picks {ARR}</a>'
         photo = CAT_PHOTO.get(dest)
         art = (f'<div class="art photo"><picture><source srcset="/assets/shop/{photo[0]}.webp" type="image/webp"><img src="/assets/shop/{photo[0]}.jpg" alt="{photo[1]}" width="800" height="800" loading="lazy"></picture></div>' if photo else f'<div class="art">{svg}</div>')
         out.append(f"""<article class="prod">{art}<div class="meta"><span class="k">{sub}</span><h3>{k}</h3><p>{d}</p>
 {link}</div></article>""")
     return "".join(out)
 
-def gift_banner():
-    return f"""<aside class="gift" aria-labelledby="gift-h">
-<div class="gift-art" aria-hidden="true"><div class="gcard"><span class="gc-q">Q</span><span class="gc-brand">The Q Salon<small>For men · Sarasota</small></span><span class="gc-title">Gift Card</span><span class="gc-val">$50<sup>+</sup></span><span class="gc-chip"></span><span class="gc-shine"></span></div></div>
-<div class="gift-copy"><p class="eyebrow">Q Salon gift cards</p><h3 id="gift-h">Give him an hour in Susy's chair.</h3>
-<p>Good for any service at The Q, from a sharp classic cut to natural gray blending or the Gentleman's Facial. Redeemed in the salon, with Susy.</p>
-<ul class="gift-menu"><li><span>Classic Haircut</span><b>$60</b></li><li><span>Skin Fade</span><b>$80</b></li><li><span>Gentleman's Facial</span><b>$75</b></li></ul>
-<div class="gift-acts"><a class="btn gift-btn" href="{B['book']}" target="_blank" rel="noopener">Buy a gift card {ARR}</a><span>Birthdays, Father's Day, holidays: the gift he'll actually use.</span></div></div>
-</aside>"""
-
-def shop_section(title="The Q Shop", h2="Take the finish home."):
-    return f"""<section class="sec on-dark" id="shop"><div class="wrap">
+def shop_section(title="Product picks", h2="Worth the shelf space."):
+    return f"""<section class="sec on-dark" id="picks-teaser"><div class="wrap">
 <div class="sec-head"><div><p class="eyebrow">{title}</p><h2>{h2}</h2></div>
-<p>Susy's picks for men's hair, beards and Florida humidity, available on Amazon.</p></div>
+<p>The Q Journal's picks for men's hair, beards and Florida humidity, available on Amazon.</p></div>
 <div class="products">{product_cards()}</div>
-<div class="acts"><a class="btn btn-brass" href="shop.html#picks">Shop Susy's picks {ARR}</a><a class="btn btn-line" href="{B['book']}" target="_blank" rel="noopener">Book a cut</a></div>
+<div class="acts"><a class="btn btn-brass" href="shop.html#picks">See all product picks {ARR}</a></div>
 <p class="disclose" style="color:var(--muted-d)">{AMZ_DISCLOSE}</p>
-{gift_banner()}
 </div></section>"""
 
-def cta(text="Pick your service and any open time in under a minute."):
-    return f"""<section class="sec stone"><div class="wrap cta-in"><div><p class="eyebrow">Appointments</p><h2>Your chair is waiting.</h2><p class="muted" style="margin-top:12px">{text}</p></div>
-<a class="btn" href="{B['book']}" target="_blank" rel="noopener">Book with Susy {ARR}</a></div></section>"""
+def journal_cta(text="Practical grooming advice, seasonal guides and product picks, all in one place."):
+    return f"""<section class="sec stone"><div class="wrap cta-in"><div><p class="eyebrow">Keep reading</p><h2>More from The Q Journal.</h2><p class="muted" style="margin-top:12px">{text}</p></div>
+<a class="btn" href="blog.html">Browse the journal {ARR}</a></div></section>"""
 
-def visit(show_map=False):
-    gmap = (f'<div class="map"><iframe title="Map to The Q Salon for Men, {ADDR}" loading="lazy" referrerpolicy="no-referrer-when-downgrade" '
-            f'src="https://maps.google.com/maps?q=The+Q+Salon+for+Men,+1415+1st+St,+Sarasota,+FL+34236&amp;z=16&amp;output=embed"></iframe></div>') if show_map else ""
-    return f"""<section class="sec visit" id="visit"><div class="wrap"><div class="visit-in">
-<div><p class="eyebrow">Visit</p><h3>Downtown Sarasota</h3><address style="font-style:normal"><p>{ADDR}</p></address><p><a class="link" href="{B['maps']}" target="_blank" rel="noopener">Get directions</a></p></div>
-<div><p class="eyebrow">Hours</p><h3>{B['hours']}</h3><p class="muted">By appointment. Closed Saturday &amp; Sunday.</p></div>
-<div><p class="eyebrow">Call</p><a class="tel" href="tel:{B['phone_e164']}">{B['phone']}</a><p class="muted">Our front desk will help you book, or book online at theqsalonsrq.com/book.</p></div>
-</div>{gmap}</div></section>
-<footer class="foot"><div class="wrap">
-<div class="foot-links"><p class="eyebrow" style="color:var(--brass-l)">Services &amp; areas</p><nav aria-label="Services and areas">{"".join(f'<a href="{h}">{t}</a>' for h, t in SEO_LINKS)}</nav></div>
-<div class="foot-in"><div><p>© 2026 {B['name']} · {ADDR} · <a href="tel:{B['phone_e164']}">{B['phone']}</a></p>
-<p class="contact"><a href="mailto:{B['email']}">{B['email']}</a><a href="{B['instagram']}" target="_blank" rel="noopener">Instagram @theqsalon_srq</a><a href="{B['maps']}" target="_blank" rel="noopener">Google reviews</a><a href="/llms.txt">Salon facts (plain text)</a></p></div>
+def footer():
+    return f"""<footer class="foot"><div class="wrap">
+<div class="foot-links"><p class="foot-brand">{B['name']}</p><p style="margin-top:6px">{B['tagline']}: haircuts, beards, skin, styling and product picks.</p>
+<nav aria-label="Journal" style="margin-top:18px">{"".join(f'<a href="{h}">{t}</a>' for h, t in SEO_LINKS)}</nav></div>
+<div class="foot-in"><div><p>© 2026 {B['name']}</p>
+<p class="contact"><a href="mailto:{B['email']}">Editorial: {B['email']}</a><a href="/feed.xml">RSS feed</a><a href="/llms.txt">Journal summary (plain text)</a></p></div>
 <nav aria-label="Footer">{"".join(f'<a href="{h}">{t}</a>' for h, t in NAV)}</nav></div></div></footer>"""
 
 def _fallback_art(p):
@@ -638,19 +408,12 @@ def clean_links(html):
     html = re.sub(r'href="([a-z0-9-]+)\.html(#[^"]*)?"', fix, html)
     return html.replace('src="assets/', 'src="/assets/')
 
-# Conversion click tracking. Google Analytics itself (G-V0NPW7N594, page views and amazon_click)
-# is loaded by the Netlify snippet "Q Salon analytics and Amazon clicks"; this only adds named events.
+# Named click events. Google Analytics itself (page views and amazon_click) is loaded by a Netlify snippet.
 CLICK_TRACKING = """<script>document.addEventListener('click',function(e){var a=e.target.closest&&e.target.closest('a[href]');if(!a)return;
 var h=a.href||'',t=(a.textContent||'').replace(/\\s+/g,' ').trim().slice(0,80),ev=null,
-p={link_text:t,link_url:h,link_location:a.closest('header')?'header':a.closest('footer')?'footer':a.closest('.m-cta')?'mobile_bar':'body',page_path:location.pathname};
-if(h.indexOf('tel:')===0)ev='phone_call_click';
-else if(h.indexOf('sms:')===0)ev='text_message_click';
-else if(h.indexOf('mailto:')===0)ev='email_click';
-else if(/getsqr\\.co|getsquire\\.com|theqsalonsrq\\.com\\/book/.test(h))ev=/gift/i.test(t)?'gift_card_click':'booking_click';
-else if(/writereview/.test(h))ev='review_click';
-else if(/maps\\.google|google\\.com\\/maps/.test(h))ev=/review/i.test(t)?'reviews_view_click':'directions_click';
-else if(/instagram\\.com/.test(h))ev='instagram_click';
-else if(/facebook\\.com/.test(h))ev='facebook_click';
+p={link_text:t,link_url:h,link_location:a.closest('header')?'header':a.closest('footer')?'footer':'body',page_path:location.pathname};
+if(h.indexOf('mailto:')===0)ev='email_click';
+else if(/\\/(blog|grooming-guide|mens-grooming-gift-guide)$/.test(h))ev='article_click';
 if(ev)(window.gtag||function(){(window.dataLayer=window.dataLayer||[]).push(arguments);})('event',ev,p);},true);</script>"""
 
 # Old-site addresses Google still requests, each mapped to the closest current page.
@@ -672,379 +435,108 @@ LEGACY_REDIRECTS = {
     "/what-haircut-do-girls-like": "/grooming-guide", "/3-2-1-rule-mens-haircuts": "/grooming-guide",
 }
 
-def page(path, title, desc, body, crumb=""):
+def redirects():
+    """Legacy URLs (301) resolved through RETIRED, retired pages and /book (302, reversible)."""
+    def final(dst): return RETIRED.get(dst.lstrip("/"), dst)
+    lines = [f"{src} {final(dst)} {302 if dst.lstrip('/') in RETIRED else 301}" for src, dst in LEGACY_REDIRECTS.items()]
+    for slug, dst in RETIRED.items():
+        lines += [f"/{slug} {dst} 302", f"/{slug}.html {dst} 302"]
+    lines.append("/book /blog 302")
+    return "\n".join(lines) + "\n"
+
+def page(path, title, desc, body, crumb="", og_type="website"):
     if crumb:
         body = body.replace('<section class="page-hero"><div class="wrap">', '<section class="page-hero"><div class="wrap">' + crumbs(crumb), 1)
     return clean_links(f"""<!doctype html>
 <html lang="en-US"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
-{head(title, desc, path, crumb)}
+{head(title, desc, path, crumb, og_type)}
 </head><body>
 {header(path)}
 <main id="main">{body}</main>
-{visit(show_map=path in ("index.html", "about.html"))}
+{footer()}
 {CLICK_TRACKING}
 </body></html>""")
 
-# ---------- Home ----------
-HOME_FAQ = [
-    ("Is The Q Salon for Men a barbershop?", "It's a private men's hair salon with full barbering skills. Susy does skin fades, line-ups and clipper work alongside scissor cuts, executive cuts and men's gray blending. One chair, appointments only."),
-    ("How much is a men's haircut at The Q?", "A Classic Haircut is $60 (about 45 minutes). The Executive Haircut and Skin Fade are $80 (about an hour). Natural Look Color & Style is $130, the Gentleman's Facial is $75, and kids' cuts for under-12s are $30."),
-    ("How do I book?", "Online through SQUIRE at theqsalonsrq.com/book, which takes under a minute. You can also call (941) 340-2389 and the front desk will help you book."),
-    ("Where is The Q Salon for Men?", f"{ADDR}, in downtown Sarasota near Main Street and Five Points. It's about 10 minutes from Lido Key and St. Armands, 15 from Siesta Key, 20 from Longboat Key and 25 from Lakewood Ranch."),
-    ("What are the hours?", "Monday through Friday, 9 AM to 2 PM, by appointment. Closed Saturday and Sunday."),
-    ("Who cuts my hair?", "Susy, a master barber and stylist with more than 10 years of experience. She is the only stylist at The Q, so you see the same expert every visit."),
-]
+def byline(date=None, extra=""):
+    when = f'<span>Published <time datetime="{date}">{nice_date(date)}</time></span>' if date else ""
+    return f'<p class="byline"><span>By <b>{BYLINE}</b></span>{when}{extra}</p>'
 
-home = f"""
-<section class="hero2">
-<figure class="h2-media"><div class="h2-frame">
-{pic(IMG_HERO, "Man with a swept-back men's haircut, natural silver kept, and a sculpted salt-and-pepper beard", 900, 1110, lazy=False)}
-<span class="h2-tag t1"><i></i>01 · Swept-back cut, natural silver kept</span>
-<span class="h2-tag t2"><i></i>02 · Beard sculpted &amp; lined</span>
-<span class="h2-issue">The Q · Sarasota · Est. 2021</span>
-</div></figure>
-<div class="h2-copy"><div class="h2-inner">
-<h1><span class="eyebrow h1-eyebrow">Men's hair salon · Downtown Sarasota</span><span class="l"><span>The cut</span></span><span class="l"><span>that carries</span></span><span class="l"><span><em>the room.</em></span></span></h1>
-<p class="lede">Men's haircuts, skin fades and natural gray blending in downtown Sarasota, from master stylist Susy. One chair, by appointment, and her full attention from start to finish.</p>
-<div class="acts"><a class="btn" href="{B['book']}" target="_blank" rel="noopener">Book an appointment {ARR}</a><a class="btn btn-line" href="#shop">Shop products</a></div>
-<a class="h2-by" href="#meet">{pic(IMG_SUSY + "-thumb", "", 44, 44)}<span><b>Every cut by Susy</b><small>Master men's stylist · 10+ years</small></span></a>
-<div class="stats"><div><b>{B['rating']}★</b><span>{B['review_count']} Google reviews</span></div><div><b>10+</b><span>Years behind the chair</span></div><div><b>1</b><span>Chair. Your time.</span></div></div>
-</div></div>
-</section>
-{ticker()}
-<section class="sec" id="services"><div class="wrap">
-<div class="sec-head"><div><p class="eyebrow">Service menu</p><h2>Every service, done by Susy.</h2></div>
-<p>No hand-offs and no assembly line. Prices and times exactly as listed in our booking system.</p></div>
-<div class="menu">{menu(link=True)}</div>
-<div class="menu-foot"><p class="muted">Gift cards from $50 · Book online in under a minute</p><a class="btn" href="{B['book']}" target="_blank" rel="noopener">See open times {ARR}</a></div>
-</div></section>
-<section class="sec stone" id="at-a-glance"><div class="wrap">
-<div class="sec-head"><div><p class="eyebrow">At a glance</p><h2>The Q Salon for Men, in brief.</h2></div>
-<p>A private, appointment-only men's hair salon in downtown Sarasota, Florida, open since 2021.</p></div>
-<dl class="glance">
-<div><dt>Address</dt><dd>{ADDR}</dd></div>
-<div><dt>Hours</dt><dd>Mon–Fri, 9 AM – 2 PM<br>Closed Sat &amp; Sun</dd></div>
-<div><dt>Phone</dt><dd><a href="tel:{B['phone_e164']}">{B['phone']}</a></dd></div>
-<div><dt>Booking</dt><dd>Online via SQUIRE · <a href="{B['book']}" target="_blank" rel="noopener">book now</a></dd></div>
-<div><dt>Stylist</dt><dd>Susy, master men's stylist, 10+ years</dd></div>
-<div><dt>Prices</dt><dd>Haircuts $60–$80 · Fades $80 · Gray blending $130 · Kids $30</dd></div>
-<div><dt>Specialties</dt><dd>Executive cuts, skin fades, natural gray blending, men's facials</dd></div>
-<div><dt>Serving</dt><dd>Sarasota, Lido Key, St. Armands, Siesta Key, Longboat Key, Lakewood Ranch</dd></div>
-</dl></div></section>
-{shop_section()}
-<section class="sec" id="meet"><div class="wrap about">
-<div class="ph">{pic(IMG_SUSY, "Susy, master barber and men's stylist at The Q Salon for Men in Sarasota", 800, 802)}</div>
-<div><p class="eyebrow">Meet Susy</p><h2>The reason clients don't go anywhere else.</h2>
-<div class="body"><p>Susy has spent more than a decade perfecting men's hair. Her clients know her for fades that blend clean every time, executive cuts that still look right three weeks later, and gray blending so natural nobody can tell.</p>
-<p>The Q is built around that standard: one chair, appointments only, and the kind of consistency you only get from the same expert hands every visit.</p>
-<p><a class="link" href="about.html">More about Susy and The Q</a></p></div>
-<div class="pillars"><div><b>Precision</b><span>Clean lines, seamless blends.</span></div><div><b>Consistency</b><span>Same expert, every visit.</span></div><div><b>Discretion</b><span>Private, unhurried, on time.</span></div></div>
-</div></div></section>
-<section class="sec on-dark review"><div class="wrap"><p class="stars" aria-label="{B['rating']} out of 5 stars">★★★★★</p><h2>{B['rating']} stars across {B['review_count']} Google reviews.</h2>
-<p>Read what Sarasota's best-groomed men say, then see for yourself.</p>
-<div class="acts" style="justify-content:center"><a class="btn btn-brass" href="{B['book']}" target="_blank" rel="noopener">Book your first visit {ARR}</a><a class="btn btn-line" href="{B['maps']}" target="_blank" rel="noopener">Read the reviews</a></div></div></section>
-<section class="sec"><div class="wrap split"><div><p class="eyebrow">Good to know</p><h2>Questions men ask before their first visit.</h2></div>
-<div class="prose faq">{"".join(f'<details><summary>{q}</summary><p>{a}</p></details>' for q, a in HOME_FAQ)}</div></div></section>
-{faq_schema(HOME_FAQ)}
-{cta()}
-"""
-
-# ---------- Shop ----------
-shop = f"""
-<section class="page-hero"><div class="wrap"><p class="eyebrow">The Q Shop</p><h1>Products for the morning after your cut.</h1>
-<p class="lede">Styling, beard, hair-care, fragrance and grooming tools picked by Susy, plus gift cards for any service.</p>
-<div class="acts"><a class="btn" href="#picks">See Susy's picks {ARR}</a><a class="btn btn-line" href="{B['book']}" target="_blank" rel="noopener">Book a cut</a></div></div></section>
-{shop_section("Shop by need", "Everything Susy reaches for.")}
-<section class="sec" id="picks"><div class="wrap">
-<div class="sec-head"><div><p class="eyebrow">Susy's picks</p><h2>What to use between visits</h2></div>
-<p>Pomades, beard care, scalp care, fragrance and a trimmer for upkeep between appointments. Not sure which suits your cut? Ask Susy in the chair.</p></div>
-<p class="disclose muted">{AMZ_DISCLOSE} Links open Amazon, where current prices and availability are shown.</p>
-{affiliate_grid()}
-</div></section>
-{cta("Fresh cut first, then the products to keep it.")}
-"""
-
-FAQ_COMMON = [
-    ("Where are you located?", f"We're at {ADDR}, in downtown Sarasota."),
-    ("What are your hours?", "Monday through Friday, 9 AM to 2 PM, by appointment. We're closed Saturday and Sunday."),
-    ("Do you take walk-ins?", "It's one chair, so booking ahead is the way to guarantee a time. Booking online takes under a minute."),
-]
+def author():
+    return {"@type": "Organization", "@id": ORG_ID, "name": BYLINE, "url": B["site"] + "/"}
 
 
-def seo_page(h1, eyebrow, lede, sections, faqs, svc_filter, related=None):
-    items = [s for s in SERVICES if s[0] in svc_filter]
-    rel = related or ["mens-haircut-sarasota.html", "skin-fade-sarasota.html", "mens-hair-color-sarasota.html", "executive-haircut-sarasota.html"]
-    names = dict(SEO_LINKS)
-    rel_html = "".join(f'<a href="{h}">{names.get(h, h)}</a>' for h in rel)
-    MAIN_KEY = [("executive", "Executive Haircut"), ("fade", "Skin Fade"), ("color", "Natural Look Color & Style"),
-                ("facial", "Gentleman's Facial"), ("kids", "Kid's Haircut (under 12)")]
-    want = next((n for k, n in MAIN_KEY if k in eyebrow.lower()), None)
-    main = next((x for x in items if x[0] == want), items[0] if items else SERVICES[0])
-    others = [x for x in items if x is not main]
-    also = (" Also available: " + "; ".join(f"{n} ${p} ({t})" for n, t, p, _ in others) + ".") if others else ""
-    glance = f"""<div class="aag"><p class="eyebrow">At a glance</p>
-<dl class="aag-grid"><div><dt>Service</dt><dd>{main[0]}</dd></div><div><dt>Price</dt><dd>${main[2]}</dd></div><div><dt>Time</dt><dd>{main[1]}</dd></div><div><dt>With</dt><dd>Susy, master barber</dd></div></dl>
-<p class="aag-sum">{main[3]} Every service at The Q Salon for Men is done by Susy, start to finish.</p>{f'<p class="aag-also">{also.strip()}</p>' if also else ''}
-<div class="aag-acts"><a class="btn" href="{B['book']}" target="_blank" rel="noopener">Book {main[0].split(' (')[0]} {ARR}</a><a class="btn btn-line" href="tel:{B['phone_e164']}">Call {B['phone']}</a></div>
-<p class="aag-meta">{ADDR} · Mon–Fri, 9 AM – 2 PM · By appointment</p></div>"""
-    prices = f"""<details class="prices"><summary><span><span class="eyebrow" style="margin:0">Prices &amp; times</span><b>{len(items)} services on this page</b></span><i aria-hidden="true">+</i></summary>
-{menu(items, link=True)}<a class="link" href="index.html#services" style="display:inline-block;margin-top:14px">See the full menu</a></details>"""
-    return f"""<section class="page-hero"><div class="wrap"><p class="eyebrow">{eyebrow}</p><h1>{h1}</h1><p class="lede">{lede}</p></div></section>
-<section class="sec sec-tight"><div class="wrap svc-wrap">{glance}
-<div class="svc-grid"><div class="prose">{sections}
-<h2>Questions</h2><div class="faq">{"".join(f'<details><summary>{q}</summary><p>{a}</p></details>' for q, a in faqs)}</div>
-<h2>Related services</h2><div class="related">{rel_html}</div></div>
-<aside class="svc-side"><div class="side"><p class="eyebrow">Ready when you are</p><h3 class="side-h">{main[0]} · ${main[2]}</h3><p class="muted" style="font-size:.9rem;margin-top:4px">{main[1]} with Susy</p>
-<a class="btn" style="margin-top:16px;width:100%;justify-content:center" href="{B['book']}" target="_blank" rel="noopener">Book now {ARR}</a>
-{prices}</div></aside></div></div></section>
-{faq_schema(faqs)}
-{shop_section("Keep it sharp", "Products for between visits.")}
-{cta()}"""
-
-haircut = seo_page("Men's haircuts in downtown Sarasota", "Men's haircut · Sarasota, FL",
-    "Classic and executive cuts from a master stylist with 10+ years behind the chair. One chair, by appointment, no rushing.",
-    f"""<h2>A haircut built around how you wear it</h2>
-<p>Every cut starts with a short consultation: how you style it, how often you come in, and how it should look in week three, not just day one. Susy cuts with scissors and clippers to suit your hair type, then finishes and shows you how to style it at home.</p>
-<h2>Classic or Executive?</h2>
-<p>The <strong>Classic Haircut</strong> ($60, about 45 minutes) is a precise scissor-and-clipper cut, styled to finish. The <strong>Executive Haircut</strong> ($80, about an hour) adds extra time and detail work, the right pick before an interview, an event, or when you want the full experience.</p>
-<h2>Men's haircut styles Susy cuts every week</h2>
-<ul><li><strong>Scissor cuts</strong> for longer, textured or wavy hair that needs shape without looking clipped.</li>
-<li><strong>Tapers and fades</strong>, from a soft low taper to a <a href="skin-fade-sarasota.html">skin fade</a> down to the skin.</li>
-<li><strong>Classic business cuts</strong>: side parts, crew cuts and the clean, conservative look that works in any meeting.</li>
-<li><strong>Textured crops and modern styles</strong> with a matte, natural finish.</li>
-<li><strong>Thinning or receding hair</strong>, cut to look fuller, and <a href="mens-hair-color-sarasota.html">gray blending</a> if you want to soften the silver.</li></ul>
-<h2>What's included in every men's haircut</h2>
-<p>A consultation before the first snip, the cut itself, a clean neckline and edges, and a finish styled the way you'll actually wear it. Susy shows you the product and technique to recreate it at home, so the cut still looks right weeks later, not just when you leave the chair.</p>
-<h2>How much is a men's haircut in Sarasota?</h2>
-<p>At The Q, a Classic Haircut is $60 and the Executive Haircut is $80. Kids under 12 are $30. Prices are listed up front, and every appointment is with the same master stylist, so you're paying for consistency: the same expert hands, visit after visit, with no rotating chairs and no rushing.</p>
-<h2>How often should men get a haircut?</h2>
-<p>Short styles and fades look sharpest when they're refreshed every two to three weeks. Medium-length cuts usually go four to six weeks. Susy will tell you the right rhythm for your cut, and you can rebook online before you leave.</p>
-<h2>Convenient to downtown</h2>
-<p>We're at {ADDR}, a short walk from Main Street and Five Points, and an easy stop for anyone working downtown, in the Rosemary District or along Fruitville Road. Clients also drive in from <a href="mens-haircut-lido-key.html">Lido Key</a>, <a href="mens-haircut-siesta-key.html">Siesta Key</a>, <a href="mens-haircut-longboat-key.html">Longboat Key</a> and <a href="mens-haircut-lakewood-ranch.html">Lakewood Ranch</a>.</p>""",
-    FAQ_COMMON + [("How much does a men's haircut cost at The Q?", "A Classic Haircut is $60 (about 45 minutes) and an Executive Haircut is $80 (about an hour). Kids' cuts for under-12s are $30."),
-                  ("Do you cut longer men's hair, or just short styles?", "Both. Susy does scissor cuts for longer and textured hair as well as short cuts, tapers and fades."),
-                  ("Is this a barbershop?", "It's a private men's hair salon with full barbering skills: fades, line-ups and clipper work, plus scissor cuts, consultation and men's color.")],
-    {"Classic Haircut", "Executive Haircut", "Kid's Haircut (under 12)"})
-
-fade = seo_page("Skin fades with a clean, seamless blend", "Skin fade · Sarasota, FL",
-    "Skin fades in downtown Sarasota: low, mid or high, with crisp lines and no visible steps.",
-    """<h2>What makes a good fade</h2>
-<p>A skin fade lives or dies on the blend. Susy takes the sides down to the skin and works up through each guard until there's no visible line, then sharpens the edges so it reads clean from every angle.</p>
-<h2>Low, mid or high</h2>
-<ul><li><strong>Low fade:</strong> starts just above the ear; subtle and office-friendly.</li><li><strong>Mid fade:</strong> the most popular; balanced and sharp.</li><li><strong>High fade:</strong> bold contrast, pairs well with textured tops.</li></ul>
-<p>Not sure which suits your head shape? Ask during your appointment and Susy will recommend one.</p>
-<h2>Keeping it sharp</h2>
-<p>Fades grow out fastest of any style. Most clients rebook every two to three weeks to keep the blend tight.</p>""",
-    FAQ_COMMON + [("How long does a skin fade take?", "About an hour, including the finish and styling. It's $80.")],
-    {"Skin Fade", "Executive Haircut"})
-
-color = seo_page("Gray blending that looks like you", "Men's hair color · Sarasota, FL",
-    "Natural-looking men's color and gray blending in downtown Sarasota. Softens the gray without the flat, dyed look.",
-    """<h2>Blend, don't cover</h2>
-<p>Gray blending in Sarasota is what most of Susy's color clients ask for. Full-coverage dye on men's hair often looks flat and grows out with a hard line. Our <strong>Natural Look Color &amp; Style</strong> blends the gray instead, leaving some of it in so the result reads as your own hair, just a few years fresher.</p>
-<h2>What to expect</h2>
-<p>The appointment runs about an hour and 15 minutes and includes your color, a cut refresh and styling, for $130. Most clients come back every four to six weeks to keep it consistent.</p>
-<h2>Low maintenance by design</h2>
-<p>Because the color is blended rather than solid, regrowth is soft and gradual. Ask about color-safe shampoo in the salon to make it last longer.</p>""",
-    FAQ_COMMON + [("Will it look dyed?", "No. Gray blending is designed to leave natural dimension, so it softens gray rather than hiding it completely.")],
-    {"Natural Look Color & Style"})
-
-ALL = {s[0] for s in SERVICES}
-CUTS = {"Classic Haircut", "Executive Haircut", "Skin Fade"}
-
-barber = seo_page("A barber in Sarasota who knows your name", "Barber · Sarasota, FL",
-    "Looking for a barber in Sarasota? The Q is a private, one-chair men's salon: master stylist Susy, appointments only, and no waiting room.",
-    f"""<h2>Barbershop craft, salon-level detail</h2>
-<p>Most men searching for a barber in Sarasota want three things: a clean cut, no long wait, and someone who remembers how they like it. The Q delivers all three. Susy combines barbering technique, tight fades and sharp lines, with the scissor work and consultation of a high-end men's salon.</p>
-<h2>What you can book</h2>
-<ul><li><strong>Classic Haircut</strong>, $60: scissor and clipper cut, styled to finish.</li><li><strong>Executive Haircut</strong>, $80: extra time and detail.</li><li><strong>Skin Fade</strong>, $80: low, mid or high, blended seamlessly.</li><li><strong>Natural Look Color &amp; Style</strong>, $130: gray blending.</li><li><strong>Gentleman's Facial</strong>, $75, and <strong>kids' cuts</strong>, $30.</li></ul>
-<h2>No walk-in lottery</h2>
-<p>Because it's one chair, every client has a reserved time. Book online in under a minute and you'll be in the chair when you arrive, Monday through Friday, 9 AM to 2 PM.</p>""",
-    FAQ_COMMON + [("How much is a haircut?", "Classic Haircut $60, Executive Haircut and Skin Fade $80, Kid's Haircut $30."),
-                  ("Is The Q a barbershop or a salon?", "Both. It's a men's hair salon with barbering skills: fades, line-ups and clipper work, plus scissor cuts and men's color.")],
-    ALL, ["mens-haircut-sarasota.html", "skin-fade-sarasota.html", "executive-haircut-sarasota.html", "mens-grooming-sarasota.html"])
-
-executive = seo_page("The Executive Haircut", "Executive haircut · Sarasota, FL",
-    "Sarasota's executive men's haircut: an hour with a master stylist, extra detail work, and a finish built for the boardroom.",
-    """<h2>What makes it executive</h2>
-<p>The Executive Haircut gives Susy a full hour. That extra time goes into the details most cuts skip: a cleaner neckline, refined texture on top, balanced weight around the ears, and a finish that holds through a long day.</p>
-<h2>Who books it</h2>
-<p>Professionals before interviews, presentations and events, grooms and wedding parties, and anyone who wants the best version of their cut instead of the fastest one.</p>
-<h2>Price and timing</h2>
-<p>$80, about one hour. Pair it with a Gentleman's Facial before a big day.</p>""",
-    FAQ_COMMON + [("What's the difference between Classic and Executive?", "Time and detail. The Classic is a precise 45-minute cut for $60; the Executive is a full hour with extra finishing work for $80.")],
-    {"Executive Haircut", "Classic Haircut", "Gentleman's Facial"}, ["mens-haircut-sarasota.html", "mens-facial-sarasota.html", "skin-fade-sarasota.html", "barber-sarasota.html"])
-
-facial = seo_page("A Gentleman's Facial in Sarasota", "Men's facial · Sarasota, FL",
-    "A 45-minute men's facial in Sarasota: cleanse, exfoliate and hydrate. Built for Florida sun and daily shaving.",
-    """<h2>Why men book a facial</h2>
-<p>The Q doubles as a small men's facial spa in downtown Sarasota. Sun, salt air, humidity and daily shaving are hard on skin. The Gentleman's Facial deep-cleans pores, exfoliates dull skin and restores hydration, so you leave looking rested rather than polished.</p>
-<h2>What happens in 45 minutes</h2>
-<ul><li>Cleanse and steam to open pores</li><li>Exfoliation to clear buildup and ingrown-prone areas</li><li>Hydration matched to your skin</li><li>A few simple at-home tips</li></ul>
-<h2>Pair it</h2>
-<p>Add it to an Executive Haircut before an event, or book it on its own once a month. $75.</p>""",
-    FAQ_COMMON + [("Is a facial worth it for men?", "Yes, especially in Florida. Regular facials help with clogged pores, razor irritation and sun-dried skin.")],
-    {"Gentleman's Facial", "Executive Haircut"}, ["executive-haircut-sarasota.html", "mens-grooming-sarasota.html", "grooming-guide.html", "barber-sarasota.html"])
-
-kids = seo_page("Kids' haircuts in Sarasota, without the chaos", "Kids' haircuts · Sarasota, FL",
-    "Calm, comfortable haircuts for boys under 12 in Sarasota. $30, about 30 minutes, with the same master stylist who cuts Dad's hair.",
-    """<h2>A quiet chair, not a busy shop</h2>
-<p>Busy barbershops can overwhelm kids. At The Q there's one chair and no crowd, so younger clients settle in and sit still, and the cut comes out cleaner.</p>
-<h2>Book father and son together</h2>
-<p>Many dads book back-to-back appointments: kid's cut first, then their own. It's one trip and both of you leave sharp.</p>
-<h2>Price</h2><p>$30 for boys under 12, about 30 minutes.</p>""",
-    FAQ_COMMON + [("What age is the kid's haircut for?", "Boys under 12. Teens book the Classic Haircut.")],
-    {"Kid's Haircut (under 12)", "Classic Haircut"}, ["mens-haircut-sarasota.html", "barber-sarasota.html", "skin-fade-sarasota.html", "grooming-guide.html"])
-
-grooming = seo_page("Men's grooming in Sarasota, all in one chair", "Men's grooming · Sarasota, FL",
-    "Haircuts, fades, gray blending, facials and grooming products from one master stylist. The full men's grooming routine, handled.",
-    """<h2>One expert for your whole look</h2>
-<p>Most men split grooming across a barbershop, a color appointment and a drugstore shelf. At The Q, Susy handles your cut, your color, your skin and the products you use at home, so everything works together.</p>
-<h2>Build your routine</h2>
-<ul><li><strong>Every 2–3 weeks:</strong> skin fade or tight cut</li><li><strong>Every 3–5 weeks:</strong> Classic or Executive Haircut</li><li><strong>Every 4–6 weeks:</strong> Natural Look Color &amp; Style</li><li><strong>Monthly:</strong> Gentleman's Facial</li></ul>
-<h2>At home</h2><p>Ask Susy what to use; the products she finishes with are in the Q Shop.</p>""",
-    FAQ_COMMON + [("How often should men get a haircut?", "Every two to three weeks for fades, three to five weeks for longer cuts.")],
-    ALL, ["barber-sarasota.html", "mens-facial-sarasota.html", "mens-hair-color-sarasota.html", "grooming-guide.html"])
-
-def area_page(area, drive, route, local, popular, extra_faq, deep=""):
-    return seo_page(f"Men's haircuts for {area}", f"Men's haircut · {area}, FL",
-        f"{area} men book with Susy at The Q Salon for Men: precision cuts, skin fades and gray blending in downtown Sarasota, {drive}.",
-        f"""<h2>Getting here from {area}</h2>
-<p>{route} The salon is at {ADDR}, in downtown Sarasota near Main Street and Five Points, with public garages and street parking a short walk away.</p>
-<h2>Why {area} clients make the trip</h2>
-<p>{local} The Q is a private, one-chair men's salon, so your appointment starts on time and Susy's attention stays on you from consultation to finish.</p>
-{deep}
-<h2>Popular with {area} clients</h2>
-<ul>{popular}</ul>
-<h2>Easy to book</h2><p>Book online in under a minute, Monday through Friday, 9 AM to 2 PM. Or call {B['phone']} and our front desk will help you book.</p>""",
-        FAQ_COMMON + extra_faq, CUTS | {"Natural Look Color & Style"},
-        ["barber-sarasota.html", "skin-fade-sarasota.html", "executive-haircut-sarasota.html", "mens-hair-color-sarasota.html"])
-
-LI_EXEC = "<li><strong>Executive Haircut</strong> ($80): a full hour of detail work before meetings and events</li>"
-LI_FADE = "<li><strong>Skin Fade</strong> ($80): kept sharp every two to three weeks</li>"
-LI_COLOR = "<li><strong>Natural Look Color &amp; Style</strong> ($130): gray blending that won't turn brassy in the sun</li>"
-LI_CLASSIC = "<li><strong>Classic Haircut</strong> ($60): a precise cut, styled to finish</li>"
-LI_FACIAL = "<li><strong>Gentleman's Facial</strong> ($75): a reset for sun- and salt-dried skin</li>"
-
-lido = area_page("Lido Key & St. Armands", "about 10 minutes from Lido Key and St. Armands Circle",
-    "From Lido Key or St. Armands Circle, head east over the John Ringling Causeway into downtown. It's one of the shortest drives to the salon, usually about 10 minutes.",
-    "Island living means sun, salt and pool water, all hard on hair and color. Lido and St. Armands clients rely on Susy for cuts that hold their shape in the humidity and color that stays natural.",
-    LI_CLASSIC + LI_COLOR + LI_FACIAL,
-    [("How far is The Q from Lido Key?", "About 10 minutes: east over the John Ringling Causeway into downtown Sarasota."),
-     ("How do I keep salt water and chlorine from damaging my hair?", "Rinse with fresh water right after the beach or pool, use a sulfate-free shampoo, and wear a hat on long days in the sun. If you color your hair, ask Susy about keeping the tone from going brassy.")],
-    deep="""<h2>Beach, Circle, then the chair</h2>
-<p>Lido Beach, St. Armands Circle and downtown Sarasota are only minutes apart, so a weekday appointment fits easily between a morning on the sand and lunch on the Circle. Appointments run Monday through Friday from 9 AM, and the causeway puts you at the salon door quickly.</p>
-<p>Island clients often pair a Classic Haircut with the Gentleman's Facial: one visit to reset hair and skin that spend most of the week in sun, salt and pool water.</p>""")
-lwr = area_page("Lakewood Ranch", "about 25 minutes from Lakewood Ranch",
-    "From Lakewood Ranch, take University Parkway or Fruitville Road west toward downtown Sarasota. Most clients make it in about 25 minutes, often pairing the appointment with a downtown lunch or meeting.",
-    "Lakewood Ranch has plenty of chain barbershops and busy salons. Clients who want the same expert every visit, and no waiting room, make the drive downtown.",
-    LI_EXEC + LI_FADE + LI_COLOR,
-    [("How far is The Q from Lakewood Ranch?", "About 25 minutes, west on University Parkway or Fruitville Road to downtown Sarasota."),
-     ("Is it worth driving from Lakewood Ranch for a haircut?", "If you want the same master barber every visit, yes. The Q has one chair and no waiting room, appointments start on time, and Susy keeps track of how you like your cut, so you don't have to explain it again.")],
-    deep="""<h2>Built around a Lakewood Ranch schedule</h2>
-<p>The drive from Lakewood Ranch is long on paper but simple in practice: one straight run west on University Parkway or Fruitville Road. Many clients book the 9 AM opening and are heading back east before lunch, or tie the visit to a meeting downtown.</p>
-<p>The Executive Haircut is the usual pick before board meetings, presentations and client dinners, and a skin fade on a two-to-three-week rhythm keeps the sides sharp between trips.</p>""")
-siesta = area_page("Siesta Key", "about 15 minutes from Siesta Key",
-    "From Siesta Key, cross the Siesta Drive or Stickney Point bridge and head north on US-41 (Tamiami Trail) into downtown. It's about 15 minutes from the north end of the key.",
-    "Sun, salt and humidity are rough on hair. Siesta Key clients rely on Susy for cuts that hold their shape at the beach and gray blending that doesn't fade brassy in the sun.",
-    LI_FADE + LI_COLOR + LI_FACIAL,
-    [("How far is The Q from Siesta Key?", "About 15 minutes: over the Siesta Drive or Stickney Point bridge, then north on US-41 to downtown."),
-     ("What's a good men's haircut for the beach?", "A cut with soft texture that air-dries well and still looks deliberate after a swim. Tell Susy how much time you spend in the water and she'll build the shape around it.")],
-    deep="""<h2>A cut that survives Siesta Beach</h2>
-<p>Living near Siesta Beach means sun and salt water most weeks. Susy cuts with that in mind: shapes that air-dry well and settle back into place without much product, and gray blending in tones that hold up in strong UV instead of turning brassy.</p>
-<p>Simple habit that helps: rinse the salt out with fresh water after the beach, then use a light product once it's dry. Ask Susy which one suits your hair at your next visit.</p>""")
-longboat = area_page("Longboat Key", "about 20 minutes from Longboat Key",
-    "From Longboat Key, take Gulf of Mexico Drive south through St. Armands Circle and across the John Ringling Causeway. From mid-key it's roughly 20 minutes to the salon.",
-    "Longboat Key clients expect a refined, unhurried experience and a stylist who remembers exactly how they like it. That's how The Q is built.",
-    LI_EXEC + LI_CLASSIC + LI_COLOR,
-    [("How far is The Q from Longboat Key?", "About 20 minutes from mid-key: south through St. Armands Circle, then over the Ringling Causeway into downtown."),
-     ("Do you offer men's facials for Longboat Key clients?", "Yes. The Gentleman's Facial ($75, about 45 minutes) is done at the salon in downtown Sarasota, and it pairs well with a haircut in the same visit.")],
-    deep="""<h2>Made for golf, boating and the Gulf breeze</h2>
-<p>On Longboat Key, a lot of the week happens outdoors: on the course, on the water, in the Gulf breeze. Susy builds cuts that fall back into place after a cap comes off, and keeps executive cuts looking right well past the first week.</p>
-<p>For skin that sees a lot of sun and salt air, the Gentleman's Facial is an easy add-on, and natural gray blending keeps a polished look without anyone noticing the color.</p>""")
-
-salon = seo_page("A men's hair salon in downtown Sarasota", "Men's hair salon · Sarasota, FL",
-    "The Q Salon for Men is a private, one-chair men's hair salon in downtown Sarasota: haircuts, skin fades, gray blending and facials, all by master stylist Susy.",
-    f"""<h2>Built only for men</h2>
-<p>Most hair salons are built around women's services, with men fitted in between color appointments. The Q is the opposite: every service on the menu is for men, and every appointment is with Susy, a master barber and stylist with more than ten years behind the chair.</p>
-<h2>Salon craft, barbershop precision</h2>
-<p>You get the consultation, scissor work and color expertise of a high-end salon, with the clipper skills of a barbershop: tight skin fades, clean line-ups and sharp necklines. It's why clients who used to split their grooming between a barber and a salon now come to one place.</p>
-<h2>What's on the menu</h2>
-<ul><li><strong>Classic Haircut</strong>, $60 · 45 min</li><li><strong>Executive Haircut</strong>, $80 · 1 hr</li><li><strong>Skin Fade</strong>, $80 · 1 hr</li><li><strong>Natural Look Color &amp; Style</strong>, $130 · 1 hr 15 min</li><li><strong>Gentleman's Facial</strong>, $75 · 45 min</li><li><strong>Kid's Haircut</strong> (under 12), $30 · 30 min</li></ul>
-<h2>Private by design</h2>
-<p>One chair means no waiting room, no overheard conversations and no rush. Appointments run Monday through Friday, 9 AM to 2 PM, at {ADDR}.</p>""",
-    FAQ_COMMON + [("Is The Q a men's salon or a barbershop?", "A men's hair salon with full barbering skills: fades, line-ups and clipper work, plus scissor cuts, executive cuts and men's color."),
-                  ("Do you do men's hair color?", "Yes. Natural Look Color & Style ($130) blends gray so it looks like your own hair, not dye.")],
-    ALL, ["barber-sarasota.html", "mens-haircut-sarasota.html", "mens-hair-color-sarasota.html", "mens-grooming-sarasota.html"])
-
-about = f"""<section class="page-hero"><div class="wrap"><p class="eyebrow">About</p><h1>Susy, and the one-chair salon she built.</h1>
-<p class="lede">The Q Salon for Men opened in downtown Sarasota in November 2021 with a simple idea: one master stylist, one chair, and men's grooming done properly.</p>
-<div class="acts"><a class="btn" href="{B['book']}" target="_blank" rel="noopener">Book with Susy {ARR}</a><a class="btn btn-line" href="index.html#services">See the menu</a></div></div></section>
-<section class="sec" id="susy"><div class="wrap about">
-<div class="ph ph-tall">{pic("susy-the-q-salon-downtown-sarasota", "Susy, master barber and stylist at The Q Salon for Men in downtown Sarasota", 960, 1200)}</div>
-<div class="prose"><p class="eyebrow">Master barber &amp; stylist</p><h2 style="margin-top:0">Meet Susy</h2>
-<p>Susy has more than ten years of experience cutting men's hair. She's known for fades that blend clean every time, executive cuts that still look right weeks later, and gray blending so natural nobody can tell.</p>
-<p>She is the only stylist at The Q. Every haircut, fade, color and facial on the menu is done by her, start to finish, so you get the same hands and the same standard on every visit.</p>
-</div></div></section>
-<section class="sec stone"><div class="wrap split"><div><p class="eyebrow">How The Q works</p><h2>Fewer clients. Better cuts.</h2></div>
-<div class="prose"><p><strong>One chair, appointments only.</strong> There's no waiting room and no walk-in line. Your time is reserved, and it starts when you arrive.</p>
-<p><strong>A consultation every time.</strong> How you wear it, how often you come in, and how it should look in week three, not just day one.</p>
-<p><strong>Everything men need, in one place.</strong> Haircuts, skin fades, executive cuts, natural gray blending, the Gentleman's Facial, kids' cuts, and the products Susy finishes with, available in the Q Shop.</p>
-<p><strong>Downtown and easy to reach.</strong> {ADDR}, near Main Street and Five Points, about 10 minutes from Lido Key and St. Armands.</p>
-<div class="facts"><p><strong>Rated {B['rating']}★</strong> across {B['review_count']} Google reviews. <a class="link" href="{B['maps']}" target="_blank" rel="noopener">Read them on Google</a>.</p></div>
-</div></div></section>
-{cta()}"""
-
+# ---------- Grooming guide ----------
 GUIDE = [
     ("How to tell when your fade needs a refresh", "Run your hand up the side of your head. If you can feel a clear line where short meets long, the blend has grown out. For most men that's around day 14 to 21."),
     ("The two-minute styling routine", "Towel-dry until damp, work a pea-sized amount of product between your palms until it disappears, then apply back to front. Finish with fingers, not a comb, for natural texture."),
-    ("Pomade, clay or cream?", "Pomade gives shine and slick control. Clay gives matte texture and strong hold for thicker hair. Cream gives light, natural hold for finer hair. If you're not sure, ask Susy what she finished your cut with."),
+    ("Pomade, clay or cream?", "Pomade gives shine and slick control. Clay gives matte texture and strong hold for thicker hair. Cream gives light, natural hold for finer hair. If you're not sure, ask whoever cuts your hair what they finished it with."),
     ("Why gray blending beats box dye", "Box dye covers everything in one flat shade and grows out with a hard line. Blending keeps some gray, so regrowth is soft and the result looks like your own hair."),
     ("Protect your color from the Florida sun", "Use a color-safe shampoo, rinse with cool water, and wear a hat on the boat or beach. UV and chlorine are what turn blended color brassy."),
-    ("Stop razor bumps", "Exfoliate twice a week, shave with the grain after a warm shower, and finish with a fragrance-free moisturizer. A monthly Gentleman's Facial helps clear ingrown-prone areas."),
+    ("Stop razor bumps", "Exfoliate twice a week, shave with the grain after a warm shower, and finish with a fragrance-free moisturizer. Give irritated areas a few days off the razor before shaving them again."),
     ("Beard care in humidity", "Wash your beard two or three times a week, not daily, and use a few drops of beard oil on damp hair to stop frizz and itch."),
     ("How to ask for the haircut you want", "Bring a photo, say how you style it day to day, and tell your stylist how long you go between cuts. That last detail changes how a cut should be built."),
 ]
-guide = f"""<section class="page-hero"><div class="wrap"><p class="eyebrow">Grooming guide</p><h1>Tips from Susy's chair</h1>
-<p class="lede">Simple, practical grooming advice for men in Sarasota: fades, styling, gray blending, skin and beard care.</p>
-<div class="acts"><a class="btn" href="{B['book']}" target="_blank" rel="noopener">Book with Susy {ARR}</a><a class="btn btn-line" href="shop.html">Shop products</a></div></div></section>
+GUIDE_TITLE = "The grooming guide: eight habits worth keeping"
+GUIDE_META = "Practical men's grooming tips from The Q Journal: fades, styling products, gray blending, razor bumps and beard care in Florida humidity."
+
+guide_article = {"@context": "https://schema.org", "@type": "Article", "headline": GUIDE_TITLE, "description": GUIDE_META,
+                 "dateModified": TODAY, "mainEntityOfPage": url("grooming-guide.html"), "image": B["site"] + IMG_SHARE,
+                 "author": author(), "publisher": {"@id": ORG_ID}, "inLanguage": "en-US"}
+guide = f"""<section class="page-hero"><div class="wrap"><p class="eyebrow">Grooming guide</p><h1>Eight grooming habits worth keeping.</h1>
+<p class="lede">Simple, practical grooming advice for men: fades, styling, gray blending, skin and beard care in Florida humidity.</p>
+{byline()}</div></section>
 <section class="sec"><div class="wrap split"><div class="sticky"><div class="side"><p class="eyebrow">In this guide</p>
 {"".join(f'<p style="margin-top:10px"><a class="link" href="#tip-{i}">{t}</a></p>' for i, (t, _) in enumerate(GUIDE, 1))}</div></div>
 <div class="prose">{"".join(f'<h2 id="tip-{i}">{t}</h2><p>{b}</p>' for i, (t, b) in enumerate(GUIDE, 1))}
-<h2>Related services</h2><div class="related">{"".join(f'<a href="{h}">{t}</a>' for h, t in SEO_LINKS[:8])}</div></div></div></section>
-{shop_section("Keep it sharp", "Products for between visits.")}
-{cta()}"""
+<h2>Keep reading</h2><div class="related">{"".join(f'<a href="{h}">{t}</a>' for h, t in SEO_LINKS if h != "grooming-guide.html")}</div></div></div></section>
+<script type="application/ld+json">{json.dumps(guide_article, ensure_ascii=False)}</script>
+{shop_section("Keep it sharp", "Products for the morning routine.")}
+{journal_cta()}"""
 
-# ---------- Blog ----------
+# ---------- Journal articles ----------
 # One dict per post. "picks" = product slots from products.json (label facts only, no prices).
 BLOG_POSTS = [
     {
         "path": "mens-grooming-gift-guide.html",
-        "title": "Grooming Gifts for Men, Picked by a Sarasota Barber (2026)",
-        "meta": "Holiday grooming gifts for men, chosen by Sarasota master barber Susy: beard oil, pomade, clay, SPF moisturizer, a body trimmer and The Q Salon gift card.",
+        "title": "Grooming Gifts for Men: The 2026 Gift Guide · The Q Journal",
+        "meta": "Holiday grooming gifts for men from The Q Journal: beard oil, pomade, clay, styling powder, an SPF moisturizer and a body trimmer, sorted by the kind of guy you're shopping for.",
         "crumb": "Gift guide",
         "eyebrow": "Holiday gift guide · 2026",
-        "h1": "Grooming gifts for men, picked by a Sarasota barber.",
-        "lede": "Skip the generic gift set. These are the products Susy recommends from her chair at The Q Salon, sorted by the kind of guy you're shopping for.",
+        "h1": "Grooming gifts for men, sorted by the guy you're shopping for.",
+        "lede": "Skip the generic gift set. These are The Q Journal's grooming picks, sorted by the kind of guy you're shopping for.",
         "date": "2026-11-13",
         "intro": [
             "The best grooming gift is one he'll actually use, which means matching it to how he already wears his hair and beard. Find him in one of the sections below and pick one thing. One good product beats a box of five he'll never open.",
-            "Not sure what he uses? Jump to the last section. A gift card is the one grooming gift that always fits.",
+            "Not sure what he uses? Start with the beard oil or the SPF moisturizer. Between them, they suit almost anyone.",
         ],
         "sections": [
             ("For the beard guy", "A beard looks better soft and shaped than long and wiry. Oil is the daily step, and a balm adds hold for fuller beards. In Florida humidity, lighter oils work best, and a few drops after a shower is plenty.", [10, 4]),
             ("For the pomade guy", "If his hair has a part or a slick-back, he needs shine and medium hold. These two cover the classic finish and a signature scent people notice.", [2, 3]),
             ("For the textured, matte look", "Crops, textured tops and messy-on-purpose styles look best with a matte product. Clay gives real hold; powder adds lift without weight.", [1, 13]),
-            ("For the guy who skips sunscreen", "Sarasota sun shows up on a man's face first. A daily moisturizer with SPF is the easiest habit to give him, and it pairs well with a Gentleman's Facial.", [16]),
-            ("For upkeep between cuts", "A good body trimmer keeps things tidy between appointments. Waterproof, with guards for different lengths, so it works in the shower.", [9]),
+            ("For the guy who skips sunscreen", "Sarasota sun shows up on a man's face first. A daily moisturizer with SPF is the easiest habit to give him, and one he'll notice working.", [16]),
+            ("For upkeep between cuts", "A good body trimmer keeps things tidy between haircuts. Waterproof, with guards for different lengths, so it works in the shower.", [9]),
         ],
         "faq": [
-            ("What's a good grooming gift if I don't know his routine?", "A gift card for a service is the safest choice, because Susy matches the cut, color or facial to him in person. If you'd rather give a product, beard oil (for a bearded guy) or an SPF moisturizer suits almost anyone."),
-            ("Does The Q Salon sell gift cards?", "Yes. Gift cards start at $50 and are good for any service: the Classic Haircut ($60), Executive Haircut ($80), Skin Fade ($80), Gentleman's Facial ($75) or Natural Look Color & Style ($130). Buy them online through SQUIRE."),
+            ("What's a good grooming gift if I don't know his routine?", "Pick something that doesn't depend on his haircut: beard oil for a bearded guy, or a daily SPF moisturizer for almost anyone else. Both get used every day."),
             ("Where do I buy the products on this list?", "Each pick links to Amazon, where you'll see the current price and delivery dates. Order early in December for holiday delivery."),
         ],
     },
 ]
+
+# Cards for the homepage and journal index, newest first.
+ARTICLES = [{"path": p["path"], "kicker": p["eyebrow"].split(" · ")[0], "title": p["h1"], "lede": p["lede"], "date": p["date"]} for p in BLOG_POSTS] + [
+    {"path": "grooming-guide.html", "kicker": "Grooming guide", "title": "Eight grooming habits worth keeping.",
+     "lede": "Fades, styling products, gray blending, razor bumps and beard care in Florida humidity.", "date": None},
+]
+
+def post_cards(items, lead=True):
+    out = []
+    for i, a in enumerate(items):
+        meta = f' · {nice_date(a["date"])}' if a["date"] else ""
+        cls = "post lead" if lead and i == 0 else "post"
+        out.append(f'<a class="{cls}" href="{a["path"]}"><span class="k">{esc(a["kicker"])}{meta}</span><h3>{esc(a["title"])}</h3>'
+                   f'<p>{esc(a["lede"])}</p><span class="more">Read the article {ARR}</span></a>')
+    return f'<div class="posts">{"".join(out)}</div>'
 
 def blog_cards(slots):
     by_slot = {p["slot"]: p for p in AFFILIATE}
@@ -1056,54 +548,105 @@ def blog_post(p):
     toc = "".join(f'<p style="margin-top:10px"><a class="link" href="#s-{i}">{esc(h)}</a></p>' for i, (h, _, _) in enumerate(p["sections"], 1))
     article = {"@context": "https://schema.org", "@type": "BlogPosting", "headline": p["title"], "description": p["meta"],
                "datePublished": p["date"], "dateModified": TODAY, "mainEntityOfPage": url(p["path"]),
-               "image": B["site"] + IMG_SHARE, "author": {"@id": SUSY_ID, "@type": "Person", "name": "Susy"},
-               "publisher": {"@id": BIZ_ID}, "inLanguage": "en-US"}
+               "image": B["site"] + IMG_SHARE, "author": author(),
+               "publisher": {"@id": ORG_ID}, "inLanguage": "en-US"}
+    related = "".join(f'<a href="{h}">{t}</a>' for h, t in SEO_LINKS if h != p["path"])
     return f"""<section class="page-hero"><div class="wrap"><p class="eyebrow">{esc(p['eyebrow'])}</p><h1>{esc(p['h1'])}</h1>
 <p class="lede">{esc(p['lede'])}</p>
-<div class="acts"><a class="btn" href="{B['book']}" target="_blank" rel="noopener">Give a gift card {ARR}</a><a class="btn btn-line" href="shop.html">See all of Susy's picks</a></div></div></section>
-<section class="sec"><div class="wrap split"><div class="sticky"><div class="side"><p class="eyebrow">In this guide</p>{toc}
-<p style="margin-top:10px"><a class="link" href="#gift-card">The gift card</a></p></div></div>
+{byline(p['date'])}</div></section>
+<section class="sec"><div class="wrap split"><div class="sticky"><div class="side"><p class="eyebrow">In this guide</p>{toc}</div></div>
 <div class="prose">{"".join(f"<p>{esc(x)}</p>" for x in p['intro'])}
 <p class="disclose muted">{AMZ_DISCLOSE} Links open Amazon, where current prices and availability are shown.</p>
 {secs}
-<h2 id="gift-card">The gift that always fits</h2>
-<p>A gift card to The Q Salon covers any service, from a sharp Classic Haircut to the Executive Haircut, a skin fade, natural gray blending or the Gentleman's Facial. Gift cards start at $50 and are redeemed in the salon with Susy, in downtown Sarasota.</p>
-<div class="acts"><a class="btn" href="{B['book']}" target="_blank" rel="noopener">Buy a gift card {ARR}</a></div>
 <h2>Questions</h2><div class="faq">{faq_html}</div>
-<h2>Keep reading</h2><div class="related"><a href="grooming-guide.html">Grooming guide</a><a href="mens-grooming-sarasota.html">Men's grooming in Sarasota</a><a href="mens-facial-sarasota.html">Gentleman's Facial</a><a href="blog.html">All posts</a></div>
+<h2>Keep reading</h2><div class="related">{related}</div>
 </div></div></section>
 {faq_schema(p['faq'])}
 <script type="application/ld+json">{json.dumps(article, ensure_ascii=False)}</script>
-{cta("Fresh cut first, then the products to keep it.")}"""
+{journal_cta()}"""
 
-blog_index = f"""<section class="page-hero"><div class="wrap"><p class="eyebrow">The Q Journal</p><h1>Notes from Susy's chair.</h1>
-<p class="lede">Grooming advice, product picks and seasonal guides for men in Sarasota.</p></div></section>
-<section class="sec"><div class="wrap"><div class="prose">
-{"".join(f'<h2><a href="{p["path"]}">{esc(p["h1"])}</a></h2><p class="muted">{esc(p["eyebrow"])}</p><p>{esc(p["lede"])}</p><p><a class="link" href="{p["path"]}">Read the guide</a></p>' for p in BLOG_POSTS)}
-<h2><a href="grooming-guide.html">Tips from Susy's chair</a></h2><p>Fades, styling products, gray blending, razor bumps and beard care in Florida humidity.</p><p><a class="link" href="grooming-guide.html">Read the grooming guide</a></p>
+blog_index = f"""<section class="page-hero"><div class="wrap"><p class="eyebrow">The Q Journal</p><h1>Notes on men's grooming.</h1>
+<p class="lede">Grooming advice, product picks and seasonal guides for men, written for Florida sun and humidity.</p>
+{byline()}</div></section>
+<section class="sec"><div class="wrap">
+<div class="sec-head"><div><p class="eyebrow">All articles</p><h2>Latest from the journal.</h2></div><p>New guides are added through the year.</p></div>
+{post_cards(ARTICLES)}
+</div></section>
+{shop_section()}"""
+
+# ---------- Home ----------
+home = f"""
+<section class="hero2">
+<figure class="h2-media"><div class="h2-frame">
+{pic(IMG_HERO, "Man with a swept-back men's haircut, natural silver kept, and a sculpted salt-and-pepper beard", 900, 1110, lazy=False)}
+<span class="h2-tag t1"><i></i>01 · Swept-back cut, natural silver kept</span>
+<span class="h2-tag t2"><i></i>02 · Beard sculpted &amp; lined</span>
+<span class="h2-issue">The Q Journal · Issue 2026</span>
+</div></figure>
+<div class="h2-copy"><div class="h2-inner">
+<h1><span class="eyebrow h1-eyebrow">The Q Journal · Men's grooming</span><span class="l"><span>Grooming,</span></span><span class="l"><span>written down</span></span><span class="l"><span><em>properly.</em></span></span></h1>
+<p class="lede">Practical advice on haircuts, beards, skin and styling, plus product picks that earn their place on the shelf.</p>
+<div class="acts"><a class="btn" href="{ARTICLES[0]['path']}">Read the latest guide {ARR}</a><a class="btn btn-line" href="blog.html">Browse the journal</a></div>
+</div></div>
+</section>
+{ticker()}
+<section class="sec" id="latest"><div class="wrap">
+<div class="sec-head"><div><p class="eyebrow">Latest articles</p><h2>From the journal.</h2></div>
+<p>Seasonal guides and practical grooming advice for men.</p></div>
+{post_cards(ARTICLES)}
+<div class="acts"><a class="btn" href="blog.html">All articles {ARR}</a></div>
+</div></section>
+<section class="sec stone" id="guide"><div class="wrap">
+<div class="sec-head"><div><p class="eyebrow">The grooming guide</p><h2>Eight habits, two minutes each.</h2></div>
+<p>The short version of everything in the guide. Tap any one to read it.</p></div>
+<div class="tips">{"".join(f'<a href="grooming-guide.html#tip-{i}"><span>{i:02d}</span><b>{t}</b></a>' for i, (t, _) in enumerate(GUIDE, 1))}</div>
+</div></section>
+{shop_section()}
+<section class="sec"><div class="wrap split"><div><p class="eyebrow">About the journal</p><h2>Useful, not precious.</h2></div>
+<div class="prose"><p>The Q Journal covers the parts of men's grooming that actually make a difference day to day: how a cut grows out, which product suits which hair, and what Florida sun and humidity do to hair, beards and skin.</p>
+<p><a class="link" href="about.html">More about The Q Journal</a></p></div></div></section>
+"""
+
+# ---------- Product picks ----------
+shop = f"""
+<section class="page-hero"><div class="wrap"><p class="eyebrow">Product picks</p><h1>Grooming products worth the shelf space.</h1>
+<p class="lede">Styling, beard, hair-care, skin, fragrance and grooming tools picked by The Q Journal.</p>
+<div class="acts"><a class="btn" href="#picks">See the picks {ARR}</a><a class="btn btn-line" href="mens-grooming-gift-guide.html">Read the gift guide</a></div></div></section>
+{shop_section("Shop by need", "Start with what you need.")}
+<section class="sec" id="picks"><div class="wrap">
+<div class="sec-head"><div><p class="eyebrow">The Q Journal picks</p><h2>What to use day to day</h2></div>
+<p>Pomades, beard care, scalp care, skin care, fragrance and a trimmer for upkeep between haircuts.</p></div>
+<p class="disclose muted">{AMZ_DISCLOSE} Links open Amazon, where current prices and availability are shown.</p>
+{affiliate_grid()}
+</div></section>
+{journal_cta("Not sure which product suits you? The grooming guide and gift guide explain what each one does.")}
+"""
+
+# ---------- About ----------
+about = f"""<section class="page-hero"><div class="wrap"><p class="eyebrow">About</p><h1>About The Q Journal.</h1>
+<p class="lede">The Q Journal is a men's grooming journal: practical advice on haircuts, beards, skin and styling, and product picks for keeping it all in shape.</p>
+<div class="acts"><a class="btn" href="blog.html">Read the journal {ARR}</a><a class="btn btn-line" href="shop.html">See the product picks</a></div></div></section>
+<section class="sec"><div class="wrap split"><div><p class="eyebrow">What we cover</p><h2>The grooming details that matter.</h2></div>
+<div class="prose"><p><strong>Hair.</strong> How cuts grow out, when a fade needs a refresh, how to ask for the haircut you want, and how to keep gray looking natural.</p>
+<p><strong>Beards and skin.</strong> Beard care that works in humidity, how to stop razor bumps, and the sun protection most men skip.</p>
+<p><strong>Products.</strong> Pomades, clays, oils, balms, scalp care and tools, explained by what they do rather than how they're marketed.</p>
+<p><strong>Seasonal guides.</strong> Gift guides and seasonal routines, starting with the <a class="link" href="mens-grooming-gift-guide.html">2026 grooming gift guide</a>.</p>
 </div></div></section>
-{cta()}"""
+<section class="sec stone"><div class="wrap split"><div><p class="eyebrow">How we work</p><h2>Editorial standards.</h2></div>
+<div class="prose"><p><strong>One byline.</strong> Every article is published under a single editorial byline: {BYLINE}.</p>
+<p><strong>Label facts only.</strong> Product descriptions stick to what's on the label and how a product is used. We don't publish prices, star ratings or health claims, because those change and vary from person to person.</p>
+<p><strong>Affiliate links, disclosed.</strong> {AMZ_DISCLOSE} Product links are marked and open Amazon, where current prices and availability are shown.</p>
+<p><strong>Corrections and suggestions.</strong> Spotted something out of date, or want a topic covered? Write to <a class="link" href="mailto:{B['email']}">{B['email']}</a>.</p>
+</div></div></section>
+{journal_cta()}"""
 
-PAGES = [  # (path, <title>, meta description, body, breadcrumb label)
-    ("index.html", "Men's Hair Salon in Sarasota, FL | The Q Salon for Men", "Men's hair salon in downtown Sarasota. Haircuts from $60: classic and executive cuts, skin fades and gray blending by master stylist Susy. Rated 4.9★ on Google.", home, ""),
-    ("about.html", "About Susy, Master Barber · The Q Salon for Men, Sarasota", "Meet Susy, the master barber and stylist behind The Q Salon for Men, a private one-chair men's hair salon on 1st Street in downtown Sarasota since 2021.", about, "About"),
-    ("mens-hair-salon-sarasota.html", "Men's Hair Salon in Sarasota, FL · The Q Salon", "A private men's hair salon in downtown Sarasota: haircuts from $60, skin fades, gray blending and facials, all by master stylist Susy. Book online.", salon, "Men's hair salon"),
-    ("shop.html", "The Q Shop · Men's Grooming Products, Sarasota", "Susy's picks for men's grooming, from pomade and beard oil to scalp care and trimmers, plus gift cards for any service at The Q Salon in Sarasota.", shop, "Shop"),
-    ("mens-haircut-sarasota.html", "Men's Haircuts in Sarasota, FL · From $60 · The Q Salon", "Men's haircuts in downtown Sarasota from $60: scissor cuts, tapers, fades and executive cuts by master stylist Susy at 1415 1st St. Book online in a minute.", haircut, "Men's haircut"),
-    ("skin-fade-sarasota.html", "Skin Fade Sarasota, FL · $80 · The Q Salon", "Skin fades in downtown Sarasota for $80. Low, mid and high fades with a seamless blend. Book online at The Q Salon for Men.", fade, "Skin fade"),
-    ("mens-hair-color-sarasota.html", "Men's Gray Blending & Hair Color Sarasota · The Q", "Men's gray blending in Sarasota: natural-looking color that softens the gray without the dyed look. Natural Look Color & Style, $130, at The Q Salon.", color, "Gray blending"),
-    ("barber-sarasota.html", "Barber Shop in Downtown Sarasota, FL · The Q Salon", "Looking for a barber in Sarasota? Private one-chair men's salon with master stylist Susy. Haircuts from $60, skin fades $80. Book online.", barber, "Barber"),
-    ("executive-haircut-sarasota.html", "Executive Haircut Sarasota · $80 · The Q Salon", "The Executive Haircut in Sarasota: an hour with a master stylist and extra detail work, $80. Book online at The Q Salon for Men.", executive, "Executive haircut"),
-    ("mens-facial-sarasota.html", "Men's Facial Sarasota · $75 · The Q Salon", "Men's facial in Sarasota: the 45-minute Gentleman's Facial cleanses, exfoliates and hydrates, $75. A men's facial spa service at The Q Salon.", facial, "Men's facial"),
-    ("kids-haircut-sarasota.html", "Kids' Haircut Sarasota · $30 · The Q Salon", "Calm kids' haircuts in Sarasota for boys under 12, $30. One chair, no crowd. Book father-and-son appointments online.", kids, "Kids' haircut"),
-    ("mens-grooming-sarasota.html", "Men's Grooming Sarasota · The Q Salon for Men", "Men's grooming in Sarasota: haircuts, fades, gray blending, facials and products from one master stylist. Book online.", grooming, "Men's grooming"),
-    ("mens-haircut-lido-key.html", "Men's Haircut Lido Key & St. Armands · The Q", "Men's haircuts for Lido Key and St. Armands, 10 minutes away in downtown Sarasota: cuts, fades and gray blending with master stylist Susy.", lido, "Lido Key & St. Armands"),
-    ("mens-haircut-lakewood-ranch.html", "Men's Haircut Lakewood Ranch · The Q Salon", "Men's haircuts for Lakewood Ranch: precision cuts, skin fades and gray blending with master stylist Susy in downtown Sarasota. Book online.", lwr, "Lakewood Ranch"),
-    ("mens-haircut-siesta-key.html", "Men's Haircut Siesta Key · The Q Salon", "Men's haircuts for Siesta Key: cuts, skin fades and sun-proof gray blending with master stylist Susy, 15 minutes away. Book online.", siesta, "Siesta Key"),
-    ("mens-haircut-longboat-key.html", "Men's Haircut Longboat Key · The Q Salon", "Men's haircuts for Longboat Key: refined cuts, fades and gray blending with master stylist Susy, about 20 minutes away. Book online.", longboat, "Longboat Key"),
-    ("grooming-guide.html", "Men's Grooming Guide · Tips from a Sarasota Barber", "Practical men's grooming tips from Sarasota master stylist Susy: fades, styling products, gray blending, razor bumps and beard care.", guide, "Grooming guide"),
-    ("blog.html", "The Q Journal · Men's Grooming Blog, Sarasota", "Grooming advice, product picks and seasonal guides from Susy, master barber at The Q Salon for Men in downtown Sarasota.", blog_index, "Journal"),
-] + [(p["path"], p["title"], p["meta"], blog_post(p), p["crumb"]) for p in BLOG_POSTS]
+PAGES = [  # (path, <title>, meta description, body, breadcrumb label, og:type)
+    ("index.html", "The Q Journal · Men's Grooming Journal: Haircuts, Beards, Skin & Product Picks", "The Q Journal is a men's grooming journal with practical advice on haircuts, beards, skin and styling, seasonal gift guides and editorial product picks.", home, "", "website"),
+    ("blog.html", "The Q Journal · All Men's Grooming Articles", "Every article from The Q Journal: men's grooming advice, seasonal guides and product picks for haircuts, beards, skin and styling.", blog_index, "Journal", "website"),
+    ("grooming-guide.html", "Men's Grooming Guide: Eight Habits Worth Keeping · The Q Journal", GUIDE_META, guide, "Grooming guide", "article"),
+    ("shop.html", "Product Picks · Men's Grooming Products · The Q Journal", "The Q Journal's men's grooming product picks: pomade, clay, beard oil, scalp care, SPF moisturizer, fragrance and trimmers, with affiliate links disclosed.", shop, "Product picks", "website"),
+    ("about.html", "About The Q Journal · A Men's Grooming Journal", "About The Q Journal: what the men's grooming journal covers, how product picks are chosen and how affiliate links are disclosed.", about, "About", "website"),
+] + [(p["path"], p["title"], p["meta"], blog_post(p), p["crumb"], "article") for p in BLOG_POSTS]
 
 # IndexNow key (Bing, Yandex, Seznam...). Public by design: the key file is served at /<key>.txt.
 INDEXNOW_KEY = "7f3c9a1e5b2d4c8e9a6f0b1d2e3c4a5b"
@@ -1112,55 +655,56 @@ AI_BOTS = ["GPTBot", "OAI-SearchBot", "ChatGPT-User", "ClaudeBot", "Claude-Searc
            "Perplexity-User", "Google-Extended", "Applebot", "Applebot-Extended", "Bingbot", "DuckAssistBot", "meta-externalagent", "Amazonbot"]
 
 def llms_txt():
-    svc = "\n".join(f"- [{n}]({B['site']}/{SERVICE_PAGE[n]}): ${p}, about {t}. {d}" for n, t, p, d in SERVICES)
-    pages = "\n".join(f"- [{label or 'Home'}]({url(p)}): {d}" for p, _, d, _, label in PAGES)
-    faq = "\n".join(f"- **{q}** {a}" for q, a in HOME_FAQ)
+    pages = "\n".join(f"- [{label or 'Home'}]({url(p)}): {d}" for p, _, d, _, label, _ in PAGES)
+    arts = "\n".join(f"- [{a['title']}]({url(a['path'])})" + (f" (published {a['date']})" if a["date"] else "") for a in ARTICLES)
     return f"""# {B['name']}
 
-> Private, appointment-only men's hair salon in downtown Sarasota, Florida. One chair: every haircut, skin fade, gray blending, facial and kids' cut is done by Susy, a master barber and stylist with 10+ years of experience. Rated {B['rating']} stars on Google ({B['review_count']} reviews).
+> {B['tagline']} at {B['site']}/: practical advice on haircuts, beards, skin and styling, seasonal guides, and editorial product picks. Articles are published under the "{BYLINE}" byline.
 
 ## Key facts
-- Name: {B['name']} (also "The Q Salon", "The Q")
-- Type: men's hair salon (Google categories: Hair salon primary, Barber shop, Facial spa)
-- Address: {ADDR}, USA (downtown Sarasota, near Main Street and Five Points)
-- Phone: {B['phone']} (calls answered by the front desk, which texts the booking link)
-- Email: {B['email']}
-- Hours: Monday–Friday, 9:00 AM–2:00 PM, by appointment only. Closed Saturday and Sunday.
-- Booking: online only through SQUIRE at {B['book']} (shortcut: {B['site']}/book)
-- Stylist: Susy, master barber & stylist, 10+ years. She is the only stylist.
-- Opened: November 2021
-- Areas served: Sarasota, Downtown Sarasota, Lido Key, St. Armands, Siesta Key, Longboat Key, Lakewood Ranch, Sarasota County
+- Name: {B['name']}
+- Type: men's grooming journal (editorial site)
+- Byline: {BYLINE}
 - Website: {B['site']}/
-- Google Maps: {B['maps']}
-- Instagram: {B['instagram']}
+- Journal index: {B['site']}/blog
+- RSS: {B['site']}/feed.xml
+- Editorial contact: {B['email']}
+- Product picks: {len(AFFILIATE)} grooming products linked to Amazon. Disclosure: "{AMZ_DISCLOSE}"
 
-## Services and prices
-{svc}
-- Gift cards: from $50, good for any service.
-- Shop: "Susy's picks", {len(AFFILIATE)} grooming products linked to Amazon (affiliate links, disclosed on the page).
-- Blog: {B['site']}/blog (grooming advice and seasonal guides, including the men's grooming gift guide).
-
-## Frequently asked
-{faq}
+## Articles
+{arts}
 
 ## Pages
 {pages}
 """
 
+def feed_xml():
+    items = "".join(
+        f"<item><title>{esc(a['title'])}</title><link>{url(a['path'])}</link><guid>{url(a['path'])}</guid>"
+        f"<description>{esc(a['lede'])}</description>"
+        + (f"<pubDate>{datetime.date.fromisoformat(a['date']).strftime('%a, %d %b %Y')} 12:00:00 +0000</pubDate>" if a["date"] else "")
+        + "</item>" for a in ARTICLES)
+    return (f'<?xml version="1.0" encoding="UTF-8"?><rss version="2.0"><channel><title>{B["name"]}</title>'
+            f'<link>{B["site"]}/</link><description>{B["tagline"]}</description><language>en-us</language>{items}</channel></rss>')
+
 if __name__ == "__main__":
     os.makedirs("dist", exist_ok=True)
-    for path, title, desc, body, crumb in PAGES:
-        open(f"dist/{path}", "w").write(page(path, title, desc, body, crumb))
+    for path, title, desc, body, crumb, og_type in PAGES:
+        open(f"dist/{path}", "w").write(page(path, title, desc, body, crumb, og_type))
+    for slug in RETIRED:   # retired pages must not exist as files, or Netlify serves them instead of the redirect
+        if os.path.exists(f"dist/{slug}.html"):
+            os.remove(f"dist/{slug}.html")
     urls = "".join(f"<url><loc>{url(p)}</loc><lastmod>{TODAY}</lastmod></url>" for p, *_ in PAGES)
     open("dist/sitemap.xml", "w").write(f'<?xml version="1.0" encoding="UTF-8"?><urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">{urls}</urlset>')
+    open("dist/feed.xml", "w").write(feed_xml())
     bots = "".join(f"User-agent: {b}\nAllow: /\n\n" for b in AI_BOTS)
     open("dist/robots.txt", "w").write(f"# Search engines and AI assistants are welcome to read and cite this site.\n{bots}User-agent: *\nAllow: /\n\nSitemap: {B['site']}/sitemap.xml\n")
     open("dist/llms.txt", "w").write(llms_txt())
     open(f"dist/{INDEXNOW_KEY}.txt", "w").write(INDEXNOW_KEY)
-    open("dist/_redirects", "w").write(
-        "".join(f"{src} {dst} 301\n" for src, dst in LEGACY_REDIRECTS.items()) + "/book " + B['book'] + " 302\n")
+    open("dist/_redirects", "w").write(redirects())
     open("dist/_headers", "w").write(
         "/assets/*\n  Cache-Control: public, max-age=31536000, immutable\n"
         "/*\n  X-Content-Type-Options: nosniff\n  Referrer-Policy: strict-origin-when-cross-origin\n"
-        "/llms.txt\n  Content-Type: text/plain; charset=utf-8\n")
+        "/llms.txt\n  Content-Type: text/plain; charset=utf-8\n"
+        "/feed.xml\n  Content-Type: application/rss+xml; charset=utf-8\n")
     print("built", len(PAGES), "pages")

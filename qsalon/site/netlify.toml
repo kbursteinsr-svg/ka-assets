@@ -1,4 +1,4 @@
-# Netlify settings for theqsalonsrq.com (site tranquil-yeot-e8ab44).
+# Netlify settings for theqsalonsrq.com. Live project is now the-q-journal (SBC team), deployed via API; this file only matters to the old tranquil-yeot-e8ab44 project.
 # Production deploys come from the `qsalon-live` branch; base directory = qsalon/site.
 # No build step: build.py output is committed in dist/.
 [build]

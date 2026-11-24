@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Builds optimized image assets for theqsalonsrq.com from the two source photos.
+"""Builds optimized image assets for theqsalonsrq.com (The Q Journal) from the hero source photo.
 Run once after replacing a source photo: python3 make_assets.py [fontdir]
 Outputs into dist/assets/ (descriptive SEO filenames, WebP + JPEG, OG share image, favicons)."""
 import os, sys
@@ -18,10 +18,7 @@ def save_pair(im, base, width, q=78):
     return im.size
 
 hero = Image.open(f"{A}/hero-gent.jpg")
-susy = Image.open(f"{A}/susy.jpg")
 print("hero", save_pair(hero, "mens-haircut-sarasota-silver-swept-back", 900))
-print("susy", save_pair(susy, "susy-master-barber-sarasota", 800))
-save_pair(susy, "susy-master-barber-sarasota-thumb", 120, q=80)
 
 # ---- 1200x630 share image: photo left, navy panel right ----
 W, H = 1200, 630
@@ -38,14 +35,14 @@ disp = ImageFont.truetype(f"{FONTS}/Marcellus-Regular.ttf", 64)
 mono = ImageFont.truetype(f"{FONTS}/DMMono-Medium.ttf", 22)
 body = ImageFont.truetype(f"{FONTS}/HankenGrotesk[wght].ttf", 28)
 x = pw + 70
-d.text((x, 120), "MEN'S GROOMING · SARASOTA", font=mono, fill=BRASS_L)
-d.text((x, 175), "The Q Salon", font=disp, fill=STONE)
-d.text((x, 250), "for Men", font=disp, fill=BRASS_L)
+d.text((x, 120), "A MEN'S GROOMING JOURNAL", font=mono, fill=BRASS_L)
+d.text((x, 175), "The Q", font=disp, fill=STONE)
+d.text((x, 250), "Journal", font=disp, fill=BRASS_L)
 d.line([x, 352, x + 90, 352], fill=BRASS, width=2)
-d.text((x, 380), "Haircuts · Skin fades · Gray blending", font=body, fill=STONE)
-d.text((x, 422), "Every cut by master stylist Susy", font=body, fill=(169, 179, 191))
-d.text((x, 520), "1415 1ST ST · DOWNTOWN SARASOTA", font=mono, fill=BRASS_L)
-og.save(f"{A}/the-q-salon-for-men-sarasota-share.jpg", "JPEG", quality=86, optimize=True)
+d.text((x, 380), "Haircuts · Beards · Skin · Product picks", font=body, fill=STONE)
+d.text((x, 422), "Practical grooming advice for men", font=body, fill=(169, 179, 191))
+d.text((x, 520), "THEQSALONSRQ.COM", font=mono, fill=BRASS_L)
+og.save(f"{A}/the-q-journal-mens-grooming-share.jpg", "JPEG", quality=86, optimize=True)
 
 # ---- favicons: brass Q on navy circle ----
 def mark(size):

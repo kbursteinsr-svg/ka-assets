@@ -1,3 +1,19 @@
+# The Q Journal: current state (updated 2026-11-17)
+
+**theqsalonsrq.com is now The Q Journal, a men's grooming journal.** The salon-site sections below are historical reference only.
+
+- Pages (6): `/` (latest articles), `/blog` (journal index, primary nav item), `/grooming-guide`, `/mens-grooming-gift-guide`, `/shop` (editorial product picks), `/about` (about the journal). Plus `/feed.xml` (RSS) and `/llms.txt`.
+- Byline: every article is published as **The Q Journal**. No personal names, bios, portraits or personal photos.
+- No appointment, booking or gift-card links, widgets or schema anywhere, and no copy inviting readers to book or visit for a service. Do not add a closure notice.
+- Keep the Amazon disclosure text exactly as it is (`AMZ_DISCLOSE` in build.py).
+- Former service and area pages are retired with **302** redirects to `/blog` or `/grooming-guide` (`RETIRED` in build.py), and `/book` goes to `/blog`. To bring them back, restore the earlier build.py and dist/ from git, or roll back to the previous production deploy in Netlify.
+- Share image: `dist/assets/the-q-journal-mens-grooming-share.jpg` (made by make_assets.py; `/assets/*` is cached as immutable, so use a new filename when changing an image).
+- Hosting (moved 2026-11-24): Netlify project **the-q-journal** (site ID `f0be4979-4453-4d12-afb6-936658053c64`) on the **Sarasota Building Company** team (sarasotabuildingcompany@gmail.com). The old project tranquil-yeot-e8ab44 on the KB Digital team no longer holds the domain and is not connected to anything live.
+- Ship: edit build.py, run `python3 build.py` (and `python3 make_assets.py <fonts-dir>` for the share image; fonts are Marcellus, DM Mono and Hanken Grotesk from google/fonts), then deploy `dist/` to the-q-journal with the Netlify API (file-digest deploy). Commit build.py and dist/ to `qsalon-live` with `[skip netlify]` in the message so the old project doesn't build.
+- Product picks come from `qsalon/shop/products.json` (17 Amazon picks, link.amazon short links). Build without that file and the shop renders empty.
+
+---
+
 # The Q Salon for Men: website handoff (for a new chat)
 
 Paste or attach this file in a new chat. It covers everything needed to make small edits and do SEO on **theqsalonsrq.com**.
