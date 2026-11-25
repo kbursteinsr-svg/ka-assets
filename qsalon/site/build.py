@@ -87,18 +87,23 @@ AMZ_DISCLOSE = "As an Amazon Associate, The Q Salon earns from qualifying purcha
 
 # Journal pages, linked from the footer of every page.
 SEO_LINKS = [
-    ("blog.html", "The Q Journal"), ("mens-grooming-gift-guide.html", "Grooming Gift Guide 2026"),
+    ("blog.html", "The Q Journal"), ("what-haircut-should-i-get.html", "What Haircut Should I Get?"),
+    ("what-haircut-do-girls-like.html", "Most Attractive Haircuts for Men"), ("fade-vs-taper-which-is-better.html", "Fade vs Taper"),
+    ("3-2-1-rule-mens-haircuts.html", "The 3-2-1 Haircut Rule"), ("haircuts-for-receding-hairline.html", "Haircuts for a Receding Hairline"),
+    ("toupee-hair-system-guide.html", "Hair Systems & Toupees"), ("mens-grooming-gift-guide.html", "Grooming Gift Guide 2026"),
     ("pomade-vs-clay-vs-gel.html", "Pomade vs Clay vs Gel"), ("beard-oil-vs-beard-balm.html", "Beard Oil vs Beard Balm"),
     ("grooming-guide.html", "The Grooming Guide"), ("shop.html", "Product Picks"), ("about.html", "About the Journal"),
 ]
 
-# Former salon service and area pages -> closest journal page (302 so the change stays reversible).
+# Former salon service and area pages -> closest journal article (301 since Nov 25 2026; the journal direction is settled).
 RETIRED = {
-    "mens-hair-salon-sarasota": "/blog", "barber-sarasota": "/blog", "mens-haircut-sarasota": "/blog",
-    "executive-haircut-sarasota": "/blog", "skin-fade-sarasota": "/grooming-guide", "mens-hair-color-sarasota": "/grooming-guide",
-    "mens-facial-sarasota": "/grooming-guide", "kids-haircut-sarasota": "/blog", "mens-grooming-sarasota": "/grooming-guide",
-    "mens-haircut-lido-key": "/blog", "mens-haircut-lakewood-ranch": "/blog", "mens-haircut-siesta-key": "/blog",
-    "mens-haircut-longboat-key": "/blog",
+    "mens-hair-salon-sarasota": "/what-haircut-should-i-get", "barber-sarasota": "/what-haircut-should-i-get",
+    "mens-haircut-sarasota": "/what-haircut-should-i-get", "executive-haircut-sarasota": "/what-haircut-do-girls-like",
+    "skin-fade-sarasota": "/fade-vs-taper-which-is-better", "mens-hair-color-sarasota": "/grooming-guide",
+    "mens-facial-sarasota": "/grooming-guide", "kids-haircut-sarasota": "/what-haircut-should-i-get",
+    "mens-grooming-sarasota": "/grooming-guide", "mens-haircut-lido-key": "/what-haircut-should-i-get",
+    "mens-haircut-lakewood-ranch": "/what-haircut-should-i-get", "mens-haircut-siesta-key": "/what-haircut-should-i-get",
+    "mens-haircut-longboat-key": "/what-haircut-should-i-get",
 }
 
 def url(path):
@@ -276,6 +281,13 @@ body.menu-open{overflow:hidden}
 
 def head(title, desc, path, crumb, og_type="website"):
     canon = url(path)
+    post = next((p for p in BLOG_POSTS if p["path"] == path), None)
+    art_meta = ""
+    if post:
+        art_meta = (f'<meta property="article:published_time" content="{post["date"]}"><meta property="article:modified_time" content="{TODAY}">'
+                    f'<meta property="article:section" content="{esc(post["eyebrow"].split(" · ")[0])}">'
+                    + "".join(f'<meta property="article:tag" content="{esc(t)}">' for t in post.get("tags", []))
+                    + (f'<meta name="keywords" content="{esc(", ".join(post["tags"]))}">' if post.get("tags") else ""))
     preload = (f'<link rel="preload" as="image" href="/assets/{IMG_HERO}.webp" type="image/webp" fetchpriority="high">'
                if path == "index.html" else "")
     return f"""<title>{title}</title>
@@ -292,6 +304,7 @@ def head(title, desc, path, crumb, og_type="website"):
 <meta property="og:type" content="{og_type}"><meta property="og:url" content="{canon}">
 <meta property="og:image" content="{B['site']}{IMG_SHARE}"><meta property="og:image:width" content="1200"><meta property="og:image:height" content="630">
 <meta property="og:image:alt" content="The Q Journal, a men's grooming journal">
+{art_meta}
 <meta name="twitter:card" content="summary_large_image"><meta name="twitter:title" content="{title}"><meta name="twitter:description" content="{desc}"><meta name="twitter:image" content="{B['site']}{IMG_SHARE}">
 <link rel="alternate" type="text/plain" href="/llms.txt" title="LLM-friendly summary">
 {preload}
@@ -419,30 +432,28 @@ if(ev)(window.gtag||function(){(window.dataLayer=window.dataLayer||[]).push(argu
 
 # Old-site addresses Google still requests, each mapped to the closest current page.
 LEGACY_REDIRECTS = {
-    "/downtown-sarasota-barbershop": "/mens-haircut-sarasota", "/barbershop-sarasota": "/barber-sarasota",
-    "/gallery": "/about", "/contact": "/about", "/how-to-tell-if-hair-stylist-is-good": "/about",
-    "/mens-hair-salon": "/mens-hair-salon-sarasota", "/services": "/",
-    "/mens-haircuts-sarasota": "/mens-haircut-sarasota", "/best-mens-haircut-sarasota": "/mens-haircut-sarasota",
-    "/mens-scissor-cut-sarasota": "/mens-haircut-sarasota", "/mens-mullet-haircut-sarasota": "/mens-haircut-sarasota",
-    "/how-much-should-mens-haircut-cost-sarasota": "/mens-haircut-sarasota", "/mens-haircut-venice": "/mens-haircut-sarasota",
-    "/executive-haircuts-sarasota": "/executive-haircut-sarasota",
-    "/mens-fade-haircut-sarasota": "/skin-fade-sarasota", "/fade-haircuts-sarasota": "/skin-fade-sarasota",
-    "/fade-vs-taper-which-is-better": "/skin-fade-sarasota", "/styles/low-taper": "/skin-fade-sarasota",
-    "/beard-grooming-sarasota": "/mens-grooming-sarasota", "/beard-trim-sarasota": "/mens-grooming-sarasota",
-    "/hot-towel-shave-sarasota": "/mens-grooming-sarasota", "/scalp-treatments-men-sarasota": "/mens-grooming-sarasota",
-    "/luxury-mens-grooming-sarasota": "/mens-grooming-sarasota", "/mens-grooming-salon-downtown-sarasota": "/mens-grooming-sarasota",
-    "/mens-spa-sarasota": "/mens-facial-sarasota",
-    "/journal": "/blog","/what-haircut-should-i-get": "/grooming-guide",
-    "/what-haircut-do-girls-like": "/grooming-guide", "/3-2-1-rule-mens-haircuts": "/grooming-guide",
+    "/downtown-sarasota-barbershop": "/what-haircut-should-i-get", "/barbershop-sarasota": "/what-haircut-should-i-get",
+    "/gallery": "/blog", "/contact": "/about", "/how-to-tell-if-hair-stylist-is-good": "/what-haircut-should-i-get",
+    "/mens-hair-salon": "/what-haircut-should-i-get", "/services": "/blog",
+    "/mens-haircuts-sarasota": "/what-haircut-should-i-get", "/best-mens-haircut-sarasota": "/what-haircut-do-girls-like",
+    "/mens-scissor-cut-sarasota": "/what-haircut-should-i-get", "/mens-mullet-haircut-sarasota": "/fade-vs-taper-which-is-better",
+    "/how-much-should-mens-haircut-cost-sarasota": "/what-haircut-should-i-get", "/mens-haircut-venice": "/what-haircut-should-i-get",
+    "/executive-haircuts-sarasota": "/what-haircut-do-girls-like",
+    "/mens-fade-haircut-sarasota": "/fade-vs-taper-which-is-better", "/fade-haircuts-sarasota": "/fade-vs-taper-which-is-better",
+    "/styles/low-taper": "/fade-vs-taper-which-is-better", "/styles": "/what-haircut-should-i-get", "/team": "/about",
+    "/beard-grooming-sarasota": "/beard-oil-vs-beard-balm", "/beard-trim-sarasota": "/beard-oil-vs-beard-balm",
+    "/hot-towel-shave-sarasota": "/grooming-guide", "/scalp-treatments-men-sarasota": "/haircuts-for-receding-hairline",
+    "/luxury-mens-grooming-sarasota": "/grooming-guide", "/mens-grooming-salon-downtown-sarasota": "/grooming-guide",
+    "/mens-spa-sarasota": "/grooming-guide", "/journal": "/blog",
 }
 
 def redirects():
     """Legacy URLs (301) resolved through RETIRED, retired pages and /book (302, reversible)."""
     def final(dst): return RETIRED.get(dst.lstrip("/"), dst)
-    lines = [f"{src} {final(dst)} {302 if dst.lstrip('/') in RETIRED else 301}" for src, dst in LEGACY_REDIRECTS.items()]
+    lines = [f"{src} {final(dst)} 301" for src, dst in LEGACY_REDIRECTS.items()]
     for slug, dst in RETIRED.items():
-        lines += [f"/{slug} {dst} 302", f"/{slug}.html {dst} 302"]
-    lines.append("/book /blog 302")
+        lines += [f"/{slug} {dst} 301", f"/{slug}.html {dst} 301"]
+    lines.append("/book /blog 301")
     return "\n".join(lines) + "\n"
 
 def page(path, title, desc, body, crumb="", og_type="website"):
@@ -468,14 +479,14 @@ def author():
 
 # ---------- Grooming guide ----------
 GUIDE = [
-    ("How to tell when your fade needs a refresh", "Run your hand up the side of your head. If you can feel a clear line where short meets long, the blend has grown out. For most men that's around day 14 to 21."),
+    ("How to tell when your fade needs a refresh", "Run your hand up the side of your head. If you can feel a clear line where short meets long, the blend has grown out. For most men that's around day 14 to 21. A taper grows out more slowly: see <a class=\"link\" href=\"fade-vs-taper-which-is-better.html\">fade vs taper</a>."),
     ("The two-minute styling routine", "Towel-dry until damp, work a pea-sized amount of product between your palms until it disappears, then apply back to front. Finish with fingers, not a comb, for natural texture."),
-    ("Pomade, clay or cream?", "Pomade gives shine and slick control. Clay gives matte texture and strong hold for thicker hair. Cream gives light, natural hold for finer hair. If you're not sure, ask whoever cuts your hair what they finished it with."),
+    ("Pomade, clay or cream?", "Pomade gives shine and slick control. Clay gives matte texture and strong hold for thicker hair. Cream gives light, natural hold for finer hair. If you're not sure, ask whoever cuts your hair what they finished it with, or read <a class=\"link\" href=\"pomade-vs-clay-vs-gel.html\">pomade vs clay vs gel</a>."),
     ("Why gray blending beats box dye", "Box dye covers everything in one flat shade and grows out with a hard line. Blending keeps some gray, so regrowth is soft and the result looks like your own hair."),
     ("Protect your color from the Florida sun", "Use a color-safe shampoo, rinse with cool water, and wear a hat on the boat or beach. UV and chlorine are what turn blended color brassy."),
     ("Stop razor bumps", "Exfoliate twice a week, shave with the grain after a warm shower, and finish with a fragrance-free moisturizer. Give irritated areas a few days off the razor before shaving them again."),
     ("Beard care in humidity", "Wash your beard two or three times a week, not daily, and use a few drops of beard oil on damp hair to stop frizz and itch."),
-    ("How to ask for the haircut you want", "Bring a photo, say how you style it day to day, and tell your stylist how long you go between cuts. That last detail changes how a cut should be built."),
+    ("How to ask for the haircut you want", "Bring a photo, say how you style it day to day, and tell your stylist how long you go between cuts. That last detail changes how a cut should be built. Not sure what to ask for? Start with <a class=\"link\" href=\"what-haircut-should-i-get.html\">what haircut should I get</a>."),
 ]
 GUIDE_TITLE = "The grooming guide: eight habits worth keeping"
 GUIDE_META = "Practical men's grooming tips from The Q Journal: fades, styling products, gray blending, razor bumps and beard care in Florida humidity."
@@ -499,7 +510,8 @@ guide = f"""<section class="page-hero"><div class="wrap"><p class="eyebrow">Groo
 BLOG_POSTS = [
     {
         "path": "pomade-vs-clay-vs-gel.html",
-        "title": "Pomade vs Clay vs Gel vs Powder: Which Men's Hair Product to Use · The Q Journal",
+        "title": "Pomade vs Clay vs Gel vs Powder: Which to Use for Your Hair · The Q Journal",
+        "tags": ["pomade vs clay", "hair clay vs pomade", "pomade vs gel", "best hair product for men", "styling powder", "best pomade for men"],
         "meta": "Pomade, clay, gel or styling powder? How each men's hair product holds, how it finishes, which haircuts it suits, and what holds up best in Florida humidity.",
         "crumb": "Pomade vs clay vs gel",
         "eyebrow": "Styling · How to choose",
@@ -526,7 +538,8 @@ BLOG_POSTS = [
     },
     {
         "path": "beard-oil-vs-beard-balm.html",
-        "title": "Beard Oil vs Beard Balm: Which One You Need (and When to Use Both) · The Q Journal",
+        "title": "Beard Oil vs Beard Balm: Which One You Need · The Q Journal",
+        "tags": ["beard oil vs beard balm", "beard balm", "beard oil", "how to use beard oil", "beard care"],
         "meta": "Beard oil or beard balm? What each one does, which beard length needs which, how to use them together, and what works in hot, humid weather.",
         "crumb": "Beard oil vs balm",
         "eyebrow": "Beard care · How to choose",
@@ -551,7 +564,8 @@ BLOG_POSTS = [
     },
     {
         "path": "mens-grooming-gift-guide.html",
-        "title": "Grooming Gifts for Men: The 2026 Gift Guide · The Q Journal",
+        "title": "Best Grooming Gifts for Men 2026: Gift Guide · The Q Journal",
+        "tags": ["grooming gifts for men", "gifts for men 2026", "beard gift set", "men's grooming gift guide"],
         "meta": "Holiday grooming gifts for men from The Q Journal: beard oil, pomade, clay, styling powder, an SPF moisturizer and a body trimmer, sorted by the kind of guy you're shopping for.",
         "crumb": "Gift guide",
         "eyebrow": "Holiday gift guide · 2026",
@@ -576,6 +590,179 @@ BLOG_POSTS = [
     },
 ]
 
+# Nov 25 2026: articles written for queries the domain already ranks for in Search Console
+# (old URLs brought back as journal articles, plus two new gaps). Newest first.
+NEW_POSTS = [
+    {
+        "path": "what-haircut-do-girls-like.html",
+        "title": "Most Attractive Haircuts for Men: What Women Actually Notice · The Q Journal",
+        "meta": "The most attractive haircuts for men, and why they work: the textured crop, the classic side part, the low taper and more. What women notice first, and how to ask for it.",
+        "crumb": "Most attractive haircuts",
+        "eyebrow": "Haircuts · What works",
+        "h1": "The most attractive haircuts for men, and what women actually notice.",
+        "lede": "It's rarely the trendiest cut. It's the one that fits your face, looks deliberate and still looks good three weeks later.",
+        "date": "2026-11-25",
+        "tags": ["most attractive haircuts for men", "haircuts women like on men", "attractive hairstyles for men", "textured crop", "side part", "low taper fade"],
+        "intro": [
+            "Ask women what makes a man's haircut attractive and the answers are surprisingly consistent, and they're rarely about a specific style. They notice three things: whether the cut suits his face, whether it looks intentional, and whether it looks clean. A great cut that's grown out shaggy at the neck loses to a simple cut that's sharp.",
+            "So the most attractive haircut isn't one style. It's the version of a few proven styles that fits your hair. Here are the five that come up again and again, what each one says, and how to ask for it.",
+        ],
+        "sections": [
+            ("The textured crop: effortless, modern", "Short, choppy texture on top with a low fade or taper on the sides. It reads relaxed and current without trying too hard, and it's forgiving on thick or wavy hair. Ask for texture on top, about an inch and a half, pushed slightly forward, with a low taper. Style it with a matte clay worked through dry hair with your fingers. Never comb it.", [1, 13]),
+            ("The classic side part: grown-up and polished", "Short sides, enough length on top to comb, and a soft part. It's the cut that looks good in a suit and on a Saturday, which is exactly why it never goes out. Ask for a scissor cut on top, tapered sides and a natural part rather than a shaved line. Finish with a little pomade for a soft shine.", [2]),
+            ("The low taper: clean without being severe", "If one detail separates a sharp haircut from an average one, it's the neckline and the area around the ears. A low taper keeps that tidy while leaving weight on the sides, so it looks clean but not military. It works with almost any length on top and suits men who don't want to see scalp.", []),
+            ("The longer flow: confident, relaxed", "Hair long enough to tuck behind the ears, with shape cut into it so it falls rather than flops. It only works when it's healthy and shaped, so it takes more maintenance than people think: regular trims to keep the ends clean, and a light product so it moves. Grown out with no shape, it reads as neglected.", [7]),
+            ("Short and sharp: the buzz and the crew cut", "Very short works when the shape is good and the edges are crisp. A buzz with a clean line-up, or a crew cut with a little length at the front, looks strong and confident, especially paired with well-kept stubble. It's also the most honest option for thinning hair.", [9]),
+            ("What matters more than the style", "Upkeep. Most cuts look their best for two to three weeks, then the neckline blurs and the shape softens. Book the next cut before that happens. Match the product to the cut, use less than you think, and keep the beard in proportion: a heavy beard with a very short cut looks top-heavy, a tidy beard pulls it together.", [10]),
+        ],
+        "faq": [
+            ("What haircut do women find most attractive on men?", "There's no single winner, but cuts that look clean, deliberate and suited to the face consistently rank well: a textured crop, a classic side part, a low taper and well-kept short cuts such as a crew cut."),
+            ("Do women prefer short or long hair on men?", "Preferences vary, but tidy and well-shaped beats any particular length. Long hair works when it's healthy and shaped; short hair works when the edges are sharp."),
+            ("How often should I get a haircut to keep it looking good?", "Most short and medium cuts look their best for two to four weeks. Fades and tapers need a refresh sooner, around every two to three weeks."),
+        ],
+    },
+    {
+        "path": "3-2-1-rule-mens-haircuts.html",
+        "title": "The 3-2-1 Rule for Men's Haircuts, Explained · The Q Journal",
+        "meta": "What the 3-2-1 haircut rule means: a #3 guard on top, #2 on the sides and #1 at the edges, plus the proportion version barbers use. Lengths, how to ask for it and who it suits.",
+        "crumb": "The 3-2-1 rule",
+        "eyebrow": "Haircuts · Explained",
+        "h1": "The 3-2-1 rule for men's haircuts, explained.",
+        "lede": "Three numbers, one clean graduated cut. Here's what the 3-2-1 rule means, what lengths it leaves, and how to ask for it.",
+        "date": "2026-11-25",
+        "tags": ["3 2 1 rule haircut", "3 2 1 haircut", "3 2 1 fade", "3 2 1 buzz cut", "clipper guard sizes"],
+        "intro": [
+            "The 3-2-1 rule is the simplest way to order a short haircut that still has shape. A #3 clipper guard on top, a #2 on the sides and a #1 around the edges and neckline. Each step is a full guard size, so the result is a soft, graduated taper rather than one flat length all over.",
+            "You'll also hear barbers use 3-2-1 to describe proportion: the top longest, the sides shorter, the neckline shortest. Both versions say the same thing. Length should step down as it moves from the crown to the neck.",
+        ],
+        "sections": [
+            ("What each number leaves", "Clipper guards go up in eighths of an inch. A #1 leaves about 1/8 inch (3 mm), a #2 about 1/4 inch (6 mm) and a #3 about 3/8 inch (9 to 10 mm). So a 3-2-1 cut has roughly three-eighths of an inch on top, stepping down to an eighth at the edges. Short enough to need almost no styling, long enough that you don't see much scalp on top.", []),
+            ("Why it works", "A single-guard buzz looks the same everywhere, which can make the head look rounder and the neckline blunt. Stepping the length down at the sides and edges slims the silhouette and gives the cut a finished look. It also grows out more evenly: by week three it still looks like a haircut, not a fuzzy outline.", []),
+            ("How to ask for it", "Say: \"A 3-2-1. Number 3 on top, 2 on the sides, 1 around the edges and neckline, blended.\" Add whether you want the neckline tapered (natural, softer) or squared off (sharper), and whether you want a line-up at the front. If you want more contrast, ask for a 4-2-1 or a 3-1-0.5.", []),
+            ("Doing it at home", "The 3-2-1 is the easiest structured cut to do yourself. Cut the top with the #3 first, then the sides with the #2, stopping around the temple line, then use the #1 for the bottom inch and around the ears. Flick the clipper outward where the guards meet to soften the line. A quality trimmer handles the edges and neckline between cuts.", [9]),
+            ("Who it suits", "Men who want low-maintenance, anyone in heat and humidity, and men with thinning hair on top, since short, even length makes thinning less noticeable than longer hair. It's less flattering on very round faces unless you keep a little more length on top: a 4-2-1 helps.", [16]),
+        ],
+        "faq": [
+            ("What is the 3-2-1 rule for haircuts?", "A #3 clipper guard on top, a #2 on the sides and a #1 at the edges and neckline, which creates a short, graduated taper. Barbers also use it to describe proportion: longest on top, shorter on the sides, shortest at the neckline."),
+            ("How long does a 3-2-1 haircut leave the hair?", "About 3/8 inch on top, 1/4 inch on the sides and 1/8 inch at the edges."),
+            ("How often does a 3-2-1 need cutting?", "Every two to four weeks. Because it's so short, it loses its shape quickly once the sides grow past the top."),
+        ],
+    },
+    {
+        "path": "what-haircut-should-i-get.html",
+        "title": "What Haircut Should I Get? A Men's Face Shape Guide · The Q Journal",
+        "meta": "Not sure what haircut to get? Match it to your face shape (oval, round, square, long, heart) and your hair type, then use our checklist for asking your barber.",
+        "crumb": "What haircut should I get",
+        "eyebrow": "Haircuts · How to choose",
+        "h1": "What haircut should I get? Start with your face shape.",
+        "lede": "The right cut balances your face. Find your shape, check your hair type, then take this checklist to the chair.",
+        "date": "2026-11-25",
+        "tags": ["what haircut should I get", "men's haircut by face shape", "haircut for oval face men", "haircut for round face men", "haircut for square face men"],
+        "intro": [
+            "The goal of any haircut is balance. A cut adds height where your face needs length and keeps the sides tight where it needs width taken away. So the fastest way to choose is to find your face shape, then pick from the cuts that suit it.",
+            "To check your shape, pull your hair back and look straight into a mirror. Compare the width of your forehead, cheekbones and jaw, and the length of your face from hairline to chin.",
+        ],
+        "sections": [
+            ("Oval: almost anything works", "Slightly longer than wide, with a jaw a little narrower than the forehead. This is the most versatile shape: textured crops, side parts, quiffs and short buzzes all work. The only thing to avoid is heavy fringe that hides the forehead and makes the face look round.", [1]),
+            ("Round: add height, keep the sides tight", "Width and length are similar and the jaw is soft. You want the opposite of round: height on top and short sides. A quiff, a pompadour or a textured top with a mid or high fade all work. Avoid blunt fringes and cuts that add width at the ears.", [13, 12]),
+            ("Square: show off the jaw", "A strong, angular jawline and a broad forehead. Classic cuts suit you best: a side part, a crew cut, a short textured crop. Keep the sides clean and the top moderate so you don't make the face look boxy. A low taper keeps it sharp without hard lines.", [2]),
+            ("Long or rectangular: don't add more height", "The face is clearly longer than it is wide. Skip tall quiffs and very short sides, which stretch it further. Keep some length on the sides, try a side part or a fringe swept to one side, and keep the top moderate.", []),
+            ("Heart or diamond: balance a narrow chin", "A wider forehead or cheekbones with a narrower chin. Medium length with texture works, as does a side-swept fringe. A beard is a strong move here: it adds width at the jaw and evens out the shape.", [10]),
+            ("Your hair type narrows it down", "Thick hair suits short sides and textured tops, because it gets bulky fast. Fine hair looks fuller cut shorter with texture, styled with powder rather than heavy pomade. Curly hair needs length left on top and a cut built around the curl, usually with a scissor cut rather than clippers. Thinning hair looks best kept short and even.", [7]),
+            ("The checklist to take to the chair", "Bring two photos of the cut on someone with hair like yours. Say how you style it on a normal day and how long you go between cuts, because a cut built for weekly trims grows out differently from one built for six weeks. Tell them where you part your hair, and whether you want the neckline tapered or squared.", []),
+        ],
+        "faq": [
+            ("How do I know my face shape?", "Pull your hair back and compare the width of your forehead, cheekbones and jaw with the length of your face. Similar width and length is round; longer than wide is oval or long; a strong, wide jaw is square."),
+            ("What's the best haircut for a round face?", "Cuts with height on top and short sides, such as a quiff or a textured top with a mid fade, make a round face look longer."),
+            ("What haircut suits every face shape?", "A short textured crop with a low taper is the safest all-rounder, because the length can be adjusted on top to add or reduce height."),
+        ],
+    },
+    {
+        "path": "fade-vs-taper-which-is-better.html",
+        "title": "Fade vs Taper: The Difference and Which One to Ask For · The Q Journal",
+        "meta": "Fade vs taper haircut: what's the difference, low vs mid vs high, skin fades and the low taper fade, how each grows out, and exactly what to say to your barber.",
+        "crumb": "Fade vs taper",
+        "eyebrow": "Haircuts · The difference",
+        "h1": "Fade vs taper: the difference, and which one to ask for.",
+        "lede": "Both get shorter toward the neck. A taper does it softly, a fade takes it down to the skin. Here's how to choose.",
+        "date": "2026-11-25",
+        "tags": ["fade vs taper", "low taper fade", "taper fade", "skin fade", "low fade", "mid fade", "high fade"],
+        "intro": [
+            "A taper and a fade both shorten the hair gradually as it moves down the sides and back. The difference is how far they go. A taper leaves some hair at the bottom and keeps the change subtle, usually only at the sideburns and neckline. A fade blends all the way down to very short or bare skin, with a more dramatic contrast.",
+            "Quick answer: want clean but conservative, ask for a taper. Want sharp and modern, ask for a fade. Not sure, ask for a low taper fade, the in-between that's become one of the most requested cuts.",
+        ],
+        "sections": [
+            ("The taper: subtle and grown-up", "A taper keeps most of the length on the sides and only shortens the edges: the neckline and around the ears. It looks tidy in a boardroom and grows out gracefully, so it can go four weeks between cuts. It suits longer styles, side parts and anyone who doesn't want visible scalp.", [2]),
+            ("The fade: sharp contrast", "A fade takes the sides down to very short or skin, blending upward into the longer top. The higher it starts, the bolder it looks. It's crisp and modern but shows growth fast, so most fades need a touch-up every two to three weeks to stay sharp.", [1]),
+            ("Low, mid and high", "Height is where the shortest part stops. A low fade stays just above the ear and neckline and is the most versatile. A mid fade starts around the temple and suits most textured tops. A high fade climbs toward the crown for maximum contrast, and works best with short or very structured tops.", []),
+            ("Skin, bald and drop fades", "A skin or bald fade goes down to bare skin at the bottom. A drop fade curves down behind the ear toward the nape, following the head's shape. A burst fade fans out around the ear and leaves length at the back, which is the cut often paired with a modern mullet.", []),
+            ("The low taper fade", "It's exactly what it sounds like: a fade kept low and tight to the edges like a taper. You get the clean, sharp outline of a fade around the ears and neckline, with the weight of a taper on the sides. Ask for it with a textured crop or a longer top.", [13]),
+            ("What to say in the chair", "Name the type and height, then the shortest length: \"Low taper, finish at a 1 at the neckline,\" or \"Mid skin fade, blend into a 3, scissor on top.\" Say whether you want a natural or squared neckline, and how long you usually go between cuts, so it's built to grow out well.", [9]),
+        ],
+        "faq": [
+            ("What's the difference between a fade and a taper?", "A taper shortens the hair subtly at the neckline and sideburns and leaves some length. A fade blends down to very short or bare skin, with more contrast."),
+            ("Which lasts longer, a fade or a taper?", "A taper. It grows out more gradually and can usually go about four weeks, while a fade looks best refreshed every two to three weeks."),
+            ("Is a low taper fade a fade or a taper?", "It's a hybrid: a fade's clean edges kept low and tight around the ears and neckline, with the sides left fuller like a taper."),
+        ],
+    },
+    {
+        "path": "toupee-hair-system-guide.html",
+        "title": "Toupees & Hair Systems for Men: How They Work (2026 Guide) · The Q Journal",
+        "meta": "A straight guide to men's hair systems and toupees: base types (lace, skin, mono), how they're attached, upkeep, how long they last, and the alternatives to consider first.",
+        "crumb": "Hair systems guide",
+        "eyebrow": "Hair loss · Explained",
+        "h1": "Toupees and hair systems for men: how they actually work.",
+        "lede": "The modern toupee is called a hair system, and a good one is undetectable. Here's how they're made, worn and maintained.",
+        "date": "2026-11-25",
+        "tags": ["toupee for men", "men's hair system", "hair replacement for men", "non-surgical hair replacement", "lace hair system"],
+        "intro": [
+            "The word toupee still brings to mind a hairpiece that sits on top of the head and fools no one. Modern hair systems are different. They're made from real or high-grade synthetic hair knotted into a thin base that bonds to the scalp, then cut and blended into your own hair by a stylist. Done well, they're invisible, even up close.",
+            "They're a non-surgical option for men with advanced thinning or a bald area. They don't regrow anything, and they need regular upkeep, so it helps to know what you're signing up for.",
+        ],
+        "sections": [
+            ("The three main base types", "The base is the thin layer the hair is attached to, and it decides how natural the system looks and how long it lasts. Lace bases are breathable and give the most natural hairline, but they're delicate. Skin, or poly, bases look like scalp and are easiest to clean and attach, but are warmer to wear. Mono bases are a sturdier mesh in between. Many systems combine them: lace at the front for the hairline, poly at the back for durability.", []),
+            ("How they're attached", "Most are worn with tape or a liquid adhesive, applied to a cleanly shaved area of the scalp. Tape is easier to remove and reapply; adhesive holds longer. Clip-in systems exist for partial thinning and can be taken off daily. Attachment is usually redone every two to four weeks, when the system is removed, cleaned and the scalp is shaved again.", []),
+            ("How long a system lasts", "It depends on the base and how it's treated. Ultra-thin, most natural-looking bases may last a few months; sturdier bases can last much longer. Sun, salt water, chlorine and heat all shorten the life of the hair, which matters in Florida. Most wearers keep a second system so one can be serviced while the other is worn.", [7]),
+            ("Getting one that looks real", "The hairline, density and color matter most. Ask for slightly lower density than you think you want: real hair isn't uniformly thick, and an overly full system is what gives it away. Have it cut in by someone experienced with hair systems so it blends with the hair at your sides and back, and keep your own hair cut on the same schedule.", []),
+            ("Alternatives to consider first", "If you're thinning rather than bald, there are simpler options. A shorter cut, such as a 3-2-1 or a buzz with a clean line-up, makes thinning far less noticeable. Hair-building fibers fill in thin areas instantly and wash out. For treatment, talk to a dermatologist, who can explain the options and whether they suit you.", [15, 6]),
+        ],
+        "faq": [
+            ("Do hair systems look real?", "A well-made system with a lace front, realistic density and a proper cut-in is very hard to spot. Overly thick density and a poor color match are what make them noticeable."),
+            ("Can you swim with a hair system?", "Yes, with the right adhesive, but salt water and chlorine wear the hair faster. Rinse it with fresh water afterward."),
+            ("How often does a hair system need maintenance?", "Most are removed, cleaned and reattached every two to four weeks, and replaced every few months to a year depending on the base."),
+        ],
+    },
+    {
+        "path": "haircuts-for-receding-hairline.html",
+        "title": "Best Haircuts for a Receding Hairline (and What to Avoid) · The Q Journal",
+        "meta": "The best men's haircuts for a receding hairline: the buzz cut, crew cut, textured crop and short fade, plus the styles that make thinning more obvious and the products that help.",
+        "crumb": "Receding hairline haircuts",
+        "eyebrow": "Haircuts · Thinning hair",
+        "h1": "The best haircuts for a receding hairline, and what to avoid.",
+        "lede": "Fighting a receding hairline with length usually makes it more obvious. Going shorter and adding texture works better.",
+        "date": "2026-11-25",
+        "tags": ["haircuts for receding hairline", "receding hairline haircut", "buzz cut receding hairline", "fade for balding men", "thinning hair men"],
+        "intro": [
+            "When the hairline starts moving back, the instinct is to grow the top longer and cover it. That almost always backfires. Long hair separates and shows the scalp underneath, and a swept-over front draws the eye to exactly what you're hiding.",
+            "The cuts that work do the opposite. They reduce the contrast between the thinner areas and the rest of the head, so the hairline reads as a style choice rather than something to notice.",
+        ],
+        "sections": [
+            ("The buzz cut", "The most confident option. When everything is the same short length, the hairline stops standing out. Pair it with a sharp line-up and some stubble and it reads deliberate. A 3-2-1 gives a buzz more shape than one guard all over.", [9]),
+            ("The crew cut", "A little more length at the front than the back, short tapered sides. It keeps a hint of styling without enough length to separate. Push the front slightly up and forward with a matte product.", [1]),
+            ("The textured crop with a short fringe", "A short, choppy fringe brought forward covers a receding temple naturally, and texture hides thinning better than smooth, flat hair. Keep the fringe short and messy, not a blunt line.", [13]),
+            ("A short fade on the sides", "Tight sides make the top look fuller by contrast. A low or mid fade with a short textured top is one of the most flattering cuts for thinning hair.", []),
+            ("What to avoid", "Comb-overs, long slicked-back styles, which open up the temples, and heavy, shiny pomades that clump hair together and show scalp. Avoid letting it grow long between cuts: thinning hair looks thinnest when it's overdue.", []),
+            ("Products that help", "Matte products and styling powder add grip and fullness without weight. Hair-building fibers fill in thin spots for the day. A gentle, strengthening shampoo keeps the scalp clean. If you want to treat the thinning itself, talk to a dermatologist about the options.", [15, 7, 6]),
+        ],
+        "faq": [
+            ("Should I shave my head if I have a receding hairline?", "Not necessarily. A short buzz or crew cut often looks better than a full shave, but a clean shave suits men with a well-shaped head and a confident style."),
+            ("Do fades work for balding men?", "Yes. A low or mid fade with a short textured top makes the top look fuller by contrast and draws attention away from the temples."),
+            ("Does long hair hide a receding hairline?", "Usually not. Longer hair separates and shows the scalp, and swept-over styles draw attention to the hairline."),
+        ],
+    },
+]
+BLOG_POSTS = NEW_POSTS + BLOG_POSTS
+
 # Cards for the homepage and journal index, newest first.
 ARTICLES = [{"path": p["path"], "kicker": p["eyebrow"].split(" · ")[0], "title": p["h1"], "lede": p["lede"], "date": p["date"]} for p in BLOG_POSTS] + [
     {"path": "grooming-guide.html", "kicker": "Grooming guide", "title": "Eight grooming habits worth keeping.",
@@ -599,7 +786,9 @@ def blog_post(p):
     secs = "".join(f'<h2 id="s-{i}">{esc(h)}</h2><p>{esc(t)}</p>{blog_cards(slots)}' for i, (h, t, slots) in enumerate(p["sections"], 1))
     faq_html = "".join(f'<details><summary>{esc(q)}</summary><p>{esc(a)}</p></details>' for q, a in p["faq"])
     toc = "".join(f'<p style="margin-top:10px"><a class="link" href="#s-{i}">{esc(h)}</a></p>' for i, (h, _, _) in enumerate(p["sections"], 1))
-    article = {"@context": "https://schema.org", "@type": "BlogPosting", "headline": p["title"], "description": p["meta"],
+    words = len(" ".join(p["intro"] + [t for _, t, _ in p["sections"]]).split())
+    article = {"@context": "https://schema.org", "@type": "BlogPosting", "headline": p["h1"], "description": p["meta"],
+               "keywords": ", ".join(p.get("tags", [])), "wordCount": words, "articleSection": p["eyebrow"].split(" · ")[0],
                "datePublished": p["date"], "dateModified": TODAY, "mainEntityOfPage": url(p["path"]),
                "image": B["site"] + IMG_SHARE, "author": author(),
                "publisher": {"@id": ORG_ID}, "inLanguage": "en-US"}
@@ -694,10 +883,10 @@ about = f"""<section class="page-hero"><div class="wrap"><p class="eyebrow">Abou
 {journal_cta()}"""
 
 PAGES = [  # (path, <title>, meta description, body, breadcrumb label, og:type)
-    ("index.html", "The Q Journal · Men's Grooming Journal: Haircuts, Beards, Skin & Product Picks", "The Q Journal is a men's grooming journal with practical advice on haircuts, beards, skin and styling, seasonal gift guides and editorial product picks.", home, "", "website"),
-    ("blog.html", "The Q Journal · All Men's Grooming Articles", "Every article from The Q Journal: men's grooming advice, seasonal guides and product picks for haircuts, beards, skin and styling.", blog_index, "Journal", "website"),
-    ("grooming-guide.html", "Men's Grooming Guide: Eight Habits Worth Keeping · The Q Journal", GUIDE_META, guide, "Grooming guide", "article"),
-    ("shop.html", "Product Picks · Men's Grooming Products · The Q Journal", "The Q Journal's men's grooming product picks: pomade, clay, beard oil, scalp care, SPF moisturizer, fragrance and trimmers, with affiliate links disclosed.", shop, "Product picks", "website"),
+    ("index.html", "The Q Journal: Men's Haircuts, Beard Care & Grooming Product Picks", "Men's grooming, explained: which haircut suits your face, fade vs taper, pomade vs clay, beard care and the products worth buying. Practical guides from The Q Journal.", home, "", "website"),
+    ("blog.html", "Men's Grooming Articles & Haircut Guides · The Q Journal", "Every guide from The Q Journal: men's haircuts by face shape, fades and tapers, hair products, beard care, thinning hair and seasonal gift guides.", blog_index, "Journal", "website"),
+    ("grooming-guide.html", "Men's Grooming Tips: 8 Habits Worth Keeping · The Q Journal", GUIDE_META, guide, "Grooming guide", "article"),
+    ("shop.html", "Best Men's Grooming Products: Pomade, Beard Oil & More · The Q Journal", "The Q Journal's picks for the best men's grooming products: pomade, clay, styling powder, beard oil and balm, scalp care, SPF moisturizer, fragrance and trimmers.", shop, "Product picks", "website"),
     ("about.html", "About The Q Journal · A Men's Grooming Journal", "About The Q Journal: what the men's grooming journal covers, how product picks are chosen and how affiliate links are disclosed.", about, "About", "website"),
 ] + [(p["path"], p["title"], p["meta"], blog_post(p), p["crumb"], "article") for p in BLOG_POSTS]
 
