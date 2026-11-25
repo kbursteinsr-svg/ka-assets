@@ -87,7 +87,7 @@ AMZ_DISCLOSE = "As an Amazon Associate, The Q Salon earns from qualifying purcha
 
 # Journal pages, linked from the footer of every page.
 SEO_LINKS = [
-    ("blog.html", "The Q Journal"), ("what-haircut-should-i-get.html", "What Haircut Should I Get?"),
+    ("blog.html", "The Q Journal"), ("best-pomade-for-men.html", "Best Pomade for Men"), ("what-haircut-should-i-get.html", "What Haircut Should I Get?"),
     ("what-haircut-do-girls-like.html", "Most Attractive Haircuts for Men"), ("fade-vs-taper-which-is-better.html", "Fade vs Taper"),
     ("3-2-1-rule-mens-haircuts.html", "The 3-2-1 Haircut Rule"), ("haircuts-for-receding-hairline.html", "Haircuts for a Receding Hairline"),
     ("toupee-hair-system-guide.html", "Hair Systems & Toupees"), ("mens-grooming-gift-guide.html", "Grooming Gift Guide 2026"),
@@ -593,6 +593,34 @@ BLOG_POSTS = [
 # Nov 25 2026: articles written for queries the domain already ranks for in Search Console
 # (old URLs brought back as journal articles, plus two new gaps). Newest first.
 NEW_POSTS = [
+    {
+        "path": "best-pomade-for-men.html",
+        "title": "Best Pomade for Men, by Hair Type and Hairstyle · The Q Journal",
+        "meta": "How to pick the best pomade for your hair: oil-based vs water-based, hold and shine for thick, fine, curly and gray hair, how much to use, and how to wash it out.",
+        "crumb": "Best pomade for men",
+        "eyebrow": "Styling · Buyer's guide",
+        "h1": "The best pomade for men, matched to your hair type.",
+        "lede": "The right pomade depends on your hair, not the label. Here's how to match base, hold and shine to the hair you actually have.",
+        "date": "2026-11-25",
+        "tags": ["best pomade for men", "mens pomade", "water based vs oil based pomade", "pomade for thick hair", "pomade for fine hair", "styling wax for men"],
+        "intro": [
+            "Pomade has become a catch-all word for men's styling products, which is why choosing one is confusing. The more useful question is what the product is built on. Traditional pomades are oil-based: slick, shiny and re-workable through the day, but slow to wash out. Most modern pomades are water-based: they set firmer, give a cleaner shine and rinse out with one shampoo.",
+            "From there it's two dials: hold (how much the hair stays put) and shine (from matte to wet-look). Match both to your hair type and your haircut, and almost any good pomade will work.",
+        ],
+        "sections": [
+            ("Thick or coarse hair: more grip, real hold", "Thick hair pushes back against light products, so it needs medium-to-strong hold. For a classic, combed look, a pomade with medium hold and high shine keeps a side part or slick-back in place. For a textured look on thick hair, step over to a strong-hold clay pomade with a matte finish instead.", [2, 1]),
+            ("Fine or thin hair: light, matte, no weight", "Heavy, shiny pomades flatten fine hair and can make the scalp show through. Use a matte product with lift rather than gloss, in small amounts. A texturizing powder at the roots adds volume first, and a small amount of clay on top holds the shape.", [13, 1]),
+            ("Wavy or curly hair: define, don't slick", "Curls fight a hard, slicked hold and can go crunchy. A lighter, re-workable pomade worked through damp hair defines the wave without flattening it. Rake it through with fingers rather than a fine comb, and let the hair dry before touching it again.", [3]),
+            ("Gray or wiry hair: tame without the shine overload", "Gray hair often turns coarser and frizzier. A medium-hold pomade calms flyaways and adds a little polish. Keep the shine moderate: very high shine on gray can look greasy rather than sharp.", [2]),
+            ("Need it locked in all day? Use gel instead", "If your style has to survive heat, humidity or a full day outside, a modern alcohol-free gel outholds most pomades. Apply it to damp hair, comb it into place once, and leave it to set.", [12]),
+            ("How much to use, and how to wash it out", "Start with a pea-sized amount, warm it between your palms until it's almost invisible, then work it from the back of the head forward so the front doesn't get the most product. Add more only if the hold isn't there. Water-based pomade rinses out with regular shampoo. Oil-based pomade takes longer: work conditioner into dry hair first, then rinse and shampoo.", []),
+        ],
+        "faq": [
+            ("Is water-based or oil-based pomade better?", "Water-based pomade is easier for most men: it washes out with shampoo and sets firmer. Oil-based pomade stays re-workable all day and suits classic slick styles, but it takes more effort to wash out."),
+            ("What's the best pomade for thick hair?", "A medium-to-strong hold pomade for combed styles, or a strong-hold matte clay for textured styles. Light creams usually won't hold thick hair."),
+            ("Does pomade work in humidity?", "Matte, strong-grip products hold up best in humid weather. High-shine pomades can look greasy by the afternoon, and a gel is the safest choice if the style must last all day."),
+        ],
+    },
     {
         "path": "what-haircut-do-girls-like.html",
         "title": "Most Attractive Haircuts for Men: What Women Actually Notice · The Q Journal",
