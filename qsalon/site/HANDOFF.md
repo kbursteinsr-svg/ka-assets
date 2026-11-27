@@ -3,7 +3,13 @@
 **theqsalonsrq.com is now The Q Journal, a men's grooming journal.** The salon-site sections below are historical reference only.
 
 - Nov 25 2026: added 6 articles from Search Console gaps (what-haircut-do-girls-like, 3-2-1-rule-mens-haircuts, what-haircut-should-i-get, fade-vs-taper-which-is-better, toupee-hair-system-guide, haircuts-for-receding-hairline); rewrote titles/metas, added article tags and keywords; old salon URLs now 301 to the closest article (was 302 to /blog). 14 pages total.
-- Nov 27 2026: magazine visuals. visuals.py holds the editorial photos (AI photo illustrations, captioned as such, hosted on Netlify project q-journal-media and served at /assets/editorial/* through a proxy rule in _redirects), inline SVG charts and diagrams, outbound sources (AAD, Harvard Health, Pinterest) and per-article related links (PLAN). Every new article needs a PLAN entry: hero photo, 1-2 inline visuals, related articles, and sources where it makes a factual or health claim.
+- Nov 27 2026: magazine visuals (Kris asked for pictures, charts and linking on every article). visuals.py holds the editorial photos (AI photo illustrations, captioned as such, hosted on Netlify project q-journal-media and served at /assets/editorial/* through a proxy rule in _redirects), inline charts and diagrams, outbound sources and per-article related links (PLAN).
+  **Every new article must ship with a PLAN entry in visuals.py:**
+  - hero: the best-fitting photo from PHOTOS, preferring an unused one (the "library" entries at the end of PHOTOS are unused). New photos can't be added from a scheduled run; reuse the closest and tell Kris which shot would help.
+  - inline: 1-2 visuals after the right sections: a captioned photo and/or a chart (reuse CHARTS, or add one in the same style: HTML bars via _bars, or simple SVG with large labels, readable at 390px). Every number must come from a page you opened, cited in the caption; qualitative diagrams say they're an editorial guide.
+  - sources: 1-3 authoritative outbound links you opened (dermatology bodies, universities, government, original reports) whenever the article states a fact, figure or health point.
+  - related: 3 fitting existing articles, and add the new article to 1-2 older articles' related lists so links go both ways.
+  - Check the article at 390px and 1280px (Playwright in the Higgsfield sandbox): hero shows, charts readable, related cards have images.
 - Pages (originally 6): `/` (latest articles), `/blog` (journal index, primary nav item), `/grooming-guide`, `/mens-grooming-gift-guide`, `/shop` (editorial product picks), `/about` (about the journal). Plus `/feed.xml` (RSS) and `/llms.txt`.
 - Byline: every article is published as **The Q Journal**. No personal names, bios, portraits or personal photos.
 - No appointment, booking or gift-card links, widgets or schema anywhere, and no copy inviting readers to book or visit for a service. Do not add a closure notice.
