@@ -8,6 +8,7 @@ gift-card links, and no copy inviting readers to visit for a service.
 Former service and area pages are retired with 302 redirects (see RETIRED), so they
 can be brought back by restoring the previous build.py from git."""
 import datetime, json, os, re
+import visuals as V
 
 SITE = {
     "name": "The Q Journal",
@@ -290,6 +291,10 @@ def head(title, desc, path, crumb, og_type="website"):
                     + (f'<meta name="keywords" content="{esc(", ".join(post["tags"]))}">' if post.get("tags") else ""))
     preload = (f'<link rel="preload" as="image" href="/assets/{IMG_HERO}.webp" type="image/webp" fetchpriority="high">'
                if path == "index.html" else "")
+    if path in V.PLAN:
+        og_img, og_w, og_h, og_alt = f"{V.ED}/{V.hero_name(path)}.jpg", 1024, 683, V.PHOTOS[V.hero_name(path)]
+    else:
+        og_img, og_w, og_h, og_alt = IMG_SHARE, 1200, 630, "The Q Journal, a men's grooming journal"
     return f"""<title>{title}</title>
 <meta name="description" content="{desc}">
 <link rel="canonical" href="{canon}">
@@ -302,16 +307,16 @@ def head(title, desc, path, crumb, og_type="website"):
 <meta property="og:site_name" content="{B['name']}"><meta property="og:locale" content="en_US">
 <meta property="og:title" content="{title}"><meta property="og:description" content="{desc}">
 <meta property="og:type" content="{og_type}"><meta property="og:url" content="{canon}">
-<meta property="og:image" content="{B['site']}{IMG_SHARE}"><meta property="og:image:width" content="1200"><meta property="og:image:height" content="630">
-<meta property="og:image:alt" content="The Q Journal, a men's grooming journal">
+<meta property="og:image" content="{B['site']}{og_img}"><meta property="og:image:width" content="{og_w}"><meta property="og:image:height" content="{og_h}">
+<meta property="og:image:alt" content="{esc(og_alt)}">
 {art_meta}
-<meta name="twitter:card" content="summary_large_image"><meta name="twitter:title" content="{title}"><meta name="twitter:description" content="{desc}"><meta name="twitter:image" content="{B['site']}{IMG_SHARE}">
+<meta name="twitter:card" content="summary_large_image"><meta name="twitter:title" content="{title}"><meta name="twitter:description" content="{desc}"><meta name="twitter:image" content="{B['site']}{og_img}">
 <link rel="alternate" type="text/plain" href="/llms.txt" title="LLM-friendly summary">
 {preload}
 <link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Marcellus&family=Hanken+Grotesk:wght@400;500;600&family=DM+Mono:wght@400;500&display=swap">
 <script type="application/ld+json">{schema(path, title, desc, crumb)}</script>
-<style>{CSS}</style>"""
+<style>{CSS}{V.CSS}</style>"""
 
 def esc(t):
     return str(t).replace("&", "&amp;").replace("<", "&lt;").replace(">", "&gt;").replace('"', "&quot;")
@@ -450,7 +455,8 @@ LEGACY_REDIRECTS = {
 def redirects():
     """Legacy URLs (301) resolved through RETIRED, retired pages and /book (302, reversible)."""
     def final(dst): return RETIRED.get(dst.lstrip("/"), dst)
-    lines = [f"{src} {final(dst)} 301" for src, dst in LEGACY_REDIRECTS.items()]
+    lines = [f"/assets/editorial/* {V.MEDIA_ORIGIN}/editorial/:splat 200"]
+    lines += [f"{src} {final(dst)} 301" for src, dst in LEGACY_REDIRECTS.items()]
     for slug, dst in RETIRED.items():
         lines += [f"/{slug} {dst} 301", f"/{slug}.html {dst} 301"]
     lines.append("/book /blog 301")
@@ -492,15 +498,19 @@ GUIDE_TITLE = "The grooming guide: eight habits worth keeping"
 GUIDE_META = "Practical men's grooming tips from The Q Journal: fades, styling products, gray blending, razor bumps and beard care in Florida humidity."
 
 guide_article = {"@context": "https://schema.org", "@type": "Article", "headline": GUIDE_TITLE, "description": GUIDE_META,
-                 "dateModified": TODAY, "mainEntityOfPage": url("grooming-guide.html"), "image": B["site"] + IMG_SHARE,
+                 "dateModified": TODAY, "mainEntityOfPage": url("grooming-guide.html"), "image": B["site"] + f"{V.ED}/{V.hero_name('grooming-guide.html')}.jpg",
                  "author": author(), "publisher": {"@id": ORG_ID}, "inLanguage": "en-US"}
+GUIDE_RELATED = "<!--GUIDE_RELATED-->"
 guide = f"""<section class="page-hero"><div class="wrap"><p class="eyebrow">Grooming guide</p><h1>Eight grooming habits worth keeping.</h1>
 <p class="lede">Simple, practical grooming advice for men: fades, styling, gray blending, skin and beard care in Florida humidity.</p>
 {byline()}</div></section>
+{V.hero_banner("grooming-guide.html")}
 <section class="sec"><div class="wrap split"><div class="sticky"><div class="side"><p class="eyebrow">In this guide</p>
 {"".join(f'<p style="margin-top:10px"><a class="link" href="#tip-{i}">{t}</a></p>' for i, (t, _) in enumerate(GUIDE, 1))}</div></div>
 <div class="prose">{"".join(f'<h2 id="tip-{i}">{t}</h2><p>{b}</p>' for i, (t, b) in enumerate(GUIDE, 1))}
-<h2>Keep reading</h2><div class="related">{"".join(f'<a href="{h}">{t}</a>' for h, t in SEO_LINKS if h != "grooming-guide.html")}</div></div></div></section>
+{V.sources_block("grooming-guide.html")}
+{GUIDE_RELATED}
+<h2>More from the journal</h2><div class="related">{"".join(f'<a href="{h}">{t}</a>' for h, t in SEO_LINKS if h != "grooming-guide.html")}</div></div></div></section>
 <script type="application/ld+json">{json.dumps(guide_article, ensure_ascii=False)}</script>
 {shop_section("Keep it sharp", "Products for the morning routine.")}
 {journal_cta()}"""
@@ -802,7 +812,7 @@ def post_cards(items, lead=True):
     for i, a in enumerate(items):
         meta = f' · {nice_date(a["date"])}' if a["date"] else ""
         cls = "post lead" if lead and i == 0 else "post"
-        out.append(f'<a class="{cls}" href="{a["path"]}"><span class="k">{esc(a["kicker"])}{meta}</span><h3>{esc(a["title"])}</h3>'
+        out.append(f'<a class="{cls}" href="{a["path"]}"><span class="pthumb">{V.thumb(V.hero_name(a["path"]))}</span><span class="k">{esc(a["kicker"])}{meta}</span><h3>{esc(a["title"])}</h3>'
                    f'<p>{esc(a["lede"])}</p><span class="more">Read the article {ARR}</span></a>')
     return f'<div class="posts">{"".join(out)}</div>'
 
@@ -810,26 +820,52 @@ def blog_cards(slots):
     by_slot = {p["slot"]: p for p in AFFILIATE}
     return '<div class="affs">' + "".join(aff_card(by_slot[s]) for s in slots if s in by_slot) + "</div>"
 
+def _art(path):
+    return next((a for a in ARTICLES if a["path"] == path), None)
+
+def read_next(path):
+    a = _art(path)
+    if not a:
+        return ""
+    return (f'<a class="readnext" href="{path}">{V.thumb(V.hero_name(path))}'
+            f'<span><small>Read next</small><b>{esc(a["title"])}</b></span></a>')
+
+def related_cards(paths):
+    cards = "".join(f'<a class="rcard" href="{h}">{V.thumb(V.hero_name(h))}<span>{esc(_art(h)["title"])}</span></a>'
+                    for h in paths if _art(h))
+    return f'<h2>Keep reading</h2><div class="rcards">{cards}</div>' if cards else ""
+
 def blog_post(p):
-    secs = "".join(f'<h2 id="s-{i}">{esc(h)}</h2><p>{esc(t)}</p>{blog_cards(slots)}' for i, (h, t, slots) in enumerate(p["sections"], 1))
+    plan = V.PLAN.get(p["path"], {})
+    inl = plan.get("inline", {})
+    def extra(i):
+        out = "".join(V.render_inline(t) for t in inl.get(i, []))
+        if i == 2 and plan.get("related"):
+            out += read_next(plan["related"][0])
+        return out
+    secs = "".join(f'<h2 id="s-{i}">{esc(h)}</h2><p>{esc(t)}</p>{blog_cards(slots)}{extra(i)}' for i, (h, t, slots) in enumerate(p["sections"], 1))
     faq_html = "".join(f'<details><summary>{esc(q)}</summary><p>{esc(a)}</p></details>' for q, a in p["faq"])
     toc = "".join(f'<p style="margin-top:10px"><a class="link" href="#s-{i}">{esc(h)}</a></p>' for i, (h, _, _) in enumerate(p["sections"], 1))
     words = len(" ".join(p["intro"] + [t for _, t, _ in p["sections"]]).split())
     article = {"@context": "https://schema.org", "@type": "BlogPosting", "headline": p["h1"], "description": p["meta"],
                "keywords": ", ".join(p.get("tags", [])), "wordCount": words, "articleSection": p["eyebrow"].split(" · ")[0],
                "datePublished": p["date"], "dateModified": TODAY, "mainEntityOfPage": url(p["path"]),
-               "image": B["site"] + IMG_SHARE, "author": author(),
-               "publisher": {"@id": ORG_ID}, "inLanguage": "en-US"}
+               "image": {"@type": "ImageObject", "url": B["site"] + f"{V.ED}/{V.hero_name(p['path'])}.jpg", "width": 1024, "height": 683},
+               "author": author(), "publisher": {"@id": ORG_ID}, "inLanguage": "en-US"}
     related = "".join(f'<a href="{h}">{t}</a>' for h, t in SEO_LINKS if h != p["path"])
     return f"""<section class="page-hero"><div class="wrap"><p class="eyebrow">{esc(p['eyebrow'])}</p><h1>{esc(p['h1'])}</h1>
 <p class="lede">{esc(p['lede'])}</p>
 {byline(p['date'])}</div></section>
+{V.hero_banner(p['path'])}
 <section class="sec"><div class="wrap split"><div class="sticky"><div class="side"><p class="eyebrow">In this guide</p>{toc}</div></div>
 <div class="prose">{"".join(f"<p>{esc(x)}</p>" for x in p['intro'])}
 <p class="disclose muted">{AMZ_DISCLOSE} Links open Amazon, where current prices and availability are shown.</p>
+{"".join(V.render_inline(t) for t in inl.get(0, []))}
 {secs}
 <h2>Questions</h2><div class="faq">{faq_html}</div>
-<h2>Keep reading</h2><div class="related">{related}</div>
+{V.sources_block(p['path'])}
+{related_cards(plan.get("related", []))}
+<h2>More from the journal</h2><div class="related">{related}</div>
 </div></div></section>
 {faq_schema(p['faq'])}
 <script type="application/ld+json">{json.dumps(article, ensure_ascii=False)}</script>
@@ -865,6 +901,11 @@ home = f"""
 <p>Seasonal guides and practical grooming advice for men.</p></div>
 {post_cards(ARTICLES)}
 <div class="acts"><a class="btn" href="blog.html">All articles {ARR}</a></div>
+</div></section>
+<section class="sec trendsec"><div class="wrap">
+<div class="sec-head"><div><p class="eyebrow">The numbers</p><h2>What men are searching for.</h2></div>
+<p>Beard fades and softer, textured cuts are the fastest-growing searches of the year. Our <a class="link" href="fade-vs-taper-which-is-better.html">fade vs taper guide</a> explains what to ask for.</p></div>
+{V.trend_chart()}
 </div></section>
 <section class="sec stone" id="guide"><div class="wrap">
 <div class="sec-head"><div><p class="eyebrow">The grooming guide</p><h2>Eight habits, two minutes each.</h2></div>
@@ -913,7 +954,7 @@ about = f"""<section class="page-hero"><div class="wrap"><p class="eyebrow">Abou
 PAGES = [  # (path, <title>, meta description, body, breadcrumb label, og:type)
     ("index.html", "The Q Journal: Men's Haircuts, Beard Care & Grooming Product Picks", "Men's grooming, explained: which haircut suits your face, fade vs taper, pomade vs clay, beard care and the products worth buying. Practical guides from The Q Journal.", home, "", "website"),
     ("blog.html", "Men's Grooming Articles & Haircut Guides · The Q Journal", "Every guide from The Q Journal: men's haircuts by face shape, fades and tapers, hair products, beard care, thinning hair and seasonal gift guides.", blog_index, "Journal", "website"),
-    ("grooming-guide.html", "Men's Grooming Tips: 8 Habits Worth Keeping · The Q Journal", GUIDE_META, guide, "Grooming guide", "article"),
+    ("grooming-guide.html", "Men's Grooming Tips: 8 Habits Worth Keeping · The Q Journal", GUIDE_META, guide.replace(GUIDE_RELATED, related_cards(V.PLAN["grooming-guide.html"]["related"])), "Grooming guide", "article"),
     ("shop.html", "Best Men's Grooming Products: Pomade, Beard Oil & More · The Q Journal", "The Q Journal's picks for the best men's grooming products: pomade, clay, styling powder, beard oil and balm, scalp care, SPF moisturizer, fragrance and trimmers.", shop, "Product picks", "website"),
     ("about.html", "About The Q Journal · A Men's Grooming Journal", "About The Q Journal: what the men's grooming journal covers, how product picks are chosen and how affiliate links are disclosed.", about, "About", "website"),
 ] + [(p["path"], p["title"], p["meta"], blog_post(p), p["crumb"], "article") for p in BLOG_POSTS]
