@@ -29,6 +29,15 @@ PHOTOS = {
     "beard-combing-closeup": "Close-up of a full beard being combed with a wooden comb",
     "clipper-guards-flat-lay": "Clippers with guard combs laid out on a navy leather surface",
     "humid-morning-clay": "A man styling his hair with matte clay in a bathroom mirror on a humid morning",
+    # library for upcoming articles (not yet used on a page)
+    "beard-fade-profile": "Back view of a full beard faded into short sideburns and a skin fade",
+    "salt-and-pepper-gray-hair": "A man in his fifties with natural salt-and-pepper gray hair in a navy blazer",
+    "sunscreen-florida-dock": "A man applying sunscreen moisturizer on a sunny Florida dock",
+    "soft-wolf-cut-street": "A young man with a soft wolf cut haircut in a denim jacket at golden hour",
+    "curly-hair-low-taper": "A man with defined natural curls on top and a low taper on the sides",
+    "wet-shave-tools": "A safety razor, shaving brush, lather bowl and hot towel on a marble counter",
+    "cologne-shelf": "A row of men's cologne bottles on a dark wood shelf with citrus peel and vanilla",
+    "barbershop-interior": "An empty leather barber chair and mirror in a classic navy and brass barbershop",
 }
 
 def photo(name, caption="", cls="ed", lazy=True, sizes="(max-width: 860px) 100vw, 760px"):
