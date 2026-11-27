@@ -57,75 +57,60 @@ TREND_DATA = [("soft wolf cut men", 1154), ("beard fade men", 764), ("italian be
               ("modern wolf cut men", 553), ("curly wolf cut men", 245), ("modern mullet men", 223),
               ("korean two block haircut men", 212)]
 
+def _bars(rows, mx, fmt, hi=0):
+    out = ""
+    for i, (k, v) in enumerate(rows):
+        out += (f'<div class="bar"><span class="bk">{_e(k)}</span><span class="bt"><i style="width:{100*v/mx:.1f}%;'
+                f'background:{BRASS if i < hi else NAVY}"></i></span><b>{fmt(v)}</b></div>')
+    return f'<div class="bars">{out}</div>'
+
 def trend_chart():
-    w, row, left = 640, 40, 230
     mx = max(v for _, v in TREND_DATA)
-    h = row * len(TREND_DATA) + 16
-    bars = ""
-    for i, (k, v) in enumerate(TREND_DATA):
-        y = 8 + i * row
-        bw = (w - left - 70) * v / mx
-        col = BRASS if i < 3 else NAVY
-        bars += (f'<text x="{left-12}" y="{y+22}" text-anchor="end" font-size="14" fill="{INK}">{_e(k)}</text>'
-                 f'<rect x="{left}" y="{y+6}" width="{bw:.0f}" height="24" rx="4" fill="{col}"/>'
-                 f'<text x="{left+bw+8:.0f}" y="{y+23}" font-size="14" font-weight="600" fill="{INK}">+{v:,}%</text>')
-    svg = (f'<svg viewBox="0 0 {w} {h}" role="img" aria-label="Year-over-year growth in Pinterest searches for men\'s haircut and beard styles" '
-           f'font-family="Hanken Grotesk, Arial, sans-serif">{bars}</svg>')
-    return _chart(svg, "What men are searching for: haircut and beard styles, 2026",
-                  "Year-over-year growth in searches on Pinterest.", PINTEREST_2026)
+    return (f'<figure class="chart"><p class="chart-t">What men are searching for: haircut and beard styles, 2026</p>'
+            f'<div role="img" aria-label="Year-over-year growth in Pinterest searches for men\'s haircut and beard styles">'
+            f'{_bars(TREND_DATA, mx, lambda v: f"+{v:,}%", hi=3)}</div>'
+            f'<figcaption>Year-over-year growth in searches on Pinterest. Source: <a href="{PINTEREST_2026[1]}" target="_blank" rel="noopener">{_e(PINTEREST_2026[0])}</a>.</figcaption></figure>')
 
 def hold_shine_chart():
-    w, h, pad = 640, 420, 70
-    pts = [("Styling powder", .10, .38), ("Matte clay", .14, .82), ("Paste", .38, .58),
-           ("Oil-based pomade", .86, .50), ("Water-based pomade", .74, .70), ("Gel", .90, .94)]
+    w, h, pad = 480, 400, 56
+    pts = [("Powder", .08, .36), ("Clay", .10, .80), ("Paste", .40, .56),
+           ("Oil pomade", .88, .46), ("Water pomade", .80, .68), ("Gel", .92, .92)]
     def X(v): return pad + v * (w - pad - 30)
     def Y(v): return h - pad - v * (h - pad - 30)
     g = (f'<rect x="{pad}" y="30" width="{w-pad-30}" height="{h-pad-30}" fill="{STONE}" rx="6"/>'
          f'<line x1="{pad}" y1="{h-pad}" x2="{w-30}" y2="{h-pad}" stroke="{INK}" stroke-width="1.5"/>'
          f'<line x1="{pad}" y1="30" x2="{pad}" y2="{h-pad}" stroke="{INK}" stroke-width="1.5"/>'
-         f'<text x="{(w+pad)/2}" y="{h-pad+40}" text-anchor="middle" font-size="14" fill="{MUTED}">Finish: matte → high shine</text>'
-         f'<text x="22" y="{(h-pad+30)/2}" text-anchor="middle" font-size="14" fill="{MUTED}" transform="rotate(-90 22 {(h-pad+30)/2})">Hold: light → strong</text>')
+         f'<text x="{(w+pad)/2}" y="{h-pad+40}" text-anchor="middle" font-size="17" fill="{MUTED}">Finish: matte → high shine</text>'
+         f'<text x="22" y="{(h-pad+30)/2}" text-anchor="middle" font-size="17" fill="{MUTED}" transform="rotate(-90 22 {(h-pad+30)/2})">Hold: light → strong</text>')
     for name, x, y in pts:
         anchor = "end" if x > .6 else "start"
         dx = -14 if x > .6 else 14
-        g += (f'<circle cx="{X(x):.0f}" cy="{Y(y):.0f}" r="9" fill="{BRASS}" stroke="{NAVY}" stroke-width="2"/>'
-              f'<text x="{X(x)+dx:.0f}" y="{Y(y)+5:.0f}" text-anchor="{anchor}" font-size="15" font-weight="600" fill="{INK}">{name}</text>')
+        g += (f'<circle cx="{X(x):.0f}" cy="{Y(y):.0f}" r="11" fill="{BRASS}" stroke="{NAVY}" stroke-width="2"/>'
+              f'<text x="{X(x)+dx:.0f}" y="{Y(y)+5:.0f}" text-anchor="{anchor}" font-size="19" font-weight="600" fill="{INK}">{name}</text>')
     svg = (f'<svg viewBox="0 0 {w} {h}" role="img" aria-label="Map of men\'s styling products by hold and shine" '
            f'font-family="Hanken Grotesk, Arial, sans-serif">{g}</svg>')
     return _chart(svg, "Hold vs shine: where each styling product sits",
                   "An editorial guide to typical products in each category, not a lab measurement. Individual products vary.")
 
 def guard_chart():
-    data = [("#1 · edges & neckline", 3), ("#2 · sides", 6), ("#3 · top", 9.5)]
-    w, h, base = 640, 300, 240
-    g = ""
-    for i, (k, mm) in enumerate(data):
-        x = 90 + i * 180
-        bh = mm * 18
-        g += (f'<rect x="{x}" y="{base-bh}" width="110" height="{bh}" rx="6" fill="{BRASS if i==2 else NAVY}"/>'
-              f'<text x="{x+55}" y="{base-bh-12}" text-anchor="middle" font-size="16" font-weight="600" fill="{INK}">≈{mm:g} mm</text>'
-              f'<text x="{x+55}" y="{base+26}" text-anchor="middle" font-size="14" fill="{INK}">{_e(k)}</text>')
-    g += f'<line x1="60" y1="{base}" x2="600" y2="{base}" stroke="{INK}" stroke-width="1.5"/>'
-    svg = (f'<svg viewBox="0 0 {w} {h}" role="img" aria-label="Hair length left by clipper guards one, two and three" '
-           f'font-family="Hanken Grotesk, Arial, sans-serif">{g}</svg>')
-    return _chart(svg, "The 3-2-1 rule in millimetres",
-                  "Approximate length each clipper guard leaves. Guard sizes vary slightly by clipper brand.")
+    rows = [("#3 guard · top", 9.5), ("#2 guard · sides", 6), ("#1 guard · edges & neckline", 3)]
+    return (f'<figure class="chart"><p class="chart-t">The 3-2-1 rule in millimetres</p>'
+            f'<div role="img" aria-label="Hair length left by clipper guards three, two and one">{_bars(rows, 10, lambda v: f"≈{v:g} mm", hi=1)}</div>'
+            f'<figcaption>Approximate length each clipper guard leaves. Guard sizes vary slightly by clipper brand.</figcaption></figure>')
 
 def fade_heights():
-    w, h = 640, 360
-    head = ("M250 300 C250 250 235 225 232 190 C228 140 250 70 330 60 C410 52 455 105 455 160 "
-            "C455 185 448 200 452 215 C456 230 470 240 462 252 C455 260 445 258 442 272 C440 290 420 300 400 300 Z")
+    w, h = 520, 330
+    head = ("M120 300 C120 250 105 225 102 190 C98 140 120 70 200 60 C280 52 325 105 325 160 "
+            "C325 185 318 200 322 215 C326 230 340 240 332 252 C325 260 315 258 312 272 C310 290 290 300 270 300 Z")
     g = f'<path d="{head}" fill="{STONE}" stroke="{NAVY}" stroke-width="3"/>'
-    g += f'<ellipse cx="300" cy="200" rx="16" ry="26" fill="none" stroke="{NAVY}" stroke-width="2.5"/>'
-    for y, lab, col in [(235, "Low fade · just above the ear and neckline", NAVY),
-                        (180, "Mid fade · around the temple", BRASS),
-                        (130, "High fade · up toward the crown", NAVY)]:
-        g += (f'<line x1="210" y1="{y}" x2="470" y2="{y}" stroke="{col}" stroke-width="3" stroke-dasharray="8 6"/>'
-              f'<text x="480" y="{y+5}" font-size="14" fill="{INK}">{lab.split(" · ")[0]}</text>'
-              f'<text x="200" y="{y+5}" text-anchor="end" font-size="13" fill="{MUTED}">{lab.split(" · ")[1]}</text>')
+    g += f'<ellipse cx="170" cy="200" rx="16" ry="26" fill="none" stroke="{NAVY}" stroke-width="2.5"/>'
+    for y, lab, col in [(235, "Low", NAVY), (180, "Mid", BRASS), (130, "High", NAVY)]:
+        g += (f'<line x1="80" y1="{y}" x2="350" y2="{y}" stroke="{col}" stroke-width="4" stroke-dasharray="10 7"/>'
+              f'<text x="362" y="{y+8}" font-size="24" font-weight="600" fill="{INK}">{lab}</text>')
     svg = (f'<svg viewBox="0 0 {w} {h}" role="img" aria-label="Where low, mid and high fades start on the head" '
            f'font-family="Hanken Grotesk, Arial, sans-serif">{g}</svg>')
-    return _chart(svg, "Low, mid and high fades: where the shortest part stops", "Side view, face to the right.")
+    return _chart(svg, "Low, mid and high fades: where the shortest part stops",
+                  "Low sits just above the ear and neckline, mid starts around the temple, high climbs toward the crown. Side view, face to the right.")
 
 def face_shapes():
     shapes = [
@@ -243,4 +228,7 @@ CSS = r"""
 .srcs{color:var(--muted);padding-left:20px}.srcs a{color:var(--navy)}
 .post .pthumb{margin:-22px -22px 16px;display:block;overflow:hidden;border-radius:14px 14px 0 0}.post .pthumb img{width:100%;aspect-ratio:3/2;object-fit:cover;display:block;transition:transform .5s}.post:hover .pthumb img{transform:scale(1.03)}
 .trendsec .chart{max-width:780px;margin-inline:auto}
+.bars{display:grid;gap:10px;margin-top:16px}.bar{display:grid;grid-template-columns:minmax(0,13em) 1fr auto;gap:12px;align-items:center;font-size:.92rem;color:var(--ink)}
+.bar .bt{height:22px;background:var(--stone,#f3f0ea);border-radius:5px;overflow:hidden}.bar i{display:block;height:100%;border-radius:5px}.bar b{font-weight:600;min-width:4.5em;text-align:right}
+@media(max-width:560px){.bar{grid-template-columns:1fr auto;row-gap:4px}.bar .bk{grid-column:1/-1}.bar .bt{grid-column:1}}
 """

@@ -180,6 +180,9 @@ body.menu-open{overflow:hidden}
 .srcs{color:var(--muted);padding-left:20px}.srcs a{color:var(--navy)}
 .post .pthumb{margin:-22px -22px 16px;display:block;overflow:hidden;border-radius:14px 14px 0 0}.post .pthumb img{width:100%;aspect-ratio:3/2;object-fit:cover;display:block;transition:transform .5s}.post:hover .pthumb img{transform:scale(1.03)}
 .trendsec .chart{max-width:780px;margin-inline:auto}
+.bars{display:grid;gap:10px;margin-top:16px}.bar{display:grid;grid-template-columns:minmax(0,13em) 1fr auto;gap:12px;align-items:center;font-size:.92rem;color:var(--ink)}
+.bar .bt{height:22px;background:var(--stone,#f3f0ea);border-radius:5px;overflow:hidden}.bar i{display:block;height:100%;border-radius:5px}.bar b{font-weight:600;min-width:4.5em;text-align:right}
+@media(max-width:560px){.bar{grid-template-columns:1fr auto;row-gap:4px}.bar .bk{grid-column:1/-1}.bar .bt{grid-column:1}}
 </style>
 </head><body>
 <header class="top"><div class="wrap top-in">
