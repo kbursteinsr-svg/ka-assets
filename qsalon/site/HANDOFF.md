@@ -154,3 +154,9 @@ Redirects (`_redirects`): `/book` → SQUIRE (302), `/about` and `/gallery` → 
 - To deploy: build into `qsalon/site/dist`, commit to main, then `git push origin main:qsalon-live`.
 - DNS (Squarespace / Google nameservers, unchanged): apex A 75.2.60.5, www CNAME tranquil-yeot-e8ab44.netlify.app. Primary domain www.
 - Old backup-account copy renamed `qsalon-backup-old` (no domain). Safe to delete later.
+
+## Pinterest (Nov 28 2026)
+- Account: @theqjournal (info@theqsalonsrq.com), business account, theqsalonsrq.com claimed (p:domain_verify tag in build.py head()).
+- Zapier Pinterest connection 02f35e70-c947-869b-b392-cdd9d2cd03f4 is the default; pins/boards go through the `_zap_raw_request` action against api.pinterest.com/v5.
+- Boards: Men's Haircuts 2026 226235649970704481 · Fade vs Taper Haircuts 226235649970704483 · Haircuts for Receding Hairline & Thinning Hair 226235649970704484 · Men's Hair Products: Pomade, Clay, Gel 226235649970704485 · Beard Care for Men 226235649970704487 · Men's Grooming Gift Ideas 226235649970704488 · Men's Grooming Charts & Guides 226235649970704489
+- Each new article gets 5 pin designs (1000x1500) linking to the article; 3 pins/day; disclosure in descriptions.
