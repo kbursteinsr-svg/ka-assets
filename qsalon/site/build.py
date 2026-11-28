@@ -300,6 +300,7 @@ def head(title, desc, path, crumb, og_type="website"):
 <link rel="canonical" href="{canon}">
 <meta name="robots" content="index,follow,max-image-preview:large,max-snippet:-1">
 <meta name="google-site-verification" content="Oyvk8JB3buwlR1xI0LaTetfhMwqWsQ4lLCNxpYGI_FI">
+<meta name="p:domain_verify" content="51dfbb893a80de22780ba332161116dd"/>
 <meta name="msvalidate.01" content="546F1A7DB87AE1EE6E4E6560EB0FE698">
 <meta name="theme-color" content="#14202e">
 <link rel="icon" href="/favicon.ico" sizes="any"><link rel="apple-touch-icon" href="/assets/apple-touch-icon.png">
